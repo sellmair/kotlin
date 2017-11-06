@@ -1,3 +1,8 @@
+This is a Kotlin compiler fork that intends to propose Type classes and Higher Kinded Types to Kotlin based on:
+https://github.com/Kotlin/KEEP/pull/87
+
+Please read KEEP-87 and request access to this fork if you'd like to get involved.
+
 [![official project](http://jb.gg/badges/official.svg)](https://confluence.jetbrains.com/display/ALL/JetBrains+on+GitHub)
 <a href="http://slack.kotlinlang.org/"><img src="http://slack.kotlinlang.org/badge.svg" height="20"></a>
 [![TeamCity (simple build status)](https://img.shields.io/teamcity/http/teamcity.jetbrains.com/s/Kotlin_dev_Compiler.svg)](https://teamcity.jetbrains.com/viewType.html?buildTypeId=Kotlin_dev_Compiler&branch_Kotlin_dev=%3Cdefault%3E&tab=buildTypeStatusDiv)

@@ -1712,6 +1712,11 @@ public class LoadJavaUsingJavacTestGenerated extends AbstractLoadJavaUsingJavacT
                 runTest("compiler/testData/loadJava/compiledKotlin/annotations/AnnotationInAnnotationArguments.kt");
             }
 
+            @TestMetadata("ClassLiteralArguments.kt")
+            public void testClassLiteralArguments() throws Exception {
+                runTest("compiler/testData/loadJava/compiledKotlin/annotations/ClassLiteralArguments.kt");
+            }
+
             @TestMetadata("EnumArgumentWithCustomToString.kt")
             public void testEnumArgumentWithCustomToString() throws Exception {
                 runTest("compiler/testData/loadJava/compiledKotlin/annotations/EnumArgumentWithCustomToString.kt");
@@ -4150,6 +4155,11 @@ public class LoadJavaUsingJavacTestGenerated extends AbstractLoadJavaUsingJavacT
                 runTest("compiler/testData/loadJava/compiledKotlin/prop/ExtVarl.kt");
             }
 
+            @TestMetadata("nonConstValWithConstantValueAttribute.kt")
+            public void testNonConstValWithConstantValueAttribute() throws Exception {
+                runTest("compiler/testData/loadJava/compiledKotlin/prop/nonConstValWithConstantValueAttribute.kt");
+            }
+
             @TestMetadata("NsVal.kt")
             public void testNsVal() throws Exception {
                 runTest("compiler/testData/loadJava/compiledKotlin/prop/NsVal.kt");
@@ -4556,6 +4566,11 @@ public class LoadJavaUsingJavacTestGenerated extends AbstractLoadJavaUsingJavacT
             @TestMetadata("ConstValInMultifileClass.kt")
             public void testConstValInMultifileClass() throws Exception {
                 runTest("compiler/testData/loadJava/compiledKotlinWithStdlib/annotations/ConstValInMultifileClass.kt");
+            }
+
+            @TestMetadata("WithUnsignedTypeParameters.kt")
+            public void testWithUnsignedTypeParameters() throws Exception {
+                runTest("compiler/testData/loadJava/compiledKotlinWithStdlib/annotations/WithUnsignedTypeParameters.kt");
             }
         }
 

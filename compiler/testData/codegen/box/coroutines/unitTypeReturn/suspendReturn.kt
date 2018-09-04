@@ -1,4 +1,3 @@
-// IGNORE_BACKEND: JS_IR
 // IGNORE_BACKEND: JVM_IR
 // WITH_RUNTIME
 // WITH_COROUTINES
@@ -12,7 +11,7 @@ var result = "0"
 suspend fun suspendHere(x: Int): Unit {
     if (x == 0) return
     result = "OK"
-    return suspendCoroutineOrReturn { x ->
+    return suspendCoroutineUninterceptedOrReturn { x ->
         x.resume(Unit)
         COROUTINE_SUSPENDED
     }

@@ -6,17 +6,14 @@
 package org.jetbrains.kotlin.ir.backend.js.lower
 
 import org.jetbrains.kotlin.backend.common.DeclarationContainerLoweringPass
-import org.jetbrains.kotlin.descriptors.ValueParameterDescriptor
-import org.jetbrains.kotlin.descriptors.impl.LazyClassReceiverParameterDescriptor
+import org.jetbrains.kotlin.backend.common.ir.copyTo
+import org.jetbrains.kotlin.backend.common.runOnFilePostfix
+import org.jetbrains.kotlin.descriptors.Modality
 import org.jetbrains.kotlin.ir.IrElement
 import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.backend.js.JsIrBackendContext
 import org.jetbrains.kotlin.ir.backend.js.ir.JsIrBuilder
-import org.jetbrains.kotlin.ir.backend.js.symbols.JsSymbolBuilder
-import org.jetbrains.kotlin.ir.backend.js.symbols.initialize
-import org.jetbrains.kotlin.ir.backend.js.utils.Namer
 import org.jetbrains.kotlin.ir.declarations.*
-import org.jetbrains.kotlin.ir.declarations.impl.IrFunctionImpl
 import org.jetbrains.kotlin.ir.expressions.*
 import org.jetbrains.kotlin.ir.expressions.impl.IrCallImpl
 import org.jetbrains.kotlin.ir.expressions.impl.IrGetValueImpl
@@ -24,28 +21,37 @@ import org.jetbrains.kotlin.ir.expressions.impl.IrReturnImpl
 import org.jetbrains.kotlin.ir.symbols.IrConstructorSymbol
 import org.jetbrains.kotlin.ir.symbols.IrFunctionSymbol
 import org.jetbrains.kotlin.ir.symbols.IrSimpleFunctionSymbol
-import org.jetbrains.kotlin.ir.symbols.IrValueParameterSymbol
-import org.jetbrains.kotlin.ir.symbols.impl.IrValueParameterSymbolImpl
 import org.jetbrains.kotlin.ir.types.IrType
+import org.jetbrains.kotlin.ir.util.deepCopyWithSymbols
 import org.jetbrains.kotlin.ir.util.defaultType
 import org.jetbrains.kotlin.ir.util.transformFlat
 import org.jetbrains.kotlin.ir.visitors.IrElementTransformer
 import org.jetbrains.kotlin.ir.visitors.IrElementTransformerVoid
 import org.jetbrains.kotlin.ir.visitors.transformChildrenVoid
 
-class SecondaryCtorLowering(val context: JsIrBackendContext) : IrElementTransformerVoid(), DeclarationContainerLoweringPass {
+class SecondaryCtorLowering(val context: JsIrBackendContext) {
 
-    private val oldCtorToNewMap = mutableMapOf<IrConstructorSymbol, JsIrBackendContext.SecondaryCtorPair>()
+    data class ConstructorPair(val delegate: IrSimpleFunctionSymbol, val stub: IrSimpleFunctionSymbol)
 
-    override fun lower(irDeclarationContainer: IrDeclarationContainer) {
-        irDeclarationContainer.declarations.transformFlat {
-            if (it is IrClass) {
-                listOf(it) + lowerClass(it)
-            } else null
+    private val oldCtorToNewMap = mutableMapOf<IrConstructorSymbol, ConstructorPair>()
+
+    fun getConstructorProcessorLowering() = object : DeclarationContainerLoweringPass {
+        override fun lower(irDeclarationContainer: IrDeclarationContainer) {
+            irDeclarationContainer.declarations.transformFlat {
+                if (it is IrClass) {
+                    listOf(it) + lowerClass(it)
+                } else null
+            }
         }
+    }::runOnFilePostfix
 
-        context.secondaryConstructorsMap.putAll(oldCtorToNewMap)
-    }
+    fun getConstructorRedirectorLowering() = object : DeclarationContainerLoweringPass {
+        override fun lower(irDeclarationContainer: IrDeclarationContainer) {
+            for (it in irDeclarationContainer.declarations) {
+                it.accept(CallsiteRedirectionTransformer(), null)
+            }
+        }
+    }::runOnFilePostfix
 
     private fun lowerClass(irClass: IrClass): List<IrSimpleFunction> {
         val className = irClass.name.asString()
@@ -74,12 +80,10 @@ class SecondaryCtorLowering(val context: JsIrBackendContext) : IrElementTransfor
                 //   val t = Object.create(Foo.prototype);
                 //   return Foo_init_$Init$(..., t)
                 // }
-
-                val newInitConstructor = createInitConstructor(declaration, constructorName, irClass.defaultType)
+                val newInitConstructor = createInitConstructor(declaration, irClass, constructorName, irClass.defaultType)
                 val newCreateConstructor = createCreateConstructor(declaration, newInitConstructor, constructorName, irClass.defaultType)
 
-                oldCtorToNewMap[declaration.symbol] =
-                        JsIrBackendContext.SecondaryCtorPair(newInitConstructor.symbol, newCreateConstructor.symbol)
+                oldCtorToNewMap[declaration.symbol] = ConstructorPair(newInitConstructor.symbol, newCreateConstructor.symbol)
 
                 oldConstructors += declaration
                 newConstructors += newInitConstructor
@@ -92,23 +96,28 @@ class SecondaryCtorLowering(val context: JsIrBackendContext) : IrElementTransfor
         return newConstructors
     }
 
-    private class ThisUsageReplaceTransformer(val function: IrFunctionSymbol, val thisSymbol: IrValueParameterSymbol) :
+    private class ThisUsageReplaceTransformer(
+        val function: IrFunctionSymbol,
+        val symbolMapping: Map<IrValueParameter, IrValueParameter>
+    ) :
         IrElementTransformerVoid() {
+
+        val newThisSymbol = symbolMapping.values.last().symbol
 
         override fun visitReturn(expression: IrReturn): IrExpression = IrReturnImpl(
             expression.startOffset,
             expression.endOffset,
             expression.type,
             function,
-            IrGetValueImpl(expression.startOffset, expression.endOffset, thisSymbol.owner.type, thisSymbol)
+            IrGetValueImpl(expression.startOffset, expression.endOffset, newThisSymbol.owner.type, newThisSymbol)
         )
 
         override fun visitGetValue(expression: IrGetValue): IrExpression =
-            if (expression.descriptor.name.isSpecial && expression.descriptor.name.asString() == Namer.THIS_SPECIAL_NAME) IrGetValueImpl(
+            if (expression.symbol.owner in symbolMapping) IrGetValueImpl(
                 expression.startOffset,
                 expression.endOffset,
                 expression.type,
-                thisSymbol,
+                symbolMapping[expression.symbol.owner]!!.symbol,
                 expression.origin
             ) else {
                 expression
@@ -117,106 +126,98 @@ class SecondaryCtorLowering(val context: JsIrBackendContext) : IrElementTransfor
 
     private fun createInitConstructor(
         declaration: IrConstructor,
+        klass: IrClass,
         name: String,
         type: IrType
-    ): IrSimpleFunction =
-        JsSymbolBuilder.copyFunctionSymbol(declaration.symbol, "${name}_\$Init\$").let {
+    ): IrSimpleFunction {
 
-            val thisSymbol =
-                JsSymbolBuilder.buildValueParameter(it, declaration.valueParameters.size, type, "\$this")
+        val thisParam = JsIrBuilder.buildValueParameter("\$this", declaration.valueParameters.size, type)
+        val oldThisReceiver = klass.thisReceiver!!
+        val functionName = "${name}_\$Init\$"
 
-            it.initialize(
-                dispatchParameterDescriptor = declaration.descriptor.dispatchReceiverParameter,
-                typeParameters = declaration.descriptor.typeParameters,
-                valueParameters = declaration.descriptor.valueParameters + thisSymbol.descriptor as ValueParameterDescriptor,
-                returnType = type,
-                modality = declaration.descriptor.modality,
-                visibility = declaration.descriptor.visibility
-            )
+        return JsIrBuilder.buildFunction(
+            functionName,
+            declaration.visibility,
+            Modality.FINAL,
+            declaration.isInline,
+            declaration.isExternal
+        ).also {
+            thisParam.run { parent = it }
+            val retStmt = JsIrBuilder.buildReturn(it.symbol, JsIrBuilder.buildGetValue(thisParam.symbol), context.irBuiltIns.nothingType)
+            val statements = (declaration.body!!.deepCopyWithSymbols(it) as IrStatementContainer).statements
 
-            val thisParam = JsIrBuilder.buildValueParameter(thisSymbol, type)
+            val newValueParameters = declaration.valueParameters.map { p -> p.copyTo(it) }
 
-            return IrFunctionImpl(
-                declaration.startOffset, declaration.endOffset,
-                declaration.origin, it
-            ).apply {
-                val retStmt = JsIrBuilder.buildReturn(it, JsIrBuilder.buildGetValue(thisSymbol), context.irBuiltIns.nothingType)
-                val statements = (declaration.body as IrStatementContainer).statements
+            it.valueParameters += (newValueParameters + thisParam)
 
-                valueParameters += (declaration.valueParameters + thisParam)
-                typeParameters += declaration.typeParameters
-//                parent = declaration.parent
-                body = JsIrBuilder.buildBlockBody(statements + retStmt).apply {
-                    transformChildrenVoid(ThisUsageReplaceTransformer(it, thisSymbol))
-                }
+            it.typeParameters += declaration.typeParameters.map { p -> p.copyTo(it) }
+
+            it.returnType = type
+            it.parent = declaration.parent
+
+            val oldValueParameters = declaration.valueParameters + oldThisReceiver
+
+            // TODO: replace parameters as well
+            it.body = JsIrBuilder.buildBlockBody(statements + retStmt).apply {
+                transformChildrenVoid(ThisUsageReplaceTransformer(it.symbol, oldValueParameters.zip(it.valueParameters).toMap()))
             }
-
         }
+    }
 
+    private fun createCreateConstructor(
+        declaration: IrConstructor,
+        ctorImpl: IrSimpleFunction,
+        name: String,
+        type: IrType
+    ): IrSimpleFunction {
 
-    private fun createCreateConstructor(ctorOrig: IrConstructor, ctorImpl: IrSimpleFunction, name: String, type: IrType): IrSimpleFunction =
-        JsSymbolBuilder.copyFunctionSymbol(ctorOrig.symbol, "${name}_\$Create\$").let {
-            it.initialize(
-                dispatchParameterDescriptor = ctorOrig.descriptor.dispatchReceiverParameter,
-                typeParameters = ctorOrig.descriptor.typeParameters,
-                valueParameters = ctorOrig.descriptor.valueParameters,
-                returnType = type,
-                modality = ctorOrig.descriptor.modality,
-                visibility = ctorOrig.visibility
-            )
+        val functionName = "${name}_\$Create\$"
 
-            return IrFunctionImpl(
-                ctorOrig.startOffset, ctorOrig.endOffset,
-                ctorOrig.origin, it
-            ).apply {
+        return JsIrBuilder.buildFunction(
+            functionName,
+            declaration.visibility,
+            Modality.FINAL,
+            declaration.isInline,
+            declaration.isExternal
+        ).also {
+            it.valueParameters += declaration.valueParameters.map { p -> p.copyTo(it) }
+            it.typeParameters += declaration.typeParameters.map { p -> p.copyTo(it) }
+            it.parent = declaration.parent
 
-                valueParameters += ctorOrig.valueParameters
-                typeParameters += ctorOrig.typeParameters
-//                parent = ctorOrig.parent
+            it.returnType = type
 
-                val returnType = type
-                val createFunctionIntrinsic = context.intrinsics.jsObjectCreate
-                val irCreateCall = JsIrBuilder.buildCall(
-                    createFunctionIntrinsic.symbol,
-                    returnType,
-                    listOf(returnType)
-                )
-                val irDelegateCall = JsIrBuilder.buildCall(ctorImpl.symbol, type).also {
-                    for (i in 0 until valueParameters.size) {
-                        it.putValueArgument(i, JsIrBuilder.buildGetValue(valueParameters[i].symbol))
-                    }
+            val createFunctionIntrinsic = context.intrinsics.jsObjectCreate
+            val irCreateCall = JsIrBuilder.buildCall(createFunctionIntrinsic.symbol, type, listOf(type))
+            val irDelegateCall = JsIrBuilder.buildCall(ctorImpl.symbol, type).also { call ->
+                for (i in 0 until it.valueParameters.size) {
+                    call.putValueArgument(i, JsIrBuilder.buildGetValue(it.valueParameters[i].symbol))
+                }
 //                    valueParameters.forEachIndexed { i, p -> it.putValueArgument(i, JsIrBuilder.buildGetValue(p.symbol)) }
-                    it.putValueArgument(ctorOrig.valueParameters.size, irCreateCall)
+                call.putValueArgument(declaration.valueParameters.size, irCreateCall)
 
 //                typeParameters.mapIndexed { i, t -> ctorImpl.typeParameters[i].descriptor ->  }
-                }
-                val irReturn = JsIrBuilder.buildReturn(it, irDelegateCall, context.irBuiltIns.nothingType)
-
-
-                body = JsIrBuilder.buildBlockBody(listOf(irReturn))
             }
+            val irReturn = JsIrBuilder.buildReturn(it.symbol, irDelegateCall, context.irBuiltIns.nothingType)
+
+
+            it.body = JsIrBuilder.buildBlockBody(listOf(irReturn))
         }
+    }
 
-
-    class CallsiteRedirectionTransformer(val context: JsIrBackendContext) : IrElementTransformer<IrFunction?> {
+    inner class CallsiteRedirectionTransformer : IrElementTransformer<IrFunction?> {
 
         override fun visitFunction(declaration: IrFunction, data: IrFunction?): IrStatement = super.visitFunction(declaration, declaration)
 
-        override fun visitCall(expression: IrCall, ownerFunc: IrFunction?): IrElement {
-            super.visitCall(expression, ownerFunc)
+        override fun visitCall(expression: IrCall, data: IrFunction?): IrElement {
+            super.visitCall(expression, data)
 
-            // TODO: figure out the reason why symbol is not bound
-            if (expression.symbol.isBound) {
+            val target = expression.symbol.owner
 
-                val target = expression.symbol.owner as IrFunction
-
-                if (target is IrConstructor) {
-                    if (!target.descriptor.isPrimary) {
-                        val ctor = context.secondaryConstructorsMap[target.symbol]
-                        if (ctor != null) {
-
-                            return redirectCall(expression, ctor.stub)
-                        }
+            if (target is IrConstructor) {
+                if (!target.isPrimary) {
+                    val ctor = oldCtorToNewMap[target.symbol]
+                    if (ctor != null) {
+                        return redirectCall(expression, ctor.stub)
                     }
                 }
             }
@@ -224,8 +225,8 @@ class SecondaryCtorLowering(val context: JsIrBackendContext) : IrElementTransfor
             return expression
         }
 
-        override fun visitDelegatingConstructorCall(expression: IrDelegatingConstructorCall, ownerFunc: IrFunction?): IrElement {
-            super.visitDelegatingConstructorCall(expression, ownerFunc)
+        override fun visitDelegatingConstructorCall(expression: IrDelegatingConstructorCall, data: IrFunction?): IrElement {
+            super.visitDelegatingConstructorCall(expression, data)
 
             val target = expression.symbol
             if (target.owner.isPrimary) {
@@ -233,20 +234,17 @@ class SecondaryCtorLowering(val context: JsIrBackendContext) : IrElementTransfor
                 return expression
             }
 
-            val fromPrimary = ownerFunc!! is IrConstructor
+            val fromPrimary = data!! is IrConstructor
             // TODO: what is `deserialized` constructor?
-            val ctor = context.secondaryConstructorsMap[target] ?: return expression
+            val ctor = oldCtorToNewMap[target] ?: return expression
             val newCall = redirectCall(expression, ctor.delegate)
 
             val readThis = if (fromPrimary) {
-                IrGetValueImpl(
-                    expression.startOffset,
-                    expression.endOffset,
-                    expression.type,
-                    IrValueParameterSymbolImpl(LazyClassReceiverParameterDescriptor(target.descriptor.containingDeclaration))
-                )
+                val thisKlass = expression.symbol.owner.parent as IrClass
+                val thisSymbol = thisKlass.thisReceiver!!.symbol
+                IrGetValueImpl(expression.startOffset, expression.endOffset, expression.type, thisSymbol)
             } else {
-                IrGetValueImpl(expression.startOffset, expression.endOffset, expression.type, ownerFunc.valueParameters.last().symbol)
+                IrGetValueImpl(expression.startOffset, expression.endOffset, expression.type, data.valueParameters.last().symbol)
             }
 
             newCall.putValueArgument(expression.valueArgumentsCount, readThis)
@@ -259,12 +257,11 @@ class SecondaryCtorLowering(val context: JsIrBackendContext) : IrElementTransfor
             newTarget: IrSimpleFunctionSymbol
         ) = IrCallImpl(call.startOffset, call.endOffset, call.type, newTarget).apply {
 
-            copyTypeArgumentsFrom(call)
+//            copyTypeArgumentsFrom(call)
 
             for (i in 0 until call.valueArgumentsCount) {
                 putValueArgument(i, call.getValueArgument(i))
             }
         }
-
     }
 }

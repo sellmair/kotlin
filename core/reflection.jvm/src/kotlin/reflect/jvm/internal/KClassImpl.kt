@@ -147,6 +147,14 @@ internal class KClassImpl<T : Any>(override val jClass: Class<T>) : KDeclaration
             result.compact()
         }
 
+        val sealedSubclasses: List<KClass<out T>> by ReflectProperties.lazySoft {
+            descriptor.sealedSubclasses.mapNotNull { subclass ->
+                @Suppress("UNCHECKED_CAST")
+                val jClass = (subclass as ClassDescriptor).toJavaClass() as Class<out T>?
+                jClass?.let { KClassImpl(it) }
+            }
+        }
+
         val declaredNonStaticMembers: Collection<KCallableImpl<*>>
                 by ReflectProperties.lazySoft { getMembers(memberScope, DECLARED) }
         private val declaredStaticMembers: Collection<KCallableImpl<*>>
@@ -209,7 +217,10 @@ internal class KClassImpl<T : Any>(override val jClass: Class<T>) : KDeclaration
 
         return (descriptor as? DeserializedClassDescriptor)?.let { descriptor ->
             descriptor.classProto.getExtensionOrNull(JvmProtoBuf.classLocalVariable, index)?.let { proto ->
-                deserializeToDescriptor(jClass, proto, descriptor.c.nameResolver, descriptor.c.typeTable, MemberDeserializer::loadProperty)
+                deserializeToDescriptor(
+                    jClass, proto, descriptor.c.nameResolver, descriptor.c.typeTable, descriptor.metadataVersion,
+                    MemberDeserializer::loadProperty
+                )
             }
         }
     }
@@ -235,6 +246,11 @@ internal class KClassImpl<T : Any>(override val jClass: Class<T>) : KDeclaration
     override val typeParameters: List<KTypeParameter> get() = data().typeParameters
 
     override val supertypes: List<KType> get() = data().supertypes
+
+    /**
+     * The list of the immediate subclasses if this class is a sealed class, or an empty list otherwise.
+     */
+    override val sealedSubclasses: List<KClass<out T>> get() = data().sealedSubclasses
 
     override val visibility: KVisibility?
         get() = descriptor.visibility.toKVisibility()

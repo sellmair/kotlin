@@ -31,6 +31,7 @@ import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.expressions.IrDelegatingConstructorCall
 import org.jetbrains.kotlin.ir.expressions.IrMemberAccessExpression
 import org.jetbrains.kotlin.ir.expressions.impl.*
+import org.jetbrains.kotlin.ir.expressions.typeParametersCount
 import org.jetbrains.kotlin.ir.symbols.IrConstructorSymbol
 import org.jetbrains.kotlin.ir.symbols.impl.createFunctionSymbol
 import org.jetbrains.kotlin.ir.types.toIrType
@@ -39,7 +40,6 @@ import org.jetbrains.kotlin.ir.util.defaultType
 import org.jetbrains.kotlin.ir.util.usesDefaultArguments
 import org.jetbrains.kotlin.ir.visitors.IrElementTransformer
 import org.jetbrains.kotlin.name.Name
-import org.jetbrains.kotlin.resolve.DescriptorUtils
 import org.jetbrains.kotlin.types.KotlinType
 
 interface StubContext {
@@ -246,7 +246,7 @@ class SyntheticAccessorLowering(val context: JvmBackendContext) : FileLoweringPa
             val calleeDescriptor = accessor.calleeDescriptor as FunctionDescriptor
             val delegationCall =
                 if (!isConstructor)
-                    IrCallImpl(UNDEFINED_OFFSET, UNDEFINED_OFFSET, calleeDescriptor.returnType!!.toIrType()!!, calleeDescriptor, 0)
+                    IrCallImpl(UNDEFINED_OFFSET, UNDEFINED_OFFSET, calleeDescriptor.returnType!!.toIrType()!!, calleeDescriptor, calleeDescriptor.typeParametersCount)
                 else {
                     val delegationConstructor = createFunctionSymbol(accessor.calleeDescriptor)
                     IrDelegatingConstructorCallImpl(
@@ -314,7 +314,7 @@ class SyntheticAccessorLowering(val context: JvmBackendContext) : FileLoweringPa
         private fun AccessorForConstructorDescriptor.constructorDescriptorWithMarker(marker: KotlinType) =
             ClassConstructorDescriptorImpl.createSynthesized(containingDeclaration, annotations, false, source).also {
                 it.initialize(
-                    DescriptorUtils.getReceiverParameterType(extensionReceiverParameter),
+                    extensionReceiverParameter?.copy(this),
                     dispatchReceiverParameter,
                     emptyList()/*TODO*/,
                     calleeDescriptor.valueParameters.map {

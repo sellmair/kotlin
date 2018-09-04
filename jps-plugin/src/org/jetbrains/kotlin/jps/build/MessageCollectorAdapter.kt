@@ -12,7 +12,7 @@ import org.jetbrains.kotlin.cli.common.messages.CompilerMessageLocation
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageSeverity
 import org.jetbrains.kotlin.cli.common.messages.MessageCollector
 import org.jetbrains.kotlin.config.CompilerRunnerConstants
-import org.jetbrains.kotlin.jps.platforms.KotlinModuleBuildTarget
+import org.jetbrains.kotlin.jps.targets.KotlinModuleBuildTarget
 import java.io.File
 
 class MessageCollectorAdapter(
@@ -32,7 +32,7 @@ class MessageCollectorAdapter(
         val kind = kind(severity)
         if (kind != null) {
             // Report target when cross-compiling common files
-            if (location != null && kotlinTarget != null && kotlinTarget.isCommonModuleFile(File(location.path))) {
+            if (location != null && kotlinTarget != null && kotlinTarget.isFromIncludedSourceRoot(File(location.path))) {
                 val moduleName = kotlinTarget.module.name
                 prefix += "[$moduleName] "
             }

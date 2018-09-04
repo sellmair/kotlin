@@ -37,7 +37,7 @@ internal class KFunctionImpl private constructor(
     private val signature: String,
     descriptorInitialValue: FunctionDescriptor?,
     private val boundReceiver: Any? = CallableReference.NO_RECEIVER
-) : KCallableImpl<Any?>(), KFunction<Any?>, FunctionBase, FunctionWithAllInvokes {
+) : KCallableImpl<Any?>(), KFunction<Any?>, FunctionBase<Any?>, FunctionWithAllInvokes {
     constructor(container: KDeclarationContainerImpl, name: String, signature: String, boundReceiver: Any?)
             : this(container, name, signature, null, boundReceiver)
 
@@ -85,7 +85,7 @@ internal class KFunctionImpl private constructor(
                 else ->
                     createStaticMethodCaller(member)
             }
-            else -> throw KotlinReflectionInternalError("Call is not yet supported for this function: $descriptor (member = $member)")
+            else -> throw KotlinReflectionInternalError("Could not compute caller for function: $descriptor (member = $member)")
         }
     }
 
@@ -143,7 +143,7 @@ internal class KFunctionImpl private constructor(
     private fun createConstructorCaller(member: Constructor<*>) =
         if (isBound) FunctionCaller.BoundConstructor(member, boundReceiver) else FunctionCaller.Constructor(member)
 
-    override fun getArity() = caller.arity
+    override val arity: Int get() = caller.arity
 
     override val isInline: Boolean
         get() = descriptor.isInline

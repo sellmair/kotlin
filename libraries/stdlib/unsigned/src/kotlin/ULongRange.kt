@@ -15,6 +15,7 @@ import kotlin.internal.*
  * A range of values of type `ULong`.
  */
 @SinceKotlin("1.3")
+@ExperimentalUnsignedTypes
 public class ULongRange(start: ULong, endInclusive: ULong) : ULongProgression(start, endInclusive, 1), ClosedRange<ULong> {
     override val start: ULong get() = first
     override val endInclusive: ULong get() = last
@@ -42,6 +43,7 @@ public class ULongRange(start: ULong, endInclusive: ULong) : ULongProgression(st
  * A progression of values of type `ULong`.
  */
 @SinceKotlin("1.3")
+@ExperimentalUnsignedTypes
 public open class ULongProgression
 internal constructor(
     start: ULong,
@@ -49,7 +51,8 @@ internal constructor(
     step: Long
 ) : Iterable<ULong> {
     init {
-        if (step == 0.toLong()) throw kotlin.IllegalArgumentException("Step must be non-zero")
+        if (step == 0.toLong()) throw kotlin.IllegalArgumentException("Step must be non-zero.")
+        if (step == Long.MIN_VALUE) throw kotlin.IllegalArgumentException("Step must be greater than Long.MIN_VALUE to avoid overflow on negation.")
     }
 
     /**
@@ -87,6 +90,8 @@ internal constructor(
 
          * The progression starts with the [rangeStart] value and goes toward the [rangeEnd] value not excluding it, with the specified [step].
          * In order to go backwards the [step] must be negative.
+         *
+         * [step] must be greater than `Long.MIN_VALUE` and not equal to zero.
          */
         public fun fromClosedRange(rangeStart: ULong, rangeEnd: ULong, step: Long): ULongProgression = ULongProgression(rangeStart, rangeEnd, step)
     }
@@ -98,6 +103,7 @@ internal constructor(
  * @property step the number by which the value is incremented on each step.
  */
 @SinceKotlin("1.3")
+@ExperimentalUnsignedTypes
 private class ULongProgressionIterator(first: ULong, last: ULong, step: Long) : ULongIterator() {
     private val finalElement = last
     private var hasNext: Boolean = if (step > 0) first <= last else first >= last

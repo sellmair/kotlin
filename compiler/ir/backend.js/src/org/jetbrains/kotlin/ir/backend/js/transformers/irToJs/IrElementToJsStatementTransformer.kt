@@ -5,13 +5,15 @@
 
 package org.jetbrains.kotlin.ir.backend.js.transformers.irToJs
 
-import org.jetbrains.kotlin.builtins.KotlinBuiltIns
+import org.jetbrains.kotlin.ir.backend.js.lower.coroutines.COROUTINE_SWITCH
 import org.jetbrains.kotlin.ir.backend.js.utils.JsGenerationContext
-import org.jetbrains.kotlin.ir.backend.js.utils.constructedClass
 import org.jetbrains.kotlin.ir.declarations.IrVariable
 import org.jetbrains.kotlin.ir.expressions.*
+import org.jetbrains.kotlin.ir.types.isAny
+import org.jetbrains.kotlin.ir.util.constructedClassType
 import org.jetbrains.kotlin.js.backend.ast.*
 
+@Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
 class IrElementToJsStatementTransformer : BaseIrElementToJsNodeTransformer<JsStatement, JsGenerationContext> {
 
     override fun visitBlockBody(body: IrBlockBody, context: JsGenerationContext): JsStatement {
@@ -53,7 +55,7 @@ class IrElementToJsStatementTransformer : BaseIrElementToJsNodeTransformer<JsSta
     }
 
     override fun visitDelegatingConstructorCall(expression: IrDelegatingConstructorCall, context: JsGenerationContext): JsStatement {
-        if (KotlinBuiltIns.isAny(expression.symbol.constructedClass)) {
+        if (expression.symbol.owner.constructedClassType.isAny()) {
             return JsEmpty
         }
         return expression.accept(IrElementToJsExpressionTransformer(), context).makeStmt()
@@ -81,7 +83,38 @@ class IrElementToJsStatementTransformer : BaseIrElementToJsNodeTransformer<JsSta
     }
 
     override fun visitWhen(expression: IrWhen, context: JsGenerationContext): JsStatement {
+        if (expression.origin == COROUTINE_SWITCH) return toSwitch(expression, context)
         return expression.toJsNode(this, context, ::JsIf) ?: JsEmpty
+    }
+
+    private fun toSwitch(expression: IrWhen, context: JsGenerationContext): JsStatement {
+        var expr: IrExpression? = null
+        val cases = expression.branches.map {
+            val body = it.result
+            val id = if (it is IrElseBranch) null else {
+                val call = it.condition as IrCall
+                expr = call.getValueArgument(0) as IrExpression
+                call.getValueArgument(1)
+            }
+            Pair(id, body)
+        }
+
+        val exprTransformer = IrElementToJsExpressionTransformer()
+        val jsExpr = expr!!.accept(exprTransformer, context)
+
+        return JsSwitch(jsExpr, cases.map { (id, body) ->
+
+            val jsId = id?.accept(exprTransformer, context)
+            val jsBody = body.accept(this, context).asBlock()
+            val case: JsSwitchMember
+            if (jsId == null) {
+                case = JsDefault()
+            } else {
+                case = JsCase().also { it.caseExpression = jsId }
+            }
+
+            case.also { it.statements += jsBody.statements }
+        })
     }
 
     override fun visitWhileLoop(loop: IrWhileLoop, context: JsGenerationContext): JsStatement {
@@ -94,7 +127,8 @@ class IrElementToJsStatementTransformer : BaseIrElementToJsNodeTransformer<JsSta
     override fun visitDoWhileLoop(loop: IrDoWhileLoop, context: JsGenerationContext): JsStatement {
         //TODO what if body null?
         val label = context.getNameForLoop(loop)
-        val loopStatement = JsDoWhile(loop.condition.accept(IrElementToJsExpressionTransformer(), context), loop.body?.accept(this, context))
+        val loopStatement =
+            JsDoWhile(loop.condition.accept(IrElementToJsExpressionTransformer(), context), loop.body?.accept(this, context))
         return label?.let { JsLabel(it, loopStatement) } ?: loopStatement
     }
 }

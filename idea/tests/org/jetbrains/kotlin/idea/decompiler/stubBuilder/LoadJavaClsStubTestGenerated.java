@@ -56,6 +56,11 @@ public class LoadJavaClsStubTestGenerated extends AbstractLoadJavaClsStubTest {
             runTest("compiler/testData/loadJava/compiledKotlin/annotations/AnnotationInAnnotationArguments.kt");
         }
 
+        @TestMetadata("ClassLiteralArguments.kt")
+        public void testClassLiteralArguments() throws Exception {
+            runTest("compiler/testData/loadJava/compiledKotlin/annotations/ClassLiteralArguments.kt");
+        }
+
         @TestMetadata("EnumArgumentWithCustomToString.kt")
         public void testEnumArgumentWithCustomToString() throws Exception {
             runTest("compiler/testData/loadJava/compiledKotlin/annotations/EnumArgumentWithCustomToString.kt");
@@ -2492,6 +2497,11 @@ public class LoadJavaClsStubTestGenerated extends AbstractLoadJavaClsStubTest {
         @TestMetadata("ExtVarl.kt")
         public void testExtVarl() throws Exception {
             runTest("compiler/testData/loadJava/compiledKotlin/prop/ExtVarl.kt");
+        }
+
+        @TestMetadata("nonConstValWithConstantValueAttribute.kt")
+        public void testNonConstValWithConstantValueAttribute() throws Exception {
+            runTest("compiler/testData/loadJava/compiledKotlin/prop/nonConstValWithConstantValueAttribute.kt");
         }
 
         @TestMetadata("NsVal.kt")

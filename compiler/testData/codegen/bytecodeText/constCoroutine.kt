@@ -1,4 +1,4 @@
-// !API_VERSION: 1.2
+// LANGUAGE_VERSION: 1.2
 // WITH_RUNTIME
 // WITH_COROUTINES
 import helpers.*
@@ -24,5 +24,4 @@ fun box(): String {
 
 // 2 GETSTATIC kotlin/Unit.INSTANCE
 // 1 GETSTATIC helpers/EmptyContinuation.Companion
-// 3 GETSTATIC kotlin\/coroutines\/experimental\/EmptyCoroutineContext.INSTANCE
-// 6 GETSTATIC
+// 3 GETSTATIC

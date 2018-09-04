@@ -1,5 +1,3 @@
-// IGNORE_BACKEND: JVM_IR
-// IGNORE_BACKEND: JS_IR
 fun f(b : Long.(Long)->Long) = 1L?.b(2L)
 
 fun box(): String {

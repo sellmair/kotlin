@@ -1,12 +1,16 @@
 description = 'Kotlin Standard Library JRE 8 extension (deprecated)'
 
 apply plugin: 'kotlin'
+apply plugin: 'pill-configurable'
 
 configureJvm6Project(project)
 configureDist(project)
-configurePublishing(project)
 ext.javaHome = JDK_18
 ext.jvmTarget = "1.8"
+
+pill {
+    importAsLibrary = true
+}
 
 dependencies {
     compile project(':kotlin-stdlib')
@@ -42,8 +46,14 @@ artifacts {
     archives javadocJar
 }
 
+task distForTest(type: Copy) {
+    rename "-${java.util.regex.Pattern.quote(version)}", ''
+    from jar
+    into distDir
+}
+
 dist {
-    from (jar, sourcesJar)
+    dependsOn(distForTest)
 }
 
 tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile) {
@@ -61,7 +71,7 @@ compileKotlin {
 }
 
 compileTestKotlin {
-    kotlinOptions.freeCompilerArgs = ["-Xallow-kotlin-package", "-Xnormalize-constructor-calls=enable", "-Xmulti-platform"]
+    kotlinOptions.freeCompilerArgs = ["-Xallow-kotlin-package", "-Xnormalize-constructor-calls=enable", "-Xmulti-platform", "-XXLanguage:-ReleaseCoroutines", "-Xuse-experimental=kotlin.ExperimentalUnsignedTypes"]
 }
 
 kotlin.experimental.coroutines 'enable'

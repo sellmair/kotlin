@@ -1,17 +1,6 @@
 /*
- * Copyright 2010-2015 JetBrains s.r.o.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright 2010-2018 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license
+ * that can be found in the license/LICENSE.txt file.
  */
 
 package org.jetbrains.kotlin.backend.common
@@ -60,7 +49,8 @@ object CodegenUtil {
     }
 
     @JvmStatic
-    fun getNonPrivateTraitMethods(descriptor: ClassDescriptor): Map<FunctionDescriptor, FunctionDescriptor> {
+    @JvmOverloads
+    fun getNonPrivateTraitMethods(descriptor: ClassDescriptor, copy: Boolean = true): Map<FunctionDescriptor, FunctionDescriptor> {
         val result = linkedMapOf<FunctionDescriptor, FunctionDescriptor>()
         for (declaration in DescriptorUtils.getAllDescriptors(descriptor.defaultType.memberScope)) {
             if (declaration !is CallableMemberDescriptor) continue
@@ -74,29 +64,39 @@ object CodegenUtil {
 
             // inheritedMember can be abstract here. In order for FunctionCodegen to generate the method body, we're creating a copy here
             // with traitMember's modality
-            result.putAll(copyFunctions(declaration, traitMember, declaration.containingDeclaration, traitMember.modality,
-                                        Visibilities.PUBLIC, CallableMemberDescriptor.Kind.DECLARATION, true))
+            result.putAll(
+                if (copy)
+                    copyFunctions(
+                        declaration, traitMember, declaration.containingDeclaration, traitMember.modality,
+                        Visibilities.PUBLIC, CallableMemberDescriptor.Kind.DECLARATION, true
+                    )
+                else mapMembers(declaration, traitMember)
+            )
         }
         return result
     }
 
     fun copyFunctions(
-            inheritedMember: CallableMemberDescriptor,
-            traitMember: CallableMemberDescriptor,
-            newOwner: DeclarationDescriptor,
-            modality: Modality,
-            visibility: Visibility,
-            kind: CallableMemberDescriptor.Kind,
-            copyOverrides: Boolean
-    ): Map<FunctionDescriptor, FunctionDescriptor> {
-        val copy = inheritedMember.copy(newOwner, modality, visibility, kind, copyOverrides)
+        inheritedMember: CallableMemberDescriptor,
+        traitMember: CallableMemberDescriptor,
+        newOwner: DeclarationDescriptor,
+        modality: Modality,
+        visibility: Visibility,
+        kind: CallableMemberDescriptor.Kind,
+        copyOverrides: Boolean
+    ): Map<FunctionDescriptor, FunctionDescriptor> =
+        mapMembers(inheritedMember.copy(newOwner, modality, visibility, kind, copyOverrides), traitMember)
+
+    private fun mapMembers(
+        inherited: CallableMemberDescriptor,
+        traitMember: CallableMemberDescriptor
+    ): LinkedHashMap<FunctionDescriptor, FunctionDescriptor> {
         val result = linkedMapOf<FunctionDescriptor, FunctionDescriptor>()
         if (traitMember is SimpleFunctionDescriptor) {
-            result[traitMember] = copy as FunctionDescriptor
-        }
-        else if (traitMember is PropertyDescriptor) {
+            result[traitMember] = inherited as FunctionDescriptor
+        } else if (traitMember is PropertyDescriptor) {
             for (traitAccessor in traitMember.accessors) {
-                for (inheritedAccessor in (copy as PropertyDescriptor).accessors) {
+                for (inheritedAccessor in (inherited as PropertyDescriptor).accessors) {
                     if (inheritedAccessor::class.java == traitAccessor::class.java) { // same accessor kind
                         result.put(traitAccessor, inheritedAccessor)
                     }
@@ -109,9 +109,8 @@ object CodegenUtil {
     @JvmStatic
     fun getSuperClassBySuperTypeListEntry(specifier: KtSuperTypeListEntry, bindingContext: BindingContext): ClassDescriptor? {
         val superType = bindingContext.get(BindingContext.TYPE, specifier.typeReference!!)
-                        ?: error("superType should not be null: ${specifier.text}")
 
-        return superType.constructor.declarationDescriptor as? ClassDescriptor
+        return superType?.constructor?.declarationDescriptor as? ClassDescriptor
     }
 
     @JvmStatic
@@ -219,4 +218,12 @@ object CodegenUtil {
 
         return descriptor.valueParameters
     }
+}
+
+fun DeclarationDescriptor.isTopLevelInPackage(name: String, packageName: String): Boolean {
+    if (name != this.name.asString()) return false
+
+    val containingDeclaration = containingDeclaration as? PackageFragmentDescriptor ?: return false
+    val packageFqName = containingDeclaration.fqName.asString()
+    return packageName == packageFqName
 }

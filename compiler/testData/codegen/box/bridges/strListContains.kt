@@ -1,5 +1,4 @@
 // IGNORE_BACKEND: JS_IR
-// IGNORE_BACKEND: NATIVE
 
 class StrList : List<String?> {
     override val size: Int

@@ -6,11 +6,11 @@
 package org.jetbrains.kotlin.load.kotlin
 
 import org.jetbrains.kotlin.builtins.KotlinBuiltIns
+import org.jetbrains.kotlin.builtins.jvm.JavaToKotlinClassMap
 import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.load.java.BuiltinMethodsWithSpecialGenericSignature
 import org.jetbrains.kotlin.load.java.isFromJavaOrBuiltins
 import org.jetbrains.kotlin.name.ClassId
-import org.jetbrains.kotlin.platform.JavaToKotlinClassMap
 import org.jetbrains.kotlin.resolve.DescriptorUtils
 import org.jetbrains.kotlin.resolve.descriptorUtil.fqNameSafe
 import org.jetbrains.kotlin.resolve.descriptorUtil.fqNameUnsafe
@@ -76,7 +76,7 @@ internal val ClassDescriptor.internalName: String
             return JvmClassName.byClassId(it).internalName
         }
 
-        return computeInternalName(this)
+        return computeInternalName(this, isIrBackend = false)
     }
 
 internal val ClassId.internalName: String
@@ -89,7 +89,14 @@ private fun StringBuilder.appendErasedType(type: KotlinType) {
 }
 
 internal fun KotlinType.mapToJvmType() =
-        mapType(this, JvmTypeFactoryImpl, TypeMappingMode.DEFAULT, TypeMappingConfigurationImpl, descriptorTypeWriter = null)
+    mapType(
+        this,
+        JvmTypeFactoryImpl,
+        TypeMappingMode.DEFAULT,
+        TypeMappingConfigurationImpl,
+        descriptorTypeWriter = null,
+        isIrBackend = false
+    )
 
 sealed class JvmType {
     // null means 'void'

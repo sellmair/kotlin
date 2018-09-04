@@ -21,6 +21,37 @@ class KotlinAndroid32GradleIT : KotlinAndroid3GradleIT(androidGradlePluginVersio
         get() = GradleVersionRequired.AtLeast("4.6")
 
     @Test
+    fun testAndroidWithNewMppApp() = with(Project("new-mpp-android")) {
+        build("assemble", "compileDebugUnitTestJavaWithJavac") {
+            assertSuccessful()
+
+            assertTasksExecuted(
+                ":lib:compileDebugKotlinAndroidLib",
+                ":lib:compileReleaseKotlinAndroidLib",
+                ":lib:compileKotlinJvmLib",
+                ":lib:compileKotlinJsLib",
+                ":lib:compileKotlinMetadata",
+                ":app:compileDebugKotlinAndroidApp",
+                ":app:compileReleaseKotlinAndroidApp",
+                ":app:compileKotlinJvmApp",
+                ":app:compileKotlinJsApp",
+                ":app:compileKotlinMetadata",
+                ":lib:compileDebugUnitTestJavaWithJavac",
+                ":app:compileDebugUnitTestJavaWithJavac"
+            )
+
+            listOf("debug", "release").forEach { variant ->
+                assertFileExists("lib/build/tmp/kotlin-classes/$variant/com/example/lib/ExpectedLibClass.class")
+                assertFileExists("lib/build/tmp/kotlin-classes/$variant/com/example/lib/CommonLibClass.class")
+                assertFileExists("lib/build/tmp/kotlin-classes/$variant/com/example/lib/AndroidLibClass.class")
+
+                assertFileExists("app/build/tmp/kotlin-classes/$variant/com/example/app/AKt.class")
+                assertFileExists("app/build/tmp/kotlin-classes/$variant/com/example/app/KtUsageKt.class")
+            }
+        }
+    }
+
+    @Test
     fun testKaptUsingApOptionProvidersAsNestedInputOutput() = with(Project("AndroidProject")) {
         setupWorkingDir()
 
@@ -221,25 +252,6 @@ fun getSomething() = 10
 
     @Test
     fun testMultiModuleIC() {
-        val project = Project("AndroidProject")
-        val options = defaultBuildOptions().copy(incremental = true)
-
-        project.build("assembleDebug", options = options) {
-            assertSuccessful()
-        }
-
-        val libUtilKt = project.projectDir.getFileByName("libUtil.kt")
-        libUtilKt.modify { it.replace("fun libUtil(): String", "fun libUtil(): CharSequence") }
-
-        project.build("assembleDebug", options = options) {
-            assertSuccessful()
-            val affectedSources = project.projectDir.getFilesByNames("libUtil.kt", "MainActivity2.kt")
-            assertCompiledKotlinSources(project.relativize(affectedSources), weakTesting = false)
-        }
-    }
-
-    @Test
-    fun testMultiModuleICNonAndroidModuleIsChanged() {
         val project = Project("AndroidIncrementalMultiModule")
         val options = defaultBuildOptions().copy(incremental = true, kotlinDaemonDebugPort = null)
 
@@ -252,7 +264,15 @@ fun getSomething() = 10
         project.build("assembleDebug", options = options) {
             assertSuccessful()
             val affectedSources = project.projectDir.getFilesByNames("libAndroidUtil.kt", "useLibAndroidUtil.kt")
-            assertCompiledKotlinSources(project.relativize(affectedSources), weakTesting = false)
+            assertCompiledKotlinSources(project.relativize(affectedSources))
+        }
+
+        val libAndroidClassesOnlyUtilKt = project.projectDir.getFileByName("LibAndroidClassesOnlyUtil.kt")
+        libAndroidClassesOnlyUtilKt.modify { it.replace("fun libAndroidClassesOnlyUtil(): String", "fun libAndroidClassesOnlyUtil(): CharSequence") }
+        project.build("assembleDebug", options = options) {
+            assertSuccessful()
+            val affectedSources = project.projectDir.getFilesByNames("LibAndroidClassesOnlyUtil.kt", "useLibAndroidClassesOnlyUtil.kt")
+            assertCompiledKotlinSources(project.relativize(affectedSources))
         }
 
         val libJvmUtilKt = project.projectDir.getFileByName("LibJvmUtil.kt")
@@ -260,7 +280,7 @@ fun getSomething() = 10
         project.build("assembleDebug", options = options) {
             assertSuccessful()
             val affectedSources = project.projectDir.getFilesByNames("LibJvmUtil.kt", "useLibJvmUtil.kt")
-            assertCompiledKotlinSources(project.relativize(affectedSources), weakTesting = false)
+            assertCompiledKotlinSources(project.relativize(affectedSources))
         }
     }
 
@@ -369,14 +389,7 @@ fun getSomething() = 10
         val options = defaultBuildOptions().copy(incremental = false)
 
         project.build("assemble", options = options) {
-            if (isLegacyAndroidGradleVersion(androidGradlePluginVersion)) {
-                // Library dependencies are not supported in older versions of Android Gradle plugin (< 3.0)
-                assertFailed()
-                assertContains("Unresolved reference: layout_in_library")
-                assertContains("Unresolved reference: text_view")
-            } else {
-                assertSuccessful()
-            }
+            assertSuccessful()
         }
     }
 

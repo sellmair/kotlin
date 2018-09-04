@@ -48,7 +48,7 @@ class KotlinDirtySourceFilesHolder(
          * and during KotlinDirtySourceFilesHolder initialization.
          */
         internal fun _markDirty(file: File) {
-            _dirty.add(file)
+            _dirty.add(file.canonicalFile)
         }
     }
 
@@ -97,4 +97,4 @@ class KotlinDirtySourceFilesHolder(
 }
 
 val File.isKotlinSourceFile: Boolean
-    get() = FileUtilRt.extensionEquals(name, "kt")
+    get() = FileUtilRt.extensionEquals(name, "kt") || FileUtilRt.extensionEquals(name, "kts")

@@ -11,7 +11,7 @@ package kotlin.text
 
 import kotlin.*
 import kotlin.comparisons.*
-import kotlin.internal.contracts.*
+import kotlin.contracts.contract
 
 
 /**
@@ -153,6 +153,7 @@ public inline fun String.trimEnd(): String = (this as CharSequence).trimEnd().to
  * @param padChar the character to pad string with, if it has length less than the [length] specified. Space is used by default.
  * @return Returns a char sequence of length at least [length] consisting of `this` char sequence prepended with [padChar] as many times
  * as are necessary to reach that length.
+ * @sample samples.text.Strings.padStart
  */
 public fun CharSequence.padStart(length: Int, padChar: Char = ' '): CharSequence {
     if (length < 0)
@@ -174,6 +175,7 @@ public fun CharSequence.padStart(length: Int, padChar: Char = ' '): CharSequence
  * @param padChar the character to pad string with, if it has length less than the [length] specified. Space is used by default.
  * @return Returns a string of length at least [length] consisting of `this` string prepended with [padChar] as many times
  * as are necessary to reach that length.
+ * @sample samples.text.Strings.padStart
  */
 public fun String.padStart(length: Int, padChar: Char = ' '): String =
     (this as CharSequence).padStart(length, padChar).toString()
@@ -186,6 +188,7 @@ public fun String.padStart(length: Int, padChar: Char = ' '): String =
  * @param padChar the character to pad string with, if it has length less than the [length] specified. Space is used by default.
  * @return Returns a char sequence of length at least [length] consisting of `this` char sequence appended with [padChar] as many times
  * as are necessary to reach that length.
+ * @sample samples.text.Strings.padEnd
  */
 public fun CharSequence.padEnd(length: Int, padChar: Char = ' '): CharSequence {
     if (length < 0)
@@ -207,6 +210,7 @@ public fun CharSequence.padEnd(length: Int, padChar: Char = ' '): CharSequence {
  * @param padChar the character to pad string with, if it has length less than the [length] specified. Space is used by default.
  * @return Returns a string of length at least [length] consisting of `this` string appended with [padChar] as many times
  * as are necessary to reach that length.
+ * @sample samples.text.Strings.padEnd
  */
 public fun String.padEnd(length: Int, padChar: Char = ' '): String =
     (this as CharSequence).padEnd(length, padChar).toString()
@@ -271,6 +275,28 @@ public operator fun CharSequence.iterator(): CharIterator = object : CharIterato
 /** Returns the string if it is not `null`, or the empty string otherwise. */
 @kotlin.internal.InlineOnly
 public inline fun String?.orEmpty(): String = this ?: ""
+
+/**
+ * Returns this char sequence if it's not empty
+ * or the result of calling [defaultValue] function if the char sequence is empty.
+ *
+ * @sample samples.text.Strings.stringIfEmpty
+ */
+@SinceKotlin("1.3")
+@kotlin.internal.InlineOnly
+public inline fun <C, R> C.ifEmpty(defaultValue: () -> R): R where C : CharSequence, C : R =
+    if (isEmpty()) defaultValue() else this
+
+/**
+ * Returns this char sequence if it is not empty and doesn't consist solely of whitespace characters,
+ * or the result of calling [defaultValue] function otherwise.
+ *
+ * @sample samples.text.Strings.stringIfBlank
+ */
+@SinceKotlin("1.3")
+@kotlin.internal.InlineOnly
+public inline fun <C, R> C.ifBlank(defaultValue: () -> R): R where C : CharSequence, C : R =
+    if (isBlank()) defaultValue() else this
 
 /**
  * Returns the range of valid character indices for this char sequence.

@@ -28,7 +28,6 @@ dependencies {
 
     testCompile(project(":compiler:backend"))
     testCompile(project(":compiler:cli"))
-    testCompile(project(":compiler:tests-common"))
     testCompile(projectTests(":compiler:tests-common"))
     testCompile(commonDep("junit:junit"))
 }
@@ -40,6 +39,14 @@ sourceSets {
                      "../javac-wrapper/src")
     }
     "test" { }
+}
+
+tasks.withType<org.jetbrains.kotlin.gradle.dsl.KotlinCompile<*>> {
+    kotlinOptions {
+        languageVersion = "1.2"
+        apiVersion = "1.2"
+        freeCompilerArgs += "-Xskip-metadata-version-check"
+    }
 }
 
 testsJar {}

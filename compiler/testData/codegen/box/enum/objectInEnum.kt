@@ -1,4 +1,5 @@
-// IGNORE_BACKEND: JS_IR
+// !LANGUAGE: -NestedClassesInEnumEntryShouldBeInner
+
 enum class E {
     ENTRY,
     SUBCLASS {

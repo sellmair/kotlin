@@ -3,14 +3,13 @@
 // WITH_RUNTIME
 // WITH_COROUTINES
 // COMMON_COROUTINES_TEST
-// IGNORE_BACKEND: NATIVE
 import helpers.*
 import COROUTINES_PACKAGE.*
 import COROUTINES_PACKAGE.intrinsics.*
 
 class A {
     var result = mutableListOf("O", "K", null)
-    suspend fun foo(): String? = suspendCoroutineOrReturn { x ->
+    suspend fun foo(): String? = suspendCoroutineUninterceptedOrReturn { x ->
         x.resume(result.removeAt(0))
         COROUTINE_SUSPENDED
     }

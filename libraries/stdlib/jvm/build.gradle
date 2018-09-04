@@ -41,7 +41,11 @@ sourceSets {
         kotlin {
             srcDir '../coroutines/jvm/src'
         }
-        compileClasspath += sourceSets.main.output
+    }
+    coroutinesTest {
+        kotlin {
+            srcDir '../coroutines/jvm/test'
+        }
     }
     test {
         kotlin {
@@ -70,6 +74,11 @@ dependencies {
 
     testCompile project(':kotlin-test:kotlin-test-junit')
 
+    coroutinesCompile sourceSets.main.output
+
+    coroutinesTestCompile sourceSets.coroutines.output
+    coroutinesTestCompile project(':kotlin-test:kotlin-test-junit')
+
     unsignedCompile sourceSets.main.output
 }
 
@@ -77,6 +86,8 @@ jar {
     manifestAttributes(manifest, project, 'Main', true)
     from("${rootDir}/dist/builtins")
     from sourceSets.experimental.output
+    from sourceSets.coroutines.output
+    from sourceSets.unsigned.output
     // TODO: enable as soon as this doesn't cause D8/DX to crash
     // from sourceSets.java9.output
 }
@@ -89,6 +100,8 @@ task distJar(type: Jar) {
     from sourceSets.annotations.output
     from sourceSets.main.output
     from sourceSets.experimental.output
+    from sourceSets.coroutines.output
+    from sourceSets.unsigned.output
     // TODO: enable as soon as this doesn't cause D8/DX to crash
     // from sourceSets.java9.output
 }
@@ -98,7 +111,6 @@ task coroutinesJar(type: Jar) {
     classifier = 'coroutines'
     manifestAttributes(manifest, project, 'Main', true)
     project.configure(manifest) { attributes 'Kotlin-Version': '1.3' }
-    from sourceSets.coroutines.output
 }
 
 task unsignedJar(type: Jar) {
@@ -106,11 +118,11 @@ task unsignedJar(type: Jar) {
     classifier = 'unsigned'
     manifestAttributes(manifest, project, 'Main', true)
     project.configure(manifest) { attributes 'Kotlin-Version': '1.3' }
-    from sourceSets.unsigned.output
 }
 
 sourcesJar {
     from "${rootDir}/core/builtins/native"
+    from sourceSets.coroutines.kotlin
 }
 
 task distSourcesJar(type: Jar) {
@@ -137,11 +149,6 @@ dist {
     [distJar, distSourcesJar].forEach {
         from(it) {
             rename('dist-', '')
-        }
-        // legacy
-        from(it) {
-            rename('dist-', '')
-            rename('kotlin-stdlib', 'kotlin-runtime')
         }
     }
     from (configurations.compile) {
@@ -173,7 +180,11 @@ compileKotlin {
                 "-Xmultifile-parts-inherit",
                 "-Xnormalize-constructor-calls=enable",
                 "-module-name", "kotlin-stdlib",
-                "-Xuse-experimental=kotlin.Experimental"
+                "-Xuse-experimental=kotlin.Experimental",
+                "-Xuse-experimental=kotlin.ExperimentalMultiplatform",
+                "-Xuse-experimental=kotlin.contracts.ExperimentalContracts",
+                "-XXLanguage:-ReleaseCoroutines",
+                "-XXLanguage:+InlineClasses"
         ]
     }
 }
@@ -202,18 +213,55 @@ compileCoroutinesKotlin {
                 "-version",
                 "-Xallow-kotlin-package",
                 "-Xmultifile-parts-inherit",
+                "-Xuse-experimental=kotlin.contracts.ExperimentalContracts",
                 "-module-name", "kotlin-stdlib-coroutines"
         ]
     }
 }
+
+compileCoroutinesTestKotlin {
+    kotlinOptions {
+        languageVersion = "1.3"
+        apiVersion = "1.3"
+        freeCompilerArgs = [
+                "-version",
+                "-Xallow-kotlin-package",
+                "-Xmultifile-parts-inherit",
+                "-module-name", "kotlin-stdlib-coroutines"
+        ]
+    }
+}
+
+task coroutinesTest(type: Test, dependsOn: coroutinesTestClasses) {
+    testClassesDirs = sourceSets.coroutinesTest.output.classesDirs
+    classpath = sourceSets.coroutinesTest.runtimeClasspath
+}
+
+check.dependsOn(coroutinesTest)
 
 compileUnsignedKotlin {
     kotlinOptions {
         languageVersion = "1.3"
         apiVersion = "1.3"
         freeCompilerArgs += [
+                "-Xuse-experimental=kotlin.Experimental",
+                "-Xuse-experimental=kotlin.ExperimentalUnsignedTypes",
                 "-XXLanguage:+InlineClasses"
         ]
+    }
+}
+
+compileTestKotlin {
+    kotlinOptions {
+        freeCompilerArgs += [
+                "-Xuse-experimental=kotlin.ExperimentalUnsignedTypes"
+        ]
+    }
+}
+
+test {
+    if (project.hasProperty("kotlin.stdlib.test.long.sequences")) {
+        systemProperty("kotlin.stdlib.test.long.sequences", "true")
     }
 }
 

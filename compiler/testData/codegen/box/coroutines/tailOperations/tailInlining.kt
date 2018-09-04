@@ -1,4 +1,3 @@
-// IGNORE_BACKEND: JS_IR
 // IGNORE_BACKEND: JVM_IR
 // WITH_RUNTIME
 // WITH_COROUTINES
@@ -40,7 +39,7 @@ suspend fun bar(x: Int): Int = suspendCoroutine { c ->
 inline suspend fun foo(x: Int) = bar(x)
 
 fun async(a: suspend () -> Unit) {
-    a.startCoroutine(object : Continuation<Unit> {
+    a.startCoroutine(object : ContinuationAdapter<Unit>() {
         override fun resume(value: Unit) {
             proceed = {
                 log("done")

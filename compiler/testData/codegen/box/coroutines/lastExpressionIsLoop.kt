@@ -1,4 +1,3 @@
-// IGNORE_BACKEND: JS_IR
 // IGNORE_BACKEND: JVM_IR
 // WITH_RUNTIME
 // WITH_COROUTINES
@@ -10,7 +9,7 @@ import COROUTINES_PACKAGE.intrinsics.*
 class Controller {
     var result = ""
     var ok = false
-    suspend fun suspendHere(v: String): Unit = suspendCoroutineOrReturn { x ->
+    suspend fun suspendHere(v: String): Unit = suspendCoroutineUninterceptedOrReturn { x ->
         result += v
         x.resume(Unit)
         COROUTINE_SUSPENDED

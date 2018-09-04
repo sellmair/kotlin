@@ -6,6 +6,7 @@
 package org.jetbrains.kotlin.idea.core.script.dependencies
 
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.application.TransactionGuard
 import com.intellij.openapi.components.ServiceManager
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.progress.Task
@@ -13,9 +14,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ex.ProjectRootManagerEx
 import com.intellij.openapi.util.EmptyRunnable
 import com.intellij.openapi.vfs.VirtualFile
-import kotlinx.coroutines.experimental.launch
 import org.jetbrains.kotlin.idea.core.script.*
-import org.jetbrains.kotlin.idea.core.util.EDT
 import org.jetbrains.kotlin.idea.util.application.runWriteAction
 import org.jetbrains.kotlin.script.*
 import java.util.concurrent.ConcurrentHashMap
@@ -110,7 +109,7 @@ abstract class ScriptDependenciesLoader(
     protected fun notifyRootsChanged() {
         if (!shouldNotifyRootsChanged) return
 
-        val rootsChangesRunnable = {
+        val doNotifyRootsChanged = Runnable {
             runWriteAction {
                 if (project.isDisposed) return@runWriteAction
 
@@ -119,13 +118,10 @@ abstract class ScriptDependenciesLoader(
             }
         }
 
-        val application = ApplicationManager.getApplication()
-        if (application.isUnitTestMode) {
-            rootsChangesRunnable()
+        if (ApplicationManager.getApplication().isUnitTestMode) {
+            doNotifyRootsChanged.run()
         } else {
-            launch(EDT(project)) {
-                rootsChangesRunnable()
-            }
+            TransactionGuard.getInstance().submitTransactionLater(project, doNotifyRootsChanged)
         }
     }
 }

@@ -11,6 +11,7 @@ import kotlin.experimental.*
 
 @Suppress("NON_PUBLIC_PRIMARY_CONSTRUCTOR_OF_INLINE_CLASS")
 @SinceKotlin("1.3")
+@ExperimentalUnsignedTypes
 public inline class ULong internal constructor(private val data: Long) : Comparable<ULong> {
 
     companion object {
@@ -23,6 +24,16 @@ public inline class ULong internal constructor(private val data: Long) : Compara
          * A constant holding the maximum value an instance of ULong can have.
          */
         public const val MAX_VALUE: ULong = ULong(-1)
+
+        /**
+         * The number of bytes used to represent an instance of ULong in a binary form.
+         */
+        public const val SIZE_BYTES: Int = 8
+
+        /**
+         * The number of bits used to represent an instance of ULong in a binary form.
+         */
+        public const val SIZE_BITS: Int = 64
     }
 
     /**
@@ -134,10 +145,14 @@ public inline class ULong internal constructor(private val data: Long) : Compara
 }
 
 @SinceKotlin("1.3")
+@ExperimentalUnsignedTypes
 public fun Byte.toULong(): ULong = ULong(this.toLong() and 0xFF)
 @SinceKotlin("1.3")
+@ExperimentalUnsignedTypes
 public fun Short.toULong(): ULong = ULong(this.toLong() and 0xFFFF)
 @SinceKotlin("1.3")
+@ExperimentalUnsignedTypes
 public fun Int.toULong(): ULong = ULong(this.toLong() and 0xFFFF_FFFF)
 @SinceKotlin("1.3")
+@ExperimentalUnsignedTypes
 public fun Long.toULong(): ULong = ULong(this)

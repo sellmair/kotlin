@@ -67,6 +67,8 @@ object ModifierCheckerCore {
         OUT_KEYWORD to EnumSet.of(TYPE_PARAMETER, TYPE_PROJECTION),
         REIFIED_KEYWORD to EnumSet.of(TYPE_PARAMETER),
         VARARG_KEYWORD to EnumSet.of(VALUE_PARAMETER, PROPERTY_PARAMETER),
+        WITH_KEYWORD to EnumSet.of(VALUE_PARAMETER, PROPERTY_PARAMETER),
+        EXTENSION_KEYWORD to EnumSet.of(CLASS_ONLY, INTERFACE),
         COMPANION_KEYWORD to EnumSet.of(OBJECT),
         LATEINIT_KEYWORD to EnumSet.of(MEMBER_PROPERTY, TOP_LEVEL_PROPERTY, LOCAL_VARIABLE),
         DATA_KEYWORD to EnumSet.of(CLASS_ONLY, LOCAL_CLASS),
@@ -117,7 +119,9 @@ object ModifierCheckerCore {
         IMPL_KEYWORD to listOf(LanguageFeature.MultiPlatformProjects),
         EXPECT_KEYWORD to listOf(LanguageFeature.MultiPlatformProjects),
         ACTUAL_KEYWORD to listOf(LanguageFeature.MultiPlatformProjects),
-        LATEINIT_KEYWORD to listOf(LanguageFeature.LateinitTopLevelProperties, LanguageFeature.LateinitLocalVariables)
+        LATEINIT_KEYWORD to listOf(LanguageFeature.LateinitTopLevelProperties, LanguageFeature.LateinitLocalVariables),
+        WITH_KEYWORD to listOf(LanguageFeature.Typeclasses),
+        EXTENSION_KEYWORD to listOf(LanguageFeature.Typeclasses)
     )
 
     private val featureDependenciesTargets = mapOf(
@@ -151,7 +155,8 @@ object ModifierCheckerCore {
         PRIVATE_KEYWORD to always(CLASS_ONLY, LOCAL_CLASS, OBJECT, OBJECT_LITERAL, INTERFACE, ENUM_CLASS, ENUM_ENTRY, FILE),
         COMPANION_KEYWORD to always(CLASS_ONLY, INTERFACE, ENUM_CLASS, ANNOTATION_CLASS),
         FINAL_KEYWORD to always(CLASS_ONLY, LOCAL_CLASS, OBJECT, OBJECT_LITERAL, ENUM_CLASS, ENUM_ENTRY, ANNOTATION_CLASS, FILE),
-        VARARG_KEYWORD to always(CONSTRUCTOR, FUNCTION, CLASS)
+        VARARG_KEYWORD to always(CONSTRUCTOR, FUNCTION, CLASS),
+        WITH_KEYWORD to always(CONSTRUCTOR, FUNCTION, CLASS)
     )
 
     private val deprecatedParentTargetMap = mapOf<KtModifierKeywordToken, Set<KotlinTarget>>()

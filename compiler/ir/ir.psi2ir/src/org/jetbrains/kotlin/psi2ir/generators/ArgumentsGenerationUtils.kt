@@ -18,13 +18,19 @@ package org.jetbrains.kotlin.psi2ir.generators
 
 import org.jetbrains.kotlin.builtins.isBuiltinFunctionalType
 import org.jetbrains.kotlin.descriptors.*
+import org.jetbrains.kotlin.descriptors.impl.ReceiverParameterDescriptorImpl
 import org.jetbrains.kotlin.descriptors.impl.SyntheticFieldDescriptor
 import org.jetbrains.kotlin.descriptors.impl.TypeAliasConstructorDescriptor
+import org.jetbrains.kotlin.descriptors.impl.ValueParameterDescriptorImpl
 import org.jetbrains.kotlin.incremental.components.NoLookupLocation
+import org.jetbrains.kotlin.ir.declarations.IrDeclarationOrigin
 import org.jetbrains.kotlin.ir.expressions.IrDeclarationReference
 import org.jetbrains.kotlin.ir.expressions.IrExpression
 import org.jetbrains.kotlin.ir.expressions.IrExpressionWithCopy
 import org.jetbrains.kotlin.ir.expressions.impl.*
+import org.jetbrains.kotlin.ir.types.IrType
+import org.jetbrains.kotlin.ir.util.endOffset
+import org.jetbrains.kotlin.ir.util.startOffset
 import org.jetbrains.kotlin.psi.KtElement
 import org.jetbrains.kotlin.psi.psiUtil.endOffset
 import org.jetbrains.kotlin.psi.psiUtil.startOffset
@@ -74,11 +80,26 @@ fun StatementGenerator.generateReceiver(defaultStartOffset: Int, defaultEndOffse
                     receiver.expression.startOffset, receiver.expression.endOffset, irReceiverType,
                     context.symbolTable.referenceClass(receiver.classQualifier.descriptor as ClassDescriptor)
                 )
-            is ExtensionReceiver ->
-                IrGetValueImpl(
-                    defaultStartOffset, defaultStartOffset, irReceiverType,
-                    context.symbolTable.referenceValueParameter(receiver.declarationDescriptor.extensionReceiverParameter!!)
-                )
+            is ExtensionReceiver -> {
+                val descriptor = receiver.declarationDescriptor
+                if (descriptor is ValueParameterDescriptorImpl && descriptor.isImplicit) {
+                    val receiverParameterDescriptor = ReceiverParameterDescriptorImpl(descriptor, receiver, descriptor.annotations)
+                    context.symbolTable.declareValueParameter(descriptor.startOffset!!,
+                                                              descriptor.endOffset!!,
+                                                              IrDeclarationOrigin.DEFINED,
+                                                              receiverParameterDescriptor,
+                                                              receiverParameterDescriptor.type.toIrType())
+                    IrGetValueImpl(
+                            defaultStartOffset, defaultStartOffset, irReceiverType,
+                            context.symbolTable.referenceValueParameter(receiverParameterDescriptor)
+                    )
+                } else {
+                    IrGetValueImpl(
+                            defaultStartOffset, defaultStartOffset, irReceiverType,
+                            context.symbolTable.referenceValueParameter(receiver.declarationDescriptor.extensionReceiverParameter!!)
+                    )
+                }
+            }
             else ->
                 TODO("Receiver: ${receiver::class.java.simpleName}")
         }

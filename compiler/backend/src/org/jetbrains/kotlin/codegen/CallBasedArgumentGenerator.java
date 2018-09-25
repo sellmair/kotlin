@@ -6,16 +6,20 @@
 package org.jetbrains.kotlin.codegen;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.kotlin.codegen.implicit.ImplicitCandidate;
+import org.jetbrains.kotlin.codegen.implicit.ImplicitResolutionStrategy;
 import org.jetbrains.kotlin.descriptors.CallableDescriptor;
 import org.jetbrains.kotlin.descriptors.ValueParameterDescriptor;
 import org.jetbrains.kotlin.psi.KtExpression;
 import org.jetbrains.kotlin.psi.ValueArgument;
 import org.jetbrains.kotlin.resolve.calls.model.DefaultValueArgument;
 import org.jetbrains.kotlin.resolve.calls.model.ExpressionValueArgument;
+import org.jetbrains.kotlin.resolve.calls.model.ImplicitValueArgument;
 import org.jetbrains.kotlin.resolve.calls.model.VarargValueArgument;
 import org.jetbrains.kotlin.types.FlexibleTypesKt;
 import org.jetbrains.org.objectweb.asm.Type;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.jetbrains.kotlin.codegen.StackValue.createDefaultValue;
@@ -86,6 +90,22 @@ public class CallBasedArgumentGenerator extends ArgumentGenerator {
         );
 
         callGenerator.putValueIfNeeded(getJvmKotlinType(valueParameterTypes, valueParameters, i), argumentValue);
+    }
+
+    @Override
+    protected void generateImplicit(int i, @NotNull ImplicitValueArgument argument) {
+        ImplicitCandidate candidate = ImplicitResolutionStrategy
+                        .resolve(this.valueParameters.get(i),
+                                 this.codegen.context.getFunctionDescriptor().getValueParameters(),
+                                 argument,
+                                 new ArrayList<>());
+        if (candidate != null) {
+            candidate.generate(i, this.valueParameters.get(i), this.callGenerator, this.codegen.typeMapper);
+        } else {
+            throw new IllegalStateException("Unable to resolve implicit parameter " +
+                                            argument.getParameterDescriptor().getName().asString() + ": " +
+                                            argument.getParameterDescriptor().getReturnType().toString());
+        }
     }
 
     @Override

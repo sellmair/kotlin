@@ -16,6 +16,8 @@
 
 package org.jetbrains.kotlin.resolve.calls.model
 
+import org.jetbrains.kotlin.descriptors.ValueParameterDescriptor
+
 
 sealed class ResolvedCallArgument {
     abstract val arguments: List<KotlinCallArgument>
@@ -33,4 +35,9 @@ sealed class ResolvedCallArgument {
     }
 
     class VarargArgument(override val arguments: List<KotlinCallArgument>) : ResolvedCallArgument()
+
+    class ImplicitArgument(val parameter: ValueParameterDescriptor) : ResolvedCallArgument() {
+        override val arguments: List<KotlinCallArgument>
+            get() = emptyList()
+    }
 }

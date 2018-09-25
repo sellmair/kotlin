@@ -189,6 +189,8 @@ class EffectsExtractingVisitor(
 
             is ExpressionValueArgument -> valueArgument?.toComputation()
 
+            // An implicit parameter is similar to a default argument
+            is ImplicitValueArgument -> UNKNOWN_COMPUTATION
             // Should be exhaustive
             else -> throw IllegalStateException("Unexpected ResolvedValueArgument $this")
         }

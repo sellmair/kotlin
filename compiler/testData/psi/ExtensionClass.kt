@@ -1,0 +1,1 @@
+extension class IntMonoid : Monoid<Int> {}

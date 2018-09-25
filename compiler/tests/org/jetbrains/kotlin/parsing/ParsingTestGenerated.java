@@ -326,6 +326,16 @@ public class ParsingTestGenerated extends AbstractParsingTest {
             runTest("compiler/testData/psi/Expressions_ERR.kt");
         }
 
+        @TestMetadata("ExtensionClass.kt")
+        public void testExtensionClass() throws Exception {
+            runTest("compiler/testData/psi/ExtensionClass.kt");
+        }
+
+        @TestMetadata("ExtensionInterface.kt")
+        public void testExtensionInterface() throws Exception {
+            runTest("compiler/testData/psi/ExtensionInterface.kt");
+        }
+
         @TestMetadata("ExtensionsWithQNReceiver.kt")
         public void testExtensionsWithQNReceiver() throws Exception {
             runTest("compiler/testData/psi/ExtensionsWithQNReceiver.kt");
@@ -384,6 +394,11 @@ public class ParsingTestGenerated extends AbstractParsingTest {
         @TestMetadata("FunctionTypes_ERR.kt")
         public void testFunctionTypes_ERR() throws Exception {
             runTest("compiler/testData/psi/FunctionTypes_ERR.kt");
+        }
+
+        @TestMetadata("FunctionWithTypeclassInstance.kt")
+        public void testFunctionWithTypeclassInstance() throws Exception {
+            runTest("compiler/testData/psi/FunctionWithTypeclassInstance.kt");
         }
 
         @TestMetadata("Functions.kt")

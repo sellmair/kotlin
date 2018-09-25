@@ -1,0 +1,1 @@
+fun <A> combine(a : A, b : A, with MA : Monoid<A>) : A = a.combine(b)

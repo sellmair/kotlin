@@ -434,6 +434,39 @@ public class ResolveTestGenerated extends AbstractResolveTest {
         }
     }
 
+    @TestMetadata("compiler/testData/resolve/typeclasses")
+    @TestDataPath("$PROJECT_ROOT")
+    @RunWith(JUnit3RunnerWithInners.class)
+    public static class Typeclasses extends AbstractResolveTest {
+        private void runTest(String testDataFilePath) throws Exception {
+            KotlinTestUtils.runTest(this::doTest, TargetBackend.ANY, testDataFilePath);
+        }
+
+        public void testAllFilesPresentInTypeclasses() throws Exception {
+            KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/resolve/typeclasses"), Pattern.compile("^(.+)\\.resolve$"), TargetBackend.ANY, true);
+        }
+
+        @TestMetadata("MultipleWithInFunctions.resolve")
+        public void testMultipleWithInFunctions() throws Exception {
+            runTest("compiler/testData/resolve/typeclasses/MultipleWithInFunctions.resolve");
+        }
+
+        @TestMetadata("SingleWithInConstructor.resolve")
+        public void testSingleWithInConstructor() throws Exception {
+            runTest("compiler/testData/resolve/typeclasses/SingleWithInConstructor.resolve");
+        }
+
+        @TestMetadata("SingleWithInFunctions.resolve")
+        public void testSingleWithInFunctions() throws Exception {
+            runTest("compiler/testData/resolve/typeclasses/SingleWithInFunctions.resolve");
+        }
+
+        @TestMetadata("ThisScope.resolve")
+        public void testThisScope() throws Exception {
+            runTest("compiler/testData/resolve/typeclasses/ThisScope.resolve");
+        }
+    }
+
     @TestMetadata("compiler/testData/resolve/varargs")
     @TestDataPath("$PROJECT_ROOT")
     @RunWith(JUnit3RunnerWithInners.class)

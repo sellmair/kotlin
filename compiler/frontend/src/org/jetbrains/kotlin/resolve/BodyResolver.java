@@ -30,6 +30,9 @@ import org.jetbrains.kotlin.builtins.KotlinBuiltIns;
 import org.jetbrains.kotlin.config.LanguageFeature;
 import org.jetbrains.kotlin.config.LanguageVersionSettings;
 import org.jetbrains.kotlin.descriptors.*;
+import org.jetbrains.kotlin.descriptors.impl.AnonymousFunctionDescriptor;
+import org.jetbrains.kotlin.descriptors.impl.LazyClassReceiverParameterDescriptor;
+import org.jetbrains.kotlin.descriptors.impl.ReceiverParameterDescriptorImpl;
 import org.jetbrains.kotlin.descriptors.impl.SyntheticFieldDescriptor;
 import org.jetbrains.kotlin.diagnostics.Errors;
 import org.jetbrains.kotlin.lexer.KtTokens;
@@ -41,7 +44,11 @@ import org.jetbrains.kotlin.resolve.calls.results.OverloadResolutionResults;
 import org.jetbrains.kotlin.resolve.calls.smartcasts.DataFlowInfo;
 import org.jetbrains.kotlin.resolve.calls.util.CallMaker;
 import org.jetbrains.kotlin.resolve.lazy.ForceResolveUtil;
+import org.jetbrains.kotlin.resolve.lazy.descriptors.LazyClassDescriptor;
+import org.jetbrains.kotlin.resolve.lazy.descriptors.LazyClassMemberScope;
 import org.jetbrains.kotlin.resolve.scopes.*;
+import org.jetbrains.kotlin.resolve.scopes.receivers.ClassValueReceiver;
+import org.jetbrains.kotlin.resolve.scopes.receivers.ExtensionReceiver;
 import org.jetbrains.kotlin.types.*;
 import org.jetbrains.kotlin.types.expressions.ExpressionTypingServices;
 import org.jetbrains.kotlin.types.expressions.PreliminaryDeclarationVisitor;
@@ -916,6 +923,28 @@ public class BodyResolver {
             @Nullable Function1<LexicalScope, LexicalScope> headerScopeFactory
     ) {
         PreliminaryDeclarationVisitor.Companion.createForDeclaration(function, trace, languageVersionSettings);
+        ReceiverParameterDescriptor receiverParameterDescriptor = functionDescriptor.getDispatchReceiverParameter();
+        if (receiverParameterDescriptor instanceof LazyClassReceiverParameterDescriptor) {
+            LazyClassReceiverParameterDescriptor lazyClassReceiverParameterDescriptor = (LazyClassReceiverParameterDescriptor) receiverParameterDescriptor;
+            DeclarationDescriptor descriptor = lazyClassReceiverParameterDescriptor.getContainingDeclaration();
+            if (descriptor instanceof LazyClassDescriptor) {
+                LazyClassDescriptor lazyClassDescriptor = (LazyClassDescriptor) descriptor;
+                MemberScope memberScope = lazyClassDescriptor.getUnsubstitutedMemberScope();
+                if (memberScope instanceof LazyClassMemberScope) {
+                    LazyClassMemberScope lazyClassMemberScope = (LazyClassMemberScope) memberScope;
+                    ClassConstructorDescriptor constructor = lazyClassMemberScope.getPrimaryConstructor();
+                    if (constructor != null) {
+                        List<ValueParameterDescriptor> members = constructor.getValueParameters();
+                        for (ValueParameterDescriptor member : members) {
+                            if (member.isImplicit()) {
+                                scope = getScopeForImplicitParameter(functionDescriptor, scope, member);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         LexicalScope innerScope = FunctionDescriptorUtil.getFunctionInnerScope(scope, functionDescriptor, trace, overloadChecker);
         List<KtParameter> valueParameters = function.getValueParameters();
         List<ValueParameterDescriptor> valueParameterDescriptors = functionDescriptor.getValueParameters();
@@ -944,6 +973,12 @@ public class BodyResolver {
             }
         }
 
+        for (ValueParameterDescriptor valueParameterDescriptor : valueParameterDescriptors) {
+            if (valueParameterDescriptor.isImplicit()) {
+                innerScope = getScopeForImplicitParameter(functionDescriptor, innerScope, valueParameterDescriptor);
+            }
+        }
+
         DataFlowInfo dataFlowInfo = null;
 
         if (beforeBlockBody != null) {
@@ -956,6 +991,36 @@ public class BodyResolver {
         }
 
         assert functionDescriptor.getReturnType() != null;
+    }
+
+    @NotNull
+    private LexicalScope getScopeForImplicitParameter(
+            @NotNull FunctionDescriptor functionDescriptor,
+            LexicalScope innerScope,
+            ValueParameterDescriptor valueParameterDescriptor
+    ) {
+        AnonymousFunctionDescriptor ownerDescriptor = new AnonymousFunctionDescriptor(valueParameterDescriptor,
+                                                                                      valueParameterDescriptor.getAnnotations(),
+                                                                                      CallableMemberDescriptor.Kind.DECLARATION,
+                                                                                      valueParameterDescriptor.getSource(),
+                                                                                      false);
+        ExtensionReceiver extensionReceiver = new ExtensionReceiver(ownerDescriptor,
+                                                                    valueParameterDescriptor.getType(),
+                                                                    null);
+
+        ReceiverParameterDescriptor implicitReceiver = new ReceiverParameterDescriptorImpl(ownerDescriptor,
+                                                                                           extensionReceiver,
+                                                                                           ownerDescriptor.getAnnotations());
+
+        ownerDescriptor.initialize(implicitReceiver,
+                                   null,
+                                   valueParameterDescriptor.getTypeParameters(),
+                                   valueParameterDescriptor.getValueParameters(),
+                                   valueParameterDescriptor.getReturnType(),
+                                   Modality.FINAL,
+                                   valueParameterDescriptor.getVisibility());
+        innerScope = new LexicalScopeImpl(innerScope, ownerDescriptor, true, implicitReceiver, LexicalScopeKind.FUNCTION_INNER_SCOPE);
+        return innerScope;
     }
 
     public void resolveConstructorParameterDefaultValues(

@@ -43,9 +43,7 @@ import org.jetbrains.kotlin.config.ApiVersion;
 import org.jetbrains.kotlin.config.JVMAssertionsMode;
 import org.jetbrains.kotlin.config.LanguageFeature;
 import org.jetbrains.kotlin.descriptors.*;
-import org.jetbrains.kotlin.descriptors.impl.LocalVariableDescriptor;
-import org.jetbrains.kotlin.descriptors.impl.SyntheticFieldDescriptor;
-import org.jetbrains.kotlin.descriptors.impl.TypeAliasConstructorDescriptor;
+import org.jetbrains.kotlin.descriptors.impl.*;
 import org.jetbrains.kotlin.diagnostics.Errors;
 import org.jetbrains.kotlin.lexer.KtTokens;
 import org.jetbrains.kotlin.load.java.JvmAbi;
@@ -2755,7 +2753,12 @@ public class ExpressionCodegen extends KtVisitor<StackValue, StackValue> impleme
 
     @NotNull
     private StackValue generateExtensionReceiver(@NotNull CallableDescriptor descriptor) {
-        ReceiverParameterDescriptor parameter = descriptor.getExtensionReceiverParameter();
+        ParameterDescriptor parameter = descriptor.getExtensionReceiverParameter();
+        if (descriptor.getContainingDeclaration() instanceof ValueParameterDescriptor &&
+            ((ValueParameterDescriptor) (descriptor.getContainingDeclaration())).isImplicit()) {
+            parameter = (ParameterDescriptor) descriptor.getContainingDeclaration();
+        }
+
         if (myFrameMap.getIndex(parameter) != -1) {
             KotlinType type = parameter.getReturnType();
             return StackValue.local(
@@ -2763,6 +2766,15 @@ public class ExpressionCodegen extends KtVisitor<StackValue, StackValue> impleme
                     typeMapper.mapType(type),
                     type
             );
+        } else if (parameter instanceof ValueParameterDescriptor) {
+            if (((ValueParameterDescriptor) parameter).isImplicit()) {
+                return StackValue.field(
+                        typeMapper.mapType(parameter),
+                        typeMapper.mapType(((CallableDescriptor) parameter.getContainingDeclaration()).getReturnType()),
+                        parameter.getName().asString(),
+                        false,
+                        StackValue.LOCAL_0);
+            }
         }
 
         return context.generateReceiver(descriptor, state, false);

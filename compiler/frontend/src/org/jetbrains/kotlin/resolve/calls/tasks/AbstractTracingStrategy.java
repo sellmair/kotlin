@@ -74,7 +74,9 @@ public abstract class AbstractTracingStrategy implements TracingStrategy {
     @Override
     public void noValueForParameter(@NotNull BindingTrace trace, @NotNull ValueParameterDescriptor valueParameter) {
         KtElement reportOn = CallUtilKt.getValueArgumentListOrElement(call);
-        trace.report(NO_VALUE_FOR_PARAMETER.on(reportOn, valueParameter));
+        if (!valueParameter.isImplicit()) {
+            trace.report(NO_VALUE_FOR_PARAMETER.on(reportOn, valueParameter));
+        }
     }
 
     @Override

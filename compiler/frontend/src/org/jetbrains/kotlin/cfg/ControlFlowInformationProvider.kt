@@ -626,10 +626,14 @@ class ControlFlowInformationProvider private constructor(
             when {
             // KtDestructuringDeclarationEntry -> KtDestructuringDeclaration -> KtParameter -> KtParameterList
                 element is KtDestructuringDeclarationEntry && element.parent.parent?.parent is KtParameterList ->
-                    report(Errors.UNUSED_DESTRUCTURED_PARAMETER_ENTRY.on(element, variableDescriptor), ctxt)
+                    if(!(variableDescriptor is ValueParameterDescriptor && variableDescriptor.isImplicit)) {
+                        report(Errors.UNUSED_DESTRUCTURED_PARAMETER_ENTRY.on(element, variableDescriptor), ctxt)
+                    }
 
                 KtPsiUtil.isRemovableVariableDeclaration(element) ->
-                    report(Errors.UNUSED_VARIABLE.on(element, variableDescriptor), ctxt)
+                    if(!(variableDescriptor is ValueParameterDescriptor && variableDescriptor.isImplicit)) {
+                        report(Errors.UNUSED_VARIABLE.on(element, variableDescriptor), ctxt)
+                    }
 
                 element is KtParameter ->
                     processUnusedParameter(ctxt, element, variableDescriptor)
@@ -682,11 +686,15 @@ class ControlFlowInformationProvider private constructor(
                 if (anonymous) {
                     report(UNUSED_ANONYMOUS_PARAMETER.on(element, variableDescriptor), ctxt)
                 } else {
-                    report(UNUSED_PARAMETER.on(element, variableDescriptor), ctxt)
+                    if(!(variableDescriptor is ValueParameterDescriptor && variableDescriptor.isImplicit)) {
+                        report(UNUSED_PARAMETER.on(element, variableDescriptor), ctxt)
+                    }
                 }
             }
             is KtPropertyAccessor -> {
-                report(UNUSED_PARAMETER.on(element, variableDescriptor), ctxt)
+                if(!(variableDescriptor is ValueParameterDescriptor && variableDescriptor.isImplicit)) {
+                    report(UNUSED_PARAMETER.on(element, variableDescriptor), ctxt)
+                }
             }
         }
     }

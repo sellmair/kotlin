@@ -43,10 +43,12 @@ class DiagnosticReporterByTrackingStrategy(
     override fun onCall(diagnostic: KotlinCallDiagnostic) {
         when (diagnostic.javaClass) {
             VisibilityError::class.java -> tracingStrategy.invisibleMember(trace, (diagnostic as VisibilityError).invisibleMember)
-            NoValueForParameter::class.java -> tracingStrategy.noValueForParameter(
-                trace,
-                (diagnostic as NoValueForParameter).parameterDescriptor
-            )
+            NoValueForParameter::class.java ->
+                if (!(diagnostic as NoValueForParameter).parameterDescriptor.isImplicit) {
+                    tracingStrategy.noValueForParameter(
+                        trace,
+                        (diagnostic as NoValueForParameter).parameterDescriptor)
+                }
             InstantiationOfAbstractClass::class.java -> tracingStrategy.instantiationOfAbstractClass(trace)
             AbstractSuperCall::class.java -> tracingStrategy.abstractSuperCall(trace)
         }

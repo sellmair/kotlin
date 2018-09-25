@@ -188,6 +188,7 @@ class JvmOverloadsAnnotationLowering(val context: JvmBackendContext) : ClassLowe
                         declaresDefaultValue = false,
                         isCrossinline = false,
                         isNoinline = false,
+                        isImplicit = false,
                         varargElementType = oldValueParameter.varargElementType,
                         source = oldValueParameter.source
                     )

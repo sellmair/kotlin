@@ -273,6 +273,9 @@ internal class KClassImpl<T : Any>(override val jClass: Class<T>) : KDeclaration
     override val isInner: Boolean
         get() = descriptor.isInner
 
+    override val isExtension: Boolean
+        get() = descriptor.isExtension
+
     override val isCompanion: Boolean
         get() = descriptor.isCompanionObject
 

@@ -333,6 +333,7 @@ class SyntheticAccessorLowering(val context: JvmBackendContext) : FileLoweringPa
                         false,
                         false,
                         false,
+                        false,
                         null,
                         SourceElement.NO_SOURCE,
                         null

@@ -324,6 +324,7 @@ internal class SuspendFunctionsLowering(val context: JsIrBackendContext): FileLo
                 false,
                 false,
                 false,
+                false,
                 false
             )
             coroutineClassDescriptor.bind(coroutineClass)

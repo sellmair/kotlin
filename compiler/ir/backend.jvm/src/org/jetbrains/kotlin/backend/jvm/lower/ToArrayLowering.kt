@@ -128,6 +128,7 @@ class ToArrayLowering(private val context: JvmBackendContext) : ClassLoweringPas
                         false,
                         false,
                         false,
+                        false,
                         null,
                         SourceElement.NO_SOURCE
                     )
@@ -187,6 +188,7 @@ class ToArrayLowering(private val context: JvmBackendContext) : ClassLoweringPas
                     false,
                     false,
                     false,
+                    false,
                     null,
                     SourceElement.NO_SOURCE
                 ),
@@ -197,6 +199,7 @@ class ToArrayLowering(private val context: JvmBackendContext) : ClassLoweringPas
                     Annotations.EMPTY,
                     Name.identifier("array"),
                     builtIns.getArrayType(Variance.INVARIANT, builtIns.anyType),
+                    false,
                     false,
                     false,
                     false,

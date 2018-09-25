@@ -131,7 +131,7 @@ public class TranslationContext {
 
                 return new ValueParameterDescriptorImpl(function, null, function.getValueParameters().size(),
                                                         Annotations.Companion.getEMPTY(), Name.identifier("continuation"),
-                                                        continuationDescriptor.getDefaultType(), false, false, false, null,
+                                                        continuationDescriptor.getDefaultType(), false, false, false, false, null,
                                                         SourceElement.NO_SOURCE);
             }
         }

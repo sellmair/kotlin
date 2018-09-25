@@ -66,7 +66,7 @@ class DescriptorSerializer private constructor(
             ProtoEnumFlags.visibility(normalizeVisibility(classDescriptor)),
             ProtoEnumFlags.modality(classDescriptor.modality),
             ProtoEnumFlags.classKind(classDescriptor.kind, classDescriptor.isCompanionObject),
-            classDescriptor.isInner, classDescriptor.isData, classDescriptor.isExternal, classDescriptor.isExpect, classDescriptor.isInline
+            classDescriptor.isInner, classDescriptor.isData, classDescriptor.isExternal, classDescriptor.isExpect, classDescriptor.isInline, classDescriptor.isExtension
         )
         if (flags != builder.flags) {
             builder.flags = flags
@@ -409,7 +409,7 @@ class DescriptorSerializer private constructor(
         val declaresDefaultValue = descriptor.declaresDefaultValue() || descriptor.isActualParameterWithAnyExpectedDefault
 
         val flags = Flags.getValueParameterFlags(
-            hasAnnotations(descriptor), declaresDefaultValue, descriptor.isCrossinline, descriptor.isNoinline
+            hasAnnotations(descriptor), declaresDefaultValue, descriptor.isCrossinline, descriptor.isNoinline, descriptor.isImplicit
         )
         if (flags != builder.flags) {
             builder.flags = flags

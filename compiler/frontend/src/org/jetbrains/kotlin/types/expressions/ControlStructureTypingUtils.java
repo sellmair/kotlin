@@ -175,6 +175,7 @@ public class ControlStructureTypingUtils {
                     /* declaresDefaultValue = */ false,
                     /* isCrossinline = */ false,
                     /* isNoinline = */ false,
+                    /* isImplicit = */ false,
                     null, SourceElement.NO_SOURCE
             );
             valueParameters.add(valueParameter);

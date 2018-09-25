@@ -38,14 +38,14 @@ fun FunctionDescriptor.toStatic(
     val dispatchReceiver = dispatchReceiverParameter?.let {
         ValueParameterDescriptorImpl.createWithDestructuringDeclarations(
             newFunction, null, offset++, Annotations.EMPTY, Name.identifier("this"),
-            dispatchReceiverClass!!.defaultType, false, false, false, null, dispatchReceiverClass.source, null
+            dispatchReceiverClass!!.defaultType, false, false, false, false, null, dispatchReceiverClass.source, null
         )
     }
 
     val extensionReceiver = extensionReceiverParameter?.let {
         ValueParameterDescriptorImpl.createWithDestructuringDeclarations(
             newFunction, null, offset++, Annotations.EMPTY, Name.identifier("receiver"),
-            it.value.type, false, false, false, null, it.source, null
+            it.value.type, false, false, false, false, null, it.source, null
         )
     }
 

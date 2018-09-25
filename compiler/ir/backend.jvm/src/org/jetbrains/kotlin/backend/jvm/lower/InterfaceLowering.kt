@@ -89,13 +89,13 @@ internal fun createStaticFunctionWithReceivers(
     val dispatchReceiver =
         ValueParameterDescriptorImpl.createWithDestructuringDeclarations(
             newFunction, null, offset++, Annotations.EMPTY, Name.identifier("this"),
-            dispatchReceiverType, false, false, false, null, descriptor.source, null
+            dispatchReceiverType, false, false, false, false, null, descriptor.source, null
         )
     val extensionReceiver =
         descriptor.extensionReceiverParameter?.let { extensionReceiver ->
             ValueParameterDescriptorImpl.createWithDestructuringDeclarations(
                 newFunction, null, offset++, Annotations.EMPTY, Name.identifier("receiver"),
-                extensionReceiver.value.type, false, false, false, null, extensionReceiver.source, null
+                extensionReceiver.value.type, false, false, false, false,null, extensionReceiver.source, null
             )
         }
 

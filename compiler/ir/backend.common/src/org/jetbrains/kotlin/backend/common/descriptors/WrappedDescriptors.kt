@@ -90,6 +90,7 @@ open class WrappedValueParameterDescriptor(
     override val index get() = owner.index
     override val isCrossinline get() = owner.isCrossinline
     override val isNoinline get() = owner.isNoinline
+    override val isImplicit: Boolean get() = false
     override val varargElementType get() = owner.varargElementType?.toKotlinType()
     override fun isConst() = false
     override fun isVar() = false
@@ -436,6 +437,8 @@ open class WrappedClassDescriptor(
     override fun isData() = owner.isData
 
     override fun isInline() = owner.isInline
+
+    override fun isExtension() : Boolean = owner.isExtension
 
     override fun getThisAsReceiverParameter() = owner.thisReceiver?.descriptor as ReceiverParameterDescriptor
 

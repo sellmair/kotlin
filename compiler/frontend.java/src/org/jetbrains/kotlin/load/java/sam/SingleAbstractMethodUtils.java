@@ -203,6 +203,7 @@ public class SingleAbstractMethodUtils {
                 /* declaresDefaultValue = */ false,
                 /* isCrossinline = */ false,
                 /* isNoinline = */ false,
+                /* isImplicit = */ false,
                 null, SourceElement.NO_SOURCE);
 
         KotlinType returnType = typeParameters.substitutor.substitute(unsubstitutedSamType, Variance.OUT_VARIANCE);
@@ -339,6 +340,7 @@ public class SingleAbstractMethodUtils {
                     /* declaresDefaultValue = */ false,
                     /* isCrossinline = */ false,
                     /* isNoinline = */ false,
+                    /* isImplicit = */ false,
                     null, SourceElement.NO_SOURCE
             );
             valueParameters.add(newParam);

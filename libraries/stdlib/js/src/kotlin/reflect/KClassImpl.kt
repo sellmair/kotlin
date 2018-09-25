@@ -24,6 +24,8 @@ internal abstract class KClassImpl<T : Any>(
         get() = TODO()
     override val isInner: Boolean
         get() = TODO()
+    override val isExtension: Boolean
+        get() = TODO()
     override val isOpen: Boolean
         get() = TODO()
     override val isSealed: Boolean

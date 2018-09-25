@@ -27,10 +27,7 @@ import org.jetbrains.kotlin.contracts.parsing.ContractParsingServices
 import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.descriptors.annotations.Annotations
 import org.jetbrains.kotlin.descriptors.annotations.AnnotationsImpl
-import org.jetbrains.kotlin.descriptors.impl.ClassConstructorDescriptorImpl
-import org.jetbrains.kotlin.descriptors.impl.FunctionExpressionDescriptor
-import org.jetbrains.kotlin.descriptors.impl.SimpleFunctionDescriptorImpl
-import org.jetbrains.kotlin.descriptors.impl.ValueParameterDescriptorImpl
+import org.jetbrains.kotlin.descriptors.impl.*
 import org.jetbrains.kotlin.diagnostics.Errors.*
 import org.jetbrains.kotlin.diagnostics.PsiDiagnosticUtils
 import org.jetbrains.kotlin.lexer.KtTokens
@@ -50,10 +47,7 @@ import org.jetbrains.kotlin.resolve.calls.checkers.DslScopeViolationCallChecker
 import org.jetbrains.kotlin.resolve.calls.smartcasts.DataFlowInfo
 import org.jetbrains.kotlin.resolve.calls.util.createValueParametersForInvokeInFunctionType
 import org.jetbrains.kotlin.resolve.lazy.ForceResolveUtil
-import org.jetbrains.kotlin.resolve.scopes.LexicalScope
-import org.jetbrains.kotlin.resolve.scopes.LexicalScopeKind
-import org.jetbrains.kotlin.resolve.scopes.LexicalWritableScope
-import org.jetbrains.kotlin.resolve.scopes.TraceBasedLocalRedeclarationChecker
+import org.jetbrains.kotlin.resolve.scopes.*
 import org.jetbrains.kotlin.resolve.source.toSourceElement
 import org.jetbrains.kotlin.types.ErrorUtils
 import org.jetbrains.kotlin.types.KotlinType
@@ -274,7 +268,7 @@ class FunctionDescriptorResolver(
                 val it = ValueParameterDescriptorImpl(
                     functionDescriptor, null, 0, Annotations.EMPTY, Name.identifier("it"),
                     expectedParameterTypes!!.single(), valueParameterDescriptor.declaresDefaultValue(),
-                    valueParameterDescriptor.isCrossinline, valueParameterDescriptor.isNoinline,
+                    valueParameterDescriptor.isCrossinline, valueParameterDescriptor.isNoinline, valueParameterDescriptor.isImplicit,
                     valueParameterDescriptor.varargElementType, SourceElement.NO_SOURCE
                 )
                 trace.record(BindingContext.AUTO_CREATED_IT, it)

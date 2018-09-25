@@ -134,6 +134,7 @@ open class KnownClassDescriptor(
     override fun isData(): Boolean = false
     override fun isInline(): Boolean = false
     override fun isInner(): Boolean = false
+    override fun isExtension(): Boolean = false
     override fun isExpect(): Boolean = false
     override fun isActual(): Boolean = false
     override fun isExternal(): Boolean = false

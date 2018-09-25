@@ -73,6 +73,10 @@ public class ClassReference(override val jClass: Class<*>) : KClass<Any>, ClassB
         get() = error()
 
     @SinceKotlin("1.1")
+    override val isExtension: Boolean
+        get() = error()
+
+    @SinceKotlin("1.1")
     override val isCompanion: Boolean
         get() = error()
 

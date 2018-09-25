@@ -212,6 +212,11 @@ public class LazySubstitutingClassDescriptor implements ClassDescriptor {
     }
 
     @Override
+    public boolean isExtension() {
+        return original.isExtension();
+    }
+
+    @Override
     public boolean isExternal() {
         return original.isExternal();
     }

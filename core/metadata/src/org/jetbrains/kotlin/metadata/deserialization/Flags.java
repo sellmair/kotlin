@@ -30,6 +30,7 @@ public class Flags {
     public static final BooleanFlagField IS_EXTERNAL_CLASS = FlagField.booleanAfter(IS_DATA);
     public static final BooleanFlagField IS_EXPECT_CLASS = FlagField.booleanAfter(IS_EXTERNAL_CLASS);
     public static final BooleanFlagField IS_INLINE_CLASS = FlagField.booleanAfter(IS_EXPECT_CLASS);
+    public static final BooleanFlagField IS_EXTENSION_CLASS = FlagField.booleanAfter(IS_INLINE_CLASS);
 
     // Constructors
 
@@ -66,6 +67,7 @@ public class Flags {
     public static final BooleanFlagField DECLARES_DEFAULT_VALUE = FlagField.booleanAfter(HAS_ANNOTATIONS);
     public static final BooleanFlagField IS_CROSSINLINE = FlagField.booleanAfter(DECLARES_DEFAULT_VALUE);
     public static final BooleanFlagField IS_NOINLINE = FlagField.booleanAfter(IS_CROSSINLINE);
+    public static final BooleanFlagField IS_IMPLICIT = FlagField.booleanAfter(IS_NOINLINE);
 
     // Accessors
 
@@ -95,7 +97,8 @@ public class Flags {
             boolean isData,
             boolean isExternal,
             boolean isExpect,
-            boolean isInline
+            boolean isInline,
+            boolean isExtension
     ) {
         return HAS_ANNOTATIONS.toFlags(hasAnnotations)
                | MODALITY.toFlags(modality)
@@ -106,6 +109,7 @@ public class Flags {
                | IS_EXTERNAL_CLASS.toFlags(isExternal)
                | IS_EXPECT_CLASS.toFlags(isExpect)
                | IS_INLINE_CLASS.toFlags(isInline)
+               | IS_EXTENSION_CLASS.toFlags(isExtension)
                 ;
     }
 
@@ -204,12 +208,14 @@ public class Flags {
             boolean hasAnnotations,
             boolean declaresDefaultValue,
             boolean isCrossinline,
-            boolean isNoinline
+            boolean isNoinline,
+            boolean isImplicit
     ) {
         return HAS_ANNOTATIONS.toFlags(hasAnnotations)
                | DECLARES_DEFAULT_VALUE.toFlags(declaresDefaultValue)
                | IS_CROSSINLINE.toFlags(isCrossinline)
                | IS_NOINLINE.toFlags(isNoinline)
+               | IS_IMPLICIT.toFlags(isImplicit)
                 ;
     }
 

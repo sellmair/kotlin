@@ -98,6 +98,8 @@ class DeserializedClassDescriptor(
 
     override fun isExternal() = Flags.IS_EXTERNAL_CLASS.get(classProto.flags)
 
+    override fun isExtension() = Flags.IS_EXTENSION_CLASS.get(classProto.flags)
+
     override fun getUnsubstitutedMemberScope(): MemberScope = memberScope
 
     override fun getStaticScope() = staticScope

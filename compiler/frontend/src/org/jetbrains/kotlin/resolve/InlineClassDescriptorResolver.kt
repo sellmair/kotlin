@@ -65,7 +65,7 @@ object InlineClassDescriptorResolver {
             Annotations.EMPTY,
             BOXING_VALUE_PARAMETER_NAME,
             inlinedValue.type,
-            false, false, false, null, SourceElement.NO_SOURCE
+            false, false, false, false, null, SourceElement.NO_SOURCE
         )
     }
 }

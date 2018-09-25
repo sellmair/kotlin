@@ -426,6 +426,7 @@ internal class DeepCopyIrTreeWithDescriptors(val targetDescriptor: FunctionDescr
                     declaresDefaultValue  = oldDescriptor.declaresDefaultValue(),
                     isCrossinline         = oldDescriptor.isCrossinline,
                     isNoinline            = oldDescriptor.isNoinline,
+                    isImplicit            = oldDescriptor.isImplicit,
                     varargElementType     = substituteTypeAndTryGetCopied(oldDescriptor.varargElementType),
                     source                = oldDescriptor.source
                 )

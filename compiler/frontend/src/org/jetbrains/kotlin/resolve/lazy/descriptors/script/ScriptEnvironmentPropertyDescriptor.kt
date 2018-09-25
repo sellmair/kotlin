@@ -84,6 +84,7 @@ private fun PropertyDescriptorImpl.makePropertySetterDescriptor() =
                 /* declaresDefaultValue = */
                 false, /* isCrossinline = */
                 false, /* isNoinline = */
+                false, /* isImplicit = */
                 false,
                 null,
                 SourceElement.NO_SOURCE

@@ -131,6 +131,12 @@ public interface KClass<T : Any> : KDeclarationContainer, KAnnotatedElement, KCl
     public val isInner: Boolean
 
     /**
+     *
+     */
+    @SinceKotlin("1.1")
+    public val isExtension: Boolean
+
+    /**
      * `true` if this class is a companion object.
      * See the [Kotlin language documentation](https://kotlinlang.org/docs/reference/object-declarations.html#companion-objects)
      * for more information.

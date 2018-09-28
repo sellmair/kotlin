@@ -61,14 +61,8 @@ sealed class ImplicitCandidate(open val substitutions: List<TypeSubstitution>) {
     }
 
     fun generateConstructorSignature(candidate: ClassDescriptor, typeMapper: KotlinTypeMapper): String {
-        val scope = candidate.unsubstitutedMemberScope
-        var signature = ""
-        if (scope is LazyClassMemberScope) {
-            val constructor = scope.getPrimaryConstructor()
-            for (parameter in constructor!!.valueParameters) {
-                signature += typeMapper.mapType(parameter.returnType!!).toString()
-            }
-        }
+        val scope = candidate.unsubstitutedPrimaryConstructor
+        val signature = (scope?.valueParameters ?: emptyList()).map { typeMapper.mapType(it.returnType!!).toString() }.joinToString()
         return "($signature)V"
     }
 }

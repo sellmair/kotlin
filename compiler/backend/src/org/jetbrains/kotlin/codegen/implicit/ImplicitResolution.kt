@@ -8,16 +8,21 @@ package org.jetbrains.kotlin.codegen.implicit
 import org.jetbrains.kotlin.codegen.implicit.ImplicitCandidate.*
 import org.jetbrains.kotlin.descriptors.ClassDescriptor
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
+import org.jetbrains.kotlin.descriptors.PackageFragmentDescriptor
 import org.jetbrains.kotlin.descriptors.ValueParameterDescriptor
 import org.jetbrains.kotlin.incremental.components.NoLookupLocation
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.resolve.calls.model.ImplicitValueArgument
+import org.jetbrains.kotlin.resolve.descriptorUtil.fqNameSafe
 import org.jetbrains.kotlin.resolve.lazy.descriptors.LazyPackageDescriptor
 import org.jetbrains.kotlin.resolve.lazy.descriptors.LazyPackageMemberScope
 import org.jetbrains.kotlin.resolve.scopes.DescriptorKindFilter
 import org.jetbrains.kotlin.resolve.scopes.LazyScopeAdapter
 import org.jetbrains.kotlin.resolve.scopes.MemberScope
+import org.jetbrains.kotlin.resolve.scopes.computeAllNames
 import org.jetbrains.kotlin.types.KotlinType
+import org.jetbrains.kotlin.utils.Printer
+import java.lang.IllegalStateException
 
 sealed class ImplicitResolution {
     object FindInLocalFunction : ImplicitResolution() {
@@ -115,24 +120,23 @@ sealed class ImplicitResolution {
 
     internal fun findCompanionFor(type: KotlinType): ClassDescriptor? {
         val scope = type.memberScope
-        if (scope != null) {
-            val descriptor = scope.getContributedClassifier(Name.identifier("Companion"), NoLookupLocation.FOR_DEFAULT_IMPORTS) as ClassDescriptor?
-            if (descriptor != null) {
-                return descriptor.original
-            }
+        val descriptor = scope.getContributedClassifier(Name.identifier("Companion"), NoLookupLocation.FOR_DEFAULT_IMPORTS) as ClassDescriptor?
+        if (descriptor != null) {
+            return descriptor.original
         }
         return null
     }
 
-    internal fun findPackageScopeFor(lookingFor: ValueParameterDescriptor): LazyPackageMemberScope? {
+    internal fun findPackageScopeFor(lookingFor: ValueParameterDescriptor): MemberScope? {
         var descriptor: DeclarationDescriptor? = lookingFor.containingDeclaration
-        while (descriptor !is LazyPackageDescriptor) {
+        while (descriptor != null && descriptor !is PackageFragmentDescriptor) {
             descriptor = descriptor!!.containingDeclaration
         }
 
         if (descriptor != null) {
-            val packageDescriptor = descriptor as LazyPackageDescriptor?
-            return packageDescriptor!!.getMemberScope() as LazyPackageMemberScope
+            val packageDescriptor = descriptor as PackageFragmentDescriptor
+            val moduleDescriptor = packageDescriptor.containingDeclaration
+            return moduleDescriptor.getPackage(packageDescriptor.fqName).memberScope
         }
         return null
     }
@@ -175,23 +179,13 @@ sealed class ImplicitResolution {
     }
 
     internal fun isReplaceable(candidate: KotlinType, target: KotlinType, substitutions: List<TypeSubstitution>): SubstitutionResult {
-        var newSubstitutions = java.util.ArrayList(substitutions)
+        val newSubstitutions = java.util.ArrayList(substitutions)
         if (candidate.memberScope is LazyScopeAdapter) {
-            if (target.memberScope !is LazyScopeAdapter) {
-                val substitution = findSubstitution(candidate, substitutions)
-                if (substitution == null) {
-                    newSubstitutions.add(TypeSubstitution(candidate, target))
-                    return SubstitutionResult(true, newSubstitutions)
-                } else {
-                    return isReplaceable(substitution, target, substitutions)
-                }
-            } else {
-                newSubstitutions.add(TypeSubstitution(candidate, target))
-                return SubstitutionResult(true, newSubstitutions)
-            }
+            newSubstitutions.add(TypeSubstitution(candidate, target))
+            return SubstitutionResult(true, newSubstitutions)
         }
 
-        if (areEquivalentNames(candidate, target, substitutions)) {
+        findEquivalence(candidate, target, substitutions)?.let { (candidate, target) ->
             if (candidate.arguments.size == target.arguments.size) {
                 for (i in 0 until candidate.arguments.size) {
                     val supertypeArgument = candidate.arguments[i]
@@ -210,22 +204,25 @@ sealed class ImplicitResolution {
         return SubstitutionResult(false, substitutions)
     }
 
-    private fun areEquivalentNames(candidate: KotlinType, target: KotlinType, substitutions: List<TypeSubstitution>): Boolean {
+    private fun findEquivalence(candidate: KotlinType, target: KotlinType, substitutions: List<TypeSubstitution>): Pair<KotlinType, KotlinType>? {
         if (candidate.constructor.toString().equals(target.constructor.toString())) {
-            return true
+            return candidate to target
         }
-        if ((findSubstitution(candidate, substitutions)?.constructor?.toString() ?: "").equals(target.constructor.toString())) {
-            return true
+        val candidateSubstitution = findSubstitution(candidate, substitutions)
+        if ((candidateSubstitution?.constructor?.toString() ?: "").equals(target.constructor.toString())) {
+            return candidateSubstitution!! to target
         }
-        if ((findSubstitution(target, substitutions)?.constructor?.toString() ?: "").equals(candidate.constructor.toString())) {
-            return true
+        val targetSubstitution = findSubstitution(target, substitutions)
+        if ((targetSubstitution?.constructor?.toString() ?: "").equals(candidate.constructor.toString())) {
+            return candidate to targetSubstitution!!
         }
 
-        return false
+        return null
     }
 
     private fun findSubstitution(candidate: KotlinType, substitutions: List<TypeSubstitution>): KotlinType? {
         return substitutions
+                .reversed()
                 .firstOrNull { it.source.equals(candidate) }
                 ?.target
     }

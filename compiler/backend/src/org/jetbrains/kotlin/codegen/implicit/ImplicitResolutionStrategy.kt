@@ -8,7 +8,9 @@ package org.jetbrains.kotlin.codegen.implicit
 import org.jetbrains.kotlin.codegen.implicit.ImplicitResolution.*
 import org.jetbrains.kotlin.descriptors.ValueParameterDescriptor
 import org.jetbrains.kotlin.resolve.calls.model.ImplicitValueArgument
+import org.jetbrains.kotlin.resolve.lazy.descriptors.LazyClassDescriptor
 import org.jetbrains.kotlin.resolve.lazy.descriptors.LazyClassMemberScope
+import org.jetbrains.kotlin.serialization.deserialization.descriptors.DeserializedClassDescriptor
 
 object ImplicitResolutionStrategy {
     @JvmStatic
@@ -20,7 +22,6 @@ object ImplicitResolutionStrategy {
                                    FindInPackage,
                                    FindInTypeCompanion,
                                    FindInTypeclassCompanion)
-
         var candidate: ImplicitCandidate? = null
         for (resolution in functionOrder) {
             candidate = resolution.resolve(lookingFor, parameters, argument, substitutions)
@@ -43,10 +44,9 @@ object ImplicitResolutionStrategy {
             is ImplicitCandidate.SingleClassCandidate -> {
                 val implicitArguments = mutableListOf<ImplicitCandidate>()
                 val newSubstitutions = java.util.ArrayList(substitutions)
-                val scope = candidate.value.unsubstitutedMemberScope as? LazyClassMemberScope
+                val scope = candidate.value.unsubstitutedPrimaryConstructor
                 scope?.let {
-                    val constructor = scope.getPrimaryConstructor()
-                    for (parameter in constructor?.valueParameters ?: emptyList()) {
+                    for (parameter in scope.valueParameters) {
                         if (parameter.isImplicit) {
                             val implicitArgument = ImplicitResolutionStrategy.resolve(parameter, parameters, argument, newSubstitutions)
                             implicitArgument?.let {

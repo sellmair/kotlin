@@ -6,23 +6,14 @@
 package org.jetbrains.kotlin.codegen.implicit
 
 import org.jetbrains.kotlin.codegen.implicit.ImplicitCandidate.*
-import org.jetbrains.kotlin.descriptors.ClassDescriptor
-import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
-import org.jetbrains.kotlin.descriptors.PackageFragmentDescriptor
-import org.jetbrains.kotlin.descriptors.ValueParameterDescriptor
+import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.incremental.components.NoLookupLocation
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.resolve.calls.model.ImplicitValueArgument
-import org.jetbrains.kotlin.resolve.descriptorUtil.fqNameSafe
-import org.jetbrains.kotlin.resolve.lazy.descriptors.LazyPackageDescriptor
-import org.jetbrains.kotlin.resolve.lazy.descriptors.LazyPackageMemberScope
 import org.jetbrains.kotlin.resolve.scopes.DescriptorKindFilter
 import org.jetbrains.kotlin.resolve.scopes.LazyScopeAdapter
 import org.jetbrains.kotlin.resolve.scopes.MemberScope
-import org.jetbrains.kotlin.resolve.scopes.computeAllNames
 import org.jetbrains.kotlin.types.KotlinType
-import org.jetbrains.kotlin.utils.Printer
-import java.lang.IllegalStateException
 
 sealed class ImplicitResolution {
     object FindInLocalFunction : ImplicitResolution() {
@@ -113,6 +104,56 @@ sealed class ImplicitResolution {
         }
     }
 
+    object FindInTypeSubpackages : ImplicitResolution() {
+        override fun resolve(lookingFor: ValueParameterDescriptor, parameters: List<ValueParameterDescriptor>, argument: ImplicitValueArgument, substitutions: List<TypeSubstitution>): ImplicitCandidate? {
+            val arguments = lookingFor.returnType!!.arguments
+            val subpackageResults = java.util.ArrayList<CompatibilityResult>()
+
+            for (projection in arguments) {
+                val subpackages = findSubpackagesFor(projection.type)
+
+                for (subpackage in subpackages) {
+                    val result = getCompatibleClasses(lookingFor, subpackage.memberScope, substitutions)
+                    if (result.candidates.size == 1) {
+                        subpackageResults.add(result)
+                    }
+                }
+            }
+
+            if (subpackageResults.size == 1) {
+                return when (subpackageResults[0].candidates.size) {
+                    1 -> SingleClassCandidate(subpackageResults[0].candidates[0], subpackageResults[0].substitutions)
+                    else -> null
+                }
+            }
+
+            return null
+        }
+    }
+
+    object FindInTypeclassSubpackages : ImplicitResolution() {
+        override fun resolve(lookingFor: ValueParameterDescriptor, parameters: List<ValueParameterDescriptor>, argument: ImplicitValueArgument, substitutions: List<TypeSubstitution>): ImplicitCandidate? {
+            val subpackageResults = java.util.ArrayList<CompatibilityResult>()
+            val subpackages = findSubpackagesFor(argument.parameterDescriptor.returnType!!)
+
+            for (subpackage in subpackages) {
+                val result = getCompatibleClasses(lookingFor, subpackage.memberScope, substitutions)
+                if (result.candidates.size == 1) {
+                    subpackageResults.add(result)
+                }
+            }
+
+            if (subpackageResults.size == 1) {
+                return when (subpackageResults[0].candidates.size) {
+                    1 -> SingleClassCandidate(subpackageResults[0].candidates[0], subpackageResults[0].substitutions)
+                    else -> null
+                }
+            }
+
+            return null
+        }
+    }
+
     abstract fun resolve(lookingFor: ValueParameterDescriptor,
                          parameters: List<ValueParameterDescriptor>,
                          argument: ImplicitValueArgument,
@@ -128,10 +169,7 @@ sealed class ImplicitResolution {
     }
 
     internal fun findPackageScopeFor(lookingFor: ValueParameterDescriptor): MemberScope? {
-        var descriptor: DeclarationDescriptor? = lookingFor.containingDeclaration
-        while (descriptor != null && descriptor !is PackageFragmentDescriptor) {
-            descriptor = descriptor!!.containingDeclaration
-        }
+        val descriptor = findPackageDescriptor(lookingFor)
 
         if (descriptor != null) {
             val packageDescriptor = descriptor as PackageFragmentDescriptor
@@ -139,6 +177,30 @@ sealed class ImplicitResolution {
             return moduleDescriptor.getPackage(packageDescriptor.fqName).memberScope
         }
         return null
+    }
+
+    internal fun findSubpackagesFor(lookingFor: KotlinType): Collection<PackageViewDescriptor> {
+        var descriptor = lookingFor.constructor.declarationDescriptor?.containingDeclaration
+
+        while (descriptor !is PackageFragmentDescriptor && descriptor != null) {
+            descriptor = descriptor.containingDeclaration
+        }
+
+        if (descriptor != null) {
+            val packageDescriptor = descriptor as PackageFragmentDescriptor
+            val moduleDescriptor = packageDescriptor.containingDeclaration
+            val subpackageNames = moduleDescriptor.getSubPackagesOf(packageDescriptor.fqName, { _ -> true })
+            return subpackageNames.map { moduleDescriptor.getPackage(it) }
+        }
+        return emptyList()
+    }
+
+    private fun findPackageDescriptor(lookingFor: ValueParameterDescriptor): DeclarationDescriptor? {
+        var descriptor: DeclarationDescriptor? = lookingFor.containingDeclaration
+        while (descriptor != null && descriptor !is PackageFragmentDescriptor) {
+            descriptor = descriptor!!.containingDeclaration
+        }
+        return descriptor
     }
 
     internal fun getCompatibleClasses(

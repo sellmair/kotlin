@@ -21,7 +21,9 @@ object ImplicitResolutionStrategy {
         val functionOrder = listOf(FindInLocalFunction,
                                    FindInPackage,
                                    FindInTypeCompanion,
-                                   FindInTypeclassCompanion)
+                                   FindInTypeclassCompanion,
+                                   FindInTypeSubpackages,
+                                   FindInTypeclassSubpackages)
         var candidate: ImplicitCandidate? = null
         for (resolution in functionOrder) {
             candidate = resolution.resolve(lookingFor, parameters, argument, substitutions)

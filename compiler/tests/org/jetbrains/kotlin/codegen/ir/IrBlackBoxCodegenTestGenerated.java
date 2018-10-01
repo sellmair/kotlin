@@ -22152,6 +22152,64 @@ public class IrBlackBoxCodegenTestGenerated extends AbstractIrBlackBoxCodegenTes
         }
     }
 
+    @TestMetadata("compiler/testData/codegen/box/typeclasses")
+    @TestDataPath("$PROJECT_ROOT")
+    @RunWith(JUnit3RunnerWithInners.class)
+    public static class Typeclasses extends AbstractIrBlackBoxCodegenTest {
+        private void runTest(String testDataFilePath) throws Exception {
+            KotlinTestUtils.runTest(this::doTest, TargetBackend.JVM_IR, testDataFilePath);
+        }
+
+        public void testAllFilesPresentInTypeclasses() throws Exception {
+            KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/typeclasses"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM_IR, true);
+        }
+
+        @TestMetadata("resolutionComplex.kt")
+        public void testResolutionComplex() throws Exception {
+            runTest("compiler/testData/codegen/box/typeclasses/resolutionComplex.kt");
+        }
+
+        @TestMetadata("resolutionExplicit.kt")
+        public void testResolutionExplicit() throws Exception {
+            runTest("compiler/testData/codegen/box/typeclasses/resolutionExplicit.kt");
+        }
+
+        @TestMetadata("resolutionFunctionParameter.kt")
+        public void testResolutionFunctionParameter() throws Exception {
+            runTest("compiler/testData/codegen/box/typeclasses/resolutionFunctionParameter.kt");
+        }
+
+        @TestMetadata("resolutionInSamePackage.kt")
+        public void testResolutionInSamePackage() throws Exception {
+            runTest("compiler/testData/codegen/box/typeclasses/resolutionInSamePackage.kt");
+        }
+
+        @TestMetadata("resolutionNestedInstances.kt")
+        public void testResolutionNestedInstances() throws Exception {
+            runTest("compiler/testData/codegen/box/typeclasses/resolutionNestedInstances.kt");
+        }
+
+        @TestMetadata("resolutionTypeCompanion.kt")
+        public void testResolutionTypeCompanion() throws Exception {
+            runTest("compiler/testData/codegen/box/typeclasses/resolutionTypeCompanion.kt");
+        }
+
+        @TestMetadata("resolutionTypeSubpackage.kt")
+        public void testResolutionTypeSubpackage() throws Exception {
+            runTest("compiler/testData/codegen/box/typeclasses/resolutionTypeSubpackage.kt");
+        }
+
+        @TestMetadata("resolutionTypeclassCompanion.kt")
+        public void testResolutionTypeclassCompanion() throws Exception {
+            runTest("compiler/testData/codegen/box/typeclasses/resolutionTypeclassCompanion.kt");
+        }
+
+        @TestMetadata("resolutionTypeclassSubpackage.kt")
+        public void testResolutionTypeclassSubpackage() throws Exception {
+            runTest("compiler/testData/codegen/box/typeclasses/resolutionTypeclassSubpackage.kt");
+        }
+    }
+
     @TestMetadata("compiler/testData/codegen/box/unaryOp")
     @TestDataPath("$PROJECT_ROOT")
     @RunWith(JUnit3RunnerWithInners.class)

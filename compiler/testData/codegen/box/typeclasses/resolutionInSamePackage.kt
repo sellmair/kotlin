@@ -15,10 +15,9 @@ package net.consumer
 
 import com.typeclasses.Semigroup
 
-extension class IntSemigroup: Semigroup<Int> {
+extension internal class IntSemigroup: Semigroup<Int> {
     override fun Int.combine(b: Int): Int = this + b
 }
-
 
 // FILE: Box.kt
 

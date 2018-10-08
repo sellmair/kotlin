@@ -10,11 +10,11 @@ interface Semigroup<A> {
 
 data class Wrapper<A>(val value: A)
 
-extension class WrapperSemigroup<A>(with val semigroup: Semigroup<A>) : Semigroup<Wrapper<A>> {
+extension internal class WrapperSemigroup<A>(with val semigroup: Semigroup<A>) : Semigroup<Wrapper<A>> {
     override fun Wrapper<A>.combine(b: Wrapper<A>): Wrapper<A> = Wrapper(this.value.combine(b.value))
 }
 
-extension class IntSemigroup : Semigroup<Int> {
+extension internal class IntSemigroup : Semigroup<Int> {
     override fun Int.combine(b: Int): Int = this + b
 }
 

@@ -50,7 +50,8 @@ sealed class ImplicitResolution {
 
             if (scope != null) {
                 val result = getCompatibleClasses(lookingFor, scope, substitutions)
-                return when (result.candidates.size) {
+                val candidates = result.candidates.filter { it.visibility == Visibilities.INTERNAL }
+                return when (candidates.size) {
                     1 -> SingleClassCandidate(result.candidates[0], result.substitutions)
                     else -> null
                 }

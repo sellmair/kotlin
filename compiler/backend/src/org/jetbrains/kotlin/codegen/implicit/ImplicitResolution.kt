@@ -246,6 +246,10 @@ sealed class ImplicitResolution {
                              type: KotlinType,
                              substitutions: List<TypeSubstitution>,
                              lookInSupertypes: Boolean): SubstitutionResult {
+        val result = isReplaceable(candidate, type, substitutions, lookInSupertypes)
+        if (result.canBeReplaced) {
+            return result
+        }
         val supertypes = candidate.constructor.supertypes
         val newSubstitutions = java.util.ArrayList(substitutions)
         for (supertype in supertypes) {

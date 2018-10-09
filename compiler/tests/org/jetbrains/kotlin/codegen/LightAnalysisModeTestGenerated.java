@@ -22169,6 +22169,11 @@ public class LightAnalysisModeTestGenerated extends AbstractLightAnalysisModeTes
             runTest("compiler/testData/codegen/box/typeclasses/resolutionComplex.kt");
         }
 
+        @TestMetadata("resolutionConcreteInstanceParameter.kt")
+        public void testResolutionConcreteInstanceParameter() throws Exception {
+            runTest("compiler/testData/codegen/box/typeclasses/resolutionConcreteInstanceParameter.kt");
+        }
+
         @TestMetadata("resolutionExplicit.kt")
         public void testResolutionExplicit() throws Exception {
             runTest("compiler/testData/codegen/box/typeclasses/resolutionExplicit.kt");

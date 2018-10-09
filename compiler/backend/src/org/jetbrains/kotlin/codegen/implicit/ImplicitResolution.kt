@@ -14,19 +14,21 @@ import org.jetbrains.kotlin.resolve.scopes.DescriptorKindFilter
 import org.jetbrains.kotlin.resolve.scopes.LazyScopeAdapter
 import org.jetbrains.kotlin.resolve.scopes.MemberScope
 import org.jetbrains.kotlin.types.KotlinType
+import org.jetbrains.kotlin.types.typeUtil.supertypes
 
 sealed class ImplicitResolution {
     object FindInLocalFunction : ImplicitResolution() {
         override fun resolve(lookingFor: ValueParameterDescriptor,
                              parameters: List<ValueParameterDescriptor>,
                              argument: ImplicitValueArgument,
-                             substitutions: List<TypeSubstitution>): ImplicitCandidate? {
+                             substitutions: List<TypeSubstitution>,
+                             lookInSupertypes: Boolean): ImplicitCandidate? {
             val candidates = mutableListOf<ImplicitCandidate>()
             val newSubstitutions = java.util.ArrayList(substitutions)
             for (i in 0 until parameters.size) {
                 val parameter = parameters[i]
                 if (parameter.isImplicit) {
-                    val result = isReplaceable(parameter.returnType!!, lookingFor.returnType!!, substitutions)
+                    val result = isReplaceable(parameter.returnType!!, lookingFor.returnType!!, substitutions, lookInSupertypes)
                     if (result.canBeReplaced) {
                         newSubstitutions.addAll(result.substitutions)
                         candidates.add(FunctionParameter(parameter, i, newSubstitutions))
@@ -45,11 +47,12 @@ sealed class ImplicitResolution {
         override fun resolve(lookingFor: ValueParameterDescriptor,
                              parameters: List<ValueParameterDescriptor>,
                              argument: ImplicitValueArgument,
-                             substitutions: List<TypeSubstitution>): ImplicitCandidate? {
+                             substitutions: List<TypeSubstitution>,
+                             lookInSupertypes: Boolean): ImplicitCandidate? {
             val scope = findPackageScopeFor(lookingFor)
 
             if (scope != null) {
-                val result = getCompatibleClasses(lookingFor, scope, substitutions)
+                val result = getCompatibleClasses(lookingFor, scope, substitutions, lookInSupertypes)
                 val candidates = result.candidates.filter { it.visibility == Visibilities.INTERNAL }
                 return when (candidates.size) {
                     1 -> SingleClassCandidate(result.candidates[0], result.substitutions)
@@ -65,14 +68,15 @@ sealed class ImplicitResolution {
         override fun resolve(lookingFor: ValueParameterDescriptor,
                              parameters: List<ValueParameterDescriptor>,
                              argument: ImplicitValueArgument,
-                             substitutions: List<TypeSubstitution>): ImplicitCandidate? {
+                             substitutions: List<TypeSubstitution>,
+                             lookInSupertypes: Boolean): ImplicitCandidate? {
             val arguments = lookingFor.returnType!!.arguments
 
             for (projection in arguments) {
                 val companion = findCompanionFor(projection.type)
 
                 if (companion != null) {
-                    val result = getCompatibleClasses(lookingFor, companion.unsubstitutedMemberScope, substitutions)
+                    val result = getCompatibleClasses(lookingFor, companion.unsubstitutedMemberScope, substitutions, lookInSupertypes)
 
                     return when (result.candidates.size) {
                         1 -> SingleClassCandidate(result.candidates[0], result.substitutions)
@@ -89,11 +93,12 @@ sealed class ImplicitResolution {
         override fun resolve(lookingFor: ValueParameterDescriptor,
                              parameters: List<ValueParameterDescriptor>,
                              argument: ImplicitValueArgument,
-                             substitutions: List<TypeSubstitution>): ImplicitCandidate? {
+                             substitutions: List<TypeSubstitution>,
+                             lookInSupertypes: Boolean): ImplicitCandidate? {
             val companion = findCompanionFor(argument.parameterDescriptor.returnType!!)
 
             if (companion != null) {
-                val result = getCompatibleClasses(lookingFor, companion.unsubstitutedMemberScope, substitutions)
+                val result = getCompatibleClasses(lookingFor, companion.unsubstitutedMemberScope, substitutions, lookInSupertypes)
 
                 return when (result.candidates.size) {
                     1 -> SingleClassCandidate(result.candidates[0], result.substitutions)
@@ -106,7 +111,11 @@ sealed class ImplicitResolution {
     }
 
     object FindInTypeSubpackages : ImplicitResolution() {
-        override fun resolve(lookingFor: ValueParameterDescriptor, parameters: List<ValueParameterDescriptor>, argument: ImplicitValueArgument, substitutions: List<TypeSubstitution>): ImplicitCandidate? {
+        override fun resolve(lookingFor: ValueParameterDescriptor,
+                             parameters: List<ValueParameterDescriptor>,
+                             argument: ImplicitValueArgument,
+                             substitutions: List<TypeSubstitution>,
+                             lookInSupertypes: Boolean): ImplicitCandidate? {
             val arguments = lookingFor.returnType!!.arguments
             val subpackageResults = java.util.ArrayList<CompatibilityResult>()
 
@@ -114,7 +123,7 @@ sealed class ImplicitResolution {
                 val subpackages = findSubpackagesFor(projection.type)
 
                 for (subpackage in subpackages) {
-                    val result = getCompatibleClasses(lookingFor, subpackage.memberScope, substitutions)
+                    val result = getCompatibleClasses(lookingFor, subpackage.memberScope, substitutions, lookInSupertypes)
                     if (result.candidates.size == 1) {
                         subpackageResults.add(result)
                     }
@@ -133,12 +142,16 @@ sealed class ImplicitResolution {
     }
 
     object FindInTypeclassSubpackages : ImplicitResolution() {
-        override fun resolve(lookingFor: ValueParameterDescriptor, parameters: List<ValueParameterDescriptor>, argument: ImplicitValueArgument, substitutions: List<TypeSubstitution>): ImplicitCandidate? {
+        override fun resolve(lookingFor: ValueParameterDescriptor,
+                             parameters: List<ValueParameterDescriptor>,
+                             argument: ImplicitValueArgument,
+                             substitutions: List<TypeSubstitution>,
+                             lookInSupertypes: Boolean): ImplicitCandidate? {
             val subpackageResults = java.util.ArrayList<CompatibilityResult>()
             val subpackages = findSubpackagesFor(argument.parameterDescriptor.returnType!!)
 
             for (subpackage in subpackages) {
-                val result = getCompatibleClasses(lookingFor, subpackage.memberScope, substitutions)
+                val result = getCompatibleClasses(lookingFor, subpackage.memberScope, substitutions, lookInSupertypes)
                 if (result.candidates.size == 1) {
                     subpackageResults.add(result)
                 }
@@ -158,7 +171,8 @@ sealed class ImplicitResolution {
     abstract fun resolve(lookingFor: ValueParameterDescriptor,
                          parameters: List<ValueParameterDescriptor>,
                          argument: ImplicitValueArgument,
-                         substitutions: List<TypeSubstitution>): ImplicitCandidate?
+                         substitutions: List<TypeSubstitution>,
+                         lookInSupertypes: Boolean): ImplicitCandidate?
 
     internal fun findCompanionFor(type: KotlinType): ClassDescriptor? {
         val scope = type.memberScope
@@ -207,7 +221,8 @@ sealed class ImplicitResolution {
     internal fun getCompatibleClasses(
             lookingFor: ValueParameterDescriptor,
             scope: MemberScope,
-            substitutions: List<TypeSubstitution>
+            substitutions: List<TypeSubstitution>,
+            lookInSupertypes: Boolean
     ): CompatibilityResult {
         val declarations = scope.getContributedDescriptors(DescriptorKindFilter.ALL) { name -> true }
         val candidates = java.util.ArrayList<ClassDescriptor>()
@@ -216,7 +231,7 @@ sealed class ImplicitResolution {
         for (descriptor in declarations) {
             if (descriptor is ClassDescriptor) {
                 if (descriptor.isExtension) {
-                    val result = isCompatible(descriptor.defaultType, lookingFor.returnType!!, newSubstitutions)
+                    val result = isCompatible(descriptor.defaultType, lookingFor.returnType!!, newSubstitutions, lookInSupertypes)
                     if (result.canBeReplaced) {
                         candidates.add(descriptor)
                         newSubstitutions.addAll(result.substitutions)
@@ -227,11 +242,14 @@ sealed class ImplicitResolution {
         return CompatibilityResult(candidates, newSubstitutions)
     }
 
-    private fun isCompatible(candidate: KotlinType, type: KotlinType, substitutions: List<TypeSubstitution>): SubstitutionResult {
+    private fun isCompatible(candidate: KotlinType,
+                             type: KotlinType,
+                             substitutions: List<TypeSubstitution>,
+                             lookInSupertypes: Boolean): SubstitutionResult {
         val supertypes = candidate.constructor.supertypes
         val newSubstitutions = java.util.ArrayList(substitutions)
         for (supertype in supertypes) {
-            val result = isReplaceable(supertype, type, newSubstitutions)
+            val result = isReplaceable(supertype, type, newSubstitutions, lookInSupertypes)
             if (!result.canBeReplaced) {
                 return SubstitutionResult(false, substitutions)
             } else {
@@ -241,7 +259,10 @@ sealed class ImplicitResolution {
         return SubstitutionResult(true, newSubstitutions)
     }
 
-    internal fun isReplaceable(candidate: KotlinType, target: KotlinType, substitutions: List<TypeSubstitution>): SubstitutionResult {
+    internal fun isReplaceable(candidate: KotlinType,
+                               target: KotlinType,
+                               substitutions: List<TypeSubstitution>,
+                               lookInSupertypes: Boolean): SubstitutionResult {
         val newSubstitutions = java.util.ArrayList(substitutions)
         if (candidate.memberScope is LazyScopeAdapter) {
             newSubstitutions.add(TypeSubstitution(candidate, target))
@@ -253,7 +274,7 @@ sealed class ImplicitResolution {
                 for (i in 0 until candidate.arguments.size) {
                     val supertypeArgument = candidate.arguments[i]
                     val typeArgument = target.arguments[i]
-                    val result = isReplaceable(supertypeArgument.type, typeArgument.type, newSubstitutions)
+                    val result = isReplaceable(supertypeArgument.type, typeArgument.type, newSubstitutions, lookInSupertypes)
                     if (!result.canBeReplaced) {
                         return SubstitutionResult(false, substitutions)
                     } else {
@@ -261,6 +282,15 @@ sealed class ImplicitResolution {
                     }
                 }
                 return SubstitutionResult(true, newSubstitutions)
+            }
+        }
+
+        if (lookInSupertypes) {
+            for (supertype in target.supertypes()) {
+                val result = isReplaceable(candidate, supertype, substitutions, false)
+                if (result.canBeReplaced) {
+                    return result
+                }
             }
         }
 

@@ -22194,6 +22194,11 @@ public class IrBlackBoxCodegenTestGenerated extends AbstractIrBlackBoxCodegenTes
             runTest("compiler/testData/codegen/box/typeclasses/resolutionTypeCompanion.kt");
         }
 
+        @TestMetadata("resolutionTypeHierarchy.kt")
+        public void testResolutionTypeHierarchy() throws Exception {
+            runTest("compiler/testData/codegen/box/typeclasses/resolutionTypeHierarchy.kt");
+        }
+
         @TestMetadata("resolutionTypeSubpackage.kt")
         public void testResolutionTypeSubpackage() throws Exception {
             runTest("compiler/testData/codegen/box/typeclasses/resolutionTypeSubpackage.kt");

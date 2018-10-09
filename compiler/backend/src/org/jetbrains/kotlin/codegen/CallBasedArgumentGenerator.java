@@ -98,7 +98,8 @@ public class CallBasedArgumentGenerator extends ArgumentGenerator {
                         .resolve(this.valueParameters.get(i),
                                  this.codegen.context.getFunctionDescriptor().getValueParameters(),
                                  argument,
-                                 new ArrayList<>());
+                                 new ArrayList<>(),
+                                 false);
         if (candidate != null) {
             candidate.generate(i, this.valueParameters.get(i), this.callGenerator, this.codegen.typeMapper);
         } else {

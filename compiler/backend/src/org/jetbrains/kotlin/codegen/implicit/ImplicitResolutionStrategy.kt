@@ -17,7 +17,8 @@ object ImplicitResolutionStrategy {
     fun resolve(lookingFor: ValueParameterDescriptor,
                 parameters: List<ValueParameterDescriptor>,
                 argument: ImplicitValueArgument,
-                substitutions: List<TypeSubstitution>): ImplicitCandidate? {
+                substitutions: List<TypeSubstitution>,
+                lookInSupertypes: Boolean = false): ImplicitCandidate? {
         val functionOrder = listOf(FindInLocalFunction,
                                    FindInPackage,
                                    FindInTypeCompanion,
@@ -26,10 +27,14 @@ object ImplicitResolutionStrategy {
                                    FindInTypeclassSubpackages)
         var candidate: ImplicitCandidate? = null
         for (resolution in functionOrder) {
-            candidate = resolution.resolve(lookingFor, parameters, argument, substitutions)
+            candidate = resolution.resolve(lookingFor, parameters, argument, substitutions, lookInSupertypes)
             if (candidate != null) {
-                break;
+                break
             }
+        }
+
+        if (candidate == null && !lookInSupertypes) {
+            return resolve(lookingFor, parameters, argument, substitutions, true)
         }
 
         return candidate?.let { candidate ->

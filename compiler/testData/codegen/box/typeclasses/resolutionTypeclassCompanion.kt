@@ -8,7 +8,7 @@ interface Semigroup<A> {
     fun A.combine(b: A): A
 
     companion object {
-        extension class IntSemigroup : Semigroup<Int> {
+        extension object IntSemigroup : Semigroup<Int> {
             override fun Int.combine(b: Int): Int = this + b
         }
     }

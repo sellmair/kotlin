@@ -14,7 +14,7 @@ extension internal class WrapperSemigroup<A>(with val semigroup: Semigroup<A>) :
     override fun Wrapper<A>.combine(b: Wrapper<A>): Wrapper<A> = Wrapper(this.value.combine(b.value))
 }
 
-extension internal class IntSemigroup : Semigroup<Int> {
+extension internal object IntSemigroup : Semigroup<Int> {
     override fun Int.combine(b: Int): Int = this + b
 }
 

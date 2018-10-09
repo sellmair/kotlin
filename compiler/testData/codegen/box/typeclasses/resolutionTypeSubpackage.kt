@@ -34,6 +34,6 @@ package org.data.instances
 import com.typeclasses.Semigroup
 import org.data.Money
 
-extension class MoneySemigroup : Semigroup<Money> {
+extension object MoneySemigroup : Semigroup<Money> {
     override fun Money.combine(b: Money): Money = Money(this.amount + b.amount)
 }

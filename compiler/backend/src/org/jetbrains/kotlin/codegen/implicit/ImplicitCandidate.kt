@@ -11,6 +11,7 @@ import org.jetbrains.kotlin.codegen.JvmKotlinType
 import org.jetbrains.kotlin.codegen.StackValue
 import org.jetbrains.kotlin.codegen.state.KotlinTypeMapper
 import org.jetbrains.kotlin.descriptors.ClassDescriptor
+import org.jetbrains.kotlin.descriptors.ClassKind
 import org.jetbrains.kotlin.descriptors.ValueParameterDescriptor
 import org.jetbrains.kotlin.resolve.lazy.descriptors.LazyClassMemberScope
 import org.jetbrains.org.objectweb.asm.commons.InstructionAdapter
@@ -27,7 +28,12 @@ sealed class ImplicitCandidate(open val substitutions: List<TypeSubstitution>) {
     data class SingleClassCandidate(val value: ClassDescriptor,
                                     override val substitutions: List<TypeSubstitution>) : ImplicitCandidate(substitutions) {
         override fun generate(lookingFor: ValueParameterDescriptor, typeMapper: KotlinTypeMapper, adapter: InstructionAdapter) {
-            generateInstantiation(lookingFor, typeMapper, adapter, value, emptyList())
+            if (value.kind == ClassKind.OBJECT) {
+                adapter.getstatic(typeMapper.mapType(value).internalName, "INSTANCE", typeMapper.mapType(value).toString())
+                adapter.checkcast(typeMapper.mapType(lookingFor))
+            } else {
+                generateInstantiation(lookingFor, typeMapper, adapter, value, emptyList())
+            }
         }
     }
 

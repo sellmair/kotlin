@@ -8,14 +8,13 @@ interface Semigroup<A> {
     fun A.combine(b: A): A
 }
 
-
 // FILE: IntSemigroup.kt
 
 package net.consumer
 
 import com.typeclasses.Semigroup
 
-extension internal class IntSemigroup: Semigroup<Int> {
+extension internal object IntSemigroup: Semigroup<Int> {
     override fun Int.combine(b: Int): Int = this + b
 }
 

@@ -33,7 +33,7 @@ import com.typeclasses.Semigroup
 
 data class Money(val amount: Double) {
     companion object {
-        extension class MoneySemigroup : Semigroup<Money> {
+        extension object MoneySemigroup : Semigroup<Money> {
             override fun Money.combine(b: Money): Money = Money(this.amount + b.amount)
         }
     }

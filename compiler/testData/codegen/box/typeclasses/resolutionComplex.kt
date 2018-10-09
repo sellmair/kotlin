@@ -8,7 +8,7 @@ interface Semigroup<A> {
     fun A.combine(b: A): A
 
     companion object {
-        extension class IntSemigroup : Semigroup<Int> {
+        extension object IntSemigroup : Semigroup<Int> {
             override fun Int.combine(b: Int): Int = this + b
         }
     }
@@ -29,7 +29,7 @@ package com.typeclasses.instances
 
 import com.typeclasses.Eq
 
-extension class IntEq : Eq<Int> {
+extension object IntEq : Eq<Int> {
     override fun Int.eqv(b: Int): Boolean = this == b
 }
 

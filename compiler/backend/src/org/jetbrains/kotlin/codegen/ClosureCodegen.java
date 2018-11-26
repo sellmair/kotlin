@@ -261,6 +261,8 @@ public class ClosureCodegen extends MemberCodegen<KtElement> {
                         v.anew(asmType);
                         v.dup();
 
+                        loadImplicitParameters(closure, v);
+
                         codegen.pushClosureOnStack(classDescriptor, true, codegen.defaultCallGenerator, functionReferenceReceiver);
                         v.invokespecial(asmType.getInternalName(), "<init>", constructor.getDescriptor(), false);
                     }
@@ -268,6 +270,21 @@ public class ClosureCodegen extends MemberCodegen<KtElement> {
                     return Unit.INSTANCE;
                 }
         );
+    }
+
+    protected void loadImplicitParameters(CalculatedClosure closure, InstructionAdapter v) {
+        DeclarationDescriptor declaration = closure.getClosureClass();
+        while (declaration != null) {
+            if (declaration instanceof FunctionDescriptor) {
+                List<ValueParameterDescriptor> parameters = ((FunctionDescriptor) declaration).getValueParameters();
+                for (int i = 0; i < parameters.size(); i++) {
+                    if (parameters.get(i).isImplicit()) {
+                        v.load(i, typeMapper.mapType(parameters.get(i)));
+                    }
+                }
+            }
+            declaration = declaration.getContainingDeclaration();
+        }
     }
 
     protected void generateBridge(
@@ -510,6 +527,22 @@ public class ClosureCodegen extends MemberCodegen<KtElement> {
                 assert captureReceiverType != null;
             }
         }
+
+        DeclarationDescriptor declaration = closure.getClosureClass();
+        while (declaration != null) {
+            if (declaration instanceof FunctionDescriptor) {
+                List<ValueParameterDescriptor> parameters = ((FunctionDescriptor) declaration).getValueParameters();
+                for (ValueParameterDescriptor parameter : parameters) {
+                    if (parameter.isImplicit()) {
+                        args.add(FieldInfo.createForHiddenField(ownerType,
+                                                                typeMapper.mapType(parameter.getReturnType()),
+                                                                parameter.getName().asString()));
+                    }
+                }
+            }
+            declaration = declaration.getContainingDeclaration();
+        }
+
         return args;
     }
 

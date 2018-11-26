@@ -22,6 +22,7 @@ import org.jetbrains.kotlin.backend.common.CodegenUtil;
 import org.jetbrains.kotlin.builtins.KotlinBuiltIns;
 import org.jetbrains.kotlin.codegen.binding.CalculatedClosure;
 import org.jetbrains.kotlin.codegen.binding.CodegenBinding;
+import org.jetbrains.kotlin.codegen.binding.MutableClosure;
 import org.jetbrains.kotlin.codegen.context.*;
 import org.jetbrains.kotlin.codegen.coroutines.CoroutineCodegenForLambda;
 import org.jetbrains.kotlin.codegen.coroutines.CoroutineCodegenUtilKt;
@@ -2768,9 +2769,16 @@ public class ExpressionCodegen extends KtVisitor<StackValue, StackValue> impleme
             );
         } else if (parameter instanceof ValueParameterDescriptor) {
             if (((ValueParameterDescriptor) parameter).isImplicit()) {
+                Type type;
+                if (parentCodegen instanceof ClosureCodegen) {
+                    type = typeMapper.mapType(((ClosureCodegen) this.parentCodegen).closure.getClosureClass().getDefaultType());
+                } else {
+                    type = typeMapper.mapType(((CallableDescriptor) parameter.getContainingDeclaration()).getReturnType());
+                }
+                type = typeMapper.mapType((ClassDescriptor) (parentCodegen.context).getContextDescriptor());
                 return StackValue.field(
                         typeMapper.mapType(parameter),
-                        typeMapper.mapType(((CallableDescriptor) parameter.getContainingDeclaration()).getReturnType()),
+                        type,
                         parameter.getName().asString(),
                         false,
                         StackValue.LOCAL_0);

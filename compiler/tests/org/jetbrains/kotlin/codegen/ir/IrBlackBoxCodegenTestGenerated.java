@@ -22164,6 +22164,11 @@ public class IrBlackBoxCodegenTestGenerated extends AbstractIrBlackBoxCodegenTes
             KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/typeclasses"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM_IR, true);
         }
 
+        @TestMetadata("resolutionCaptureImplicitInClosure.kt")
+        public void testResolutionCaptureImplicitInClosure() throws Exception {
+            runTest("compiler/testData/codegen/box/typeclasses/resolutionCaptureImplicitInClosure.kt");
+        }
+
         @TestMetadata("resolutionComplex.kt")
         public void testResolutionComplex() throws Exception {
             runTest("compiler/testData/codegen/box/typeclasses/resolutionComplex.kt");

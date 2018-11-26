@@ -18,6 +18,10 @@ import org.jetbrains.kotlin.resolve.BindingContext;
 import org.jetbrains.kotlin.types.KotlinType;
 import org.jetbrains.org.objectweb.asm.Type;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import static org.jetbrains.kotlin.codegen.AsmUtil.CAPTURED_RECEIVER_FIELD;
 import static org.jetbrains.kotlin.codegen.binding.CodegenBinding.*;
 import static org.jetbrains.kotlin.types.expressions.ExpressionTypingUtils.isLocalFunction;
@@ -72,6 +76,29 @@ public interface LocalLookup {
 
                 closure.captureVariable(enclosedValueDescriptor);
 
+                DeclarationDescriptor declaration = closure.getClosureClass();
+                while (declaration != null) {
+                    if (declaration instanceof FunctionDescriptor) {
+                        List<ValueParameterDescriptor> parameters = ((FunctionDescriptor) declaration).getValueParameters();
+                        for (ValueParameterDescriptor parameter : parameters) {
+                            if (parameter.isImplicit()) {
+                                EnclosedValueDescriptor enclosedValue =
+                                        new EnclosedValueDescriptor(parameter.getName().asString(),
+                                                                    parameter,
+                                                                    StackValue.field(
+                                                                            state.getTypeMapper().mapType(parameter),
+                                                                            state.getTypeMapper().mapType(closure.getClosureClass()),
+                                                                            parameter.getName().asString(),
+                                                                            false,
+                                                                            StackValue.LOCAL_0
+                                                                    ),
+                                                                    state.getTypeMapper().mapType(parameter));
+                                closure.captureVariable(enclosedValue);
+                            }
+                        }
+                    }
+                    declaration = declaration.getContainingDeclaration();
+                }
                 return innerValue;
             }
         },

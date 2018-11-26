@@ -46,6 +46,7 @@ import org.jetbrains.kotlin.types.KotlinType;
 import org.jetbrains.kotlin.util.OperatorNameConventions;
 
 import java.io.File;
+import java.util.List;
 
 import static org.jetbrains.kotlin.codegen.coroutines.CoroutineCodegenUtilKt.SUSPEND_FUNCTION_CREATE_METHOD_NAME;
 import static org.jetbrains.kotlin.descriptors.ClassKind.ANNOTATION_CLASS;
@@ -89,7 +90,24 @@ public class JvmCodegenUtil {
         return closure.getCaptureThis() == null &&
                     closure.getCaptureReceiverType() == null &&
                     closure.getCaptureVariables().isEmpty() &&
-                    !closure.isSuspend();
+                    !closure.isSuspend() &&
+                    !hasImplicitParameters(closure);
+    }
+
+    private static boolean hasImplicitParameters(@NotNull CalculatedClosure closure) {
+        DeclarationDescriptor declaration = closure.getClosureClass();
+        while (declaration != null) {
+            if (declaration instanceof FunctionDescriptor) {
+                List<ValueParameterDescriptor> parameters = ((FunctionDescriptor) declaration).getValueParameters();
+                for (ValueParameterDescriptor parameter : parameters) {
+                    if (parameter.isImplicit()) {
+                        return true;
+                    }
+                }
+            }
+            declaration = declaration.getContainingDeclaration();
+        }
+        return false;
     }
 
     private static boolean isCallInsideSameClassAsFieldRepresentingProperty(

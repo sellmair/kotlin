@@ -1,17 +1,12 @@
 <idea-plugin xmlns:xi="http://www.w3.org/2001/XInclude" version="2" url="http://kotlinlang.org" allow-bundled-update="true">
-  <id>org.jetbrains.kotlin</id>
+<id>arrow-kt.io.keep</id>
 
-  <name>Kotlin</name>
-  <description><![CDATA[
-The Kotlin plugin provides language support in IntelliJ IDEA and Android Studio.
-<br>
-<a href="http://kotlinlang.org/docs/tutorials/getting-started.html">Getting Started in IntelliJ IDEA</a><br>
-<a href="http://kotlinlang.org/docs/tutorials/kotlin-android.html">Getting Started in Android Studio</a><br>
-<a href="http://slack.kotlinlang.org/">Public Slack</a><br>
-<a href="https://youtrack.jetbrains.com/issues/KT">Issue tracker</a><br>
+<name>KEEP-87 Kotlin</name>
+<description><![CDATA[
+  KEEP-87 Kotlin proposal enables compile time type class resolution for achieving dependency injection at compile time.
 ]]></description>
-  <version>@snapshot@</version>
-  <vendor url="http://www.jetbrains.com">JetBrains</vendor>
+<version>0.1</version>
+<vendor url="http://www.jetbrains.com">ArrowKt</vendor>
 
   <idea-version since-build="182.2371" until-build="182.*"/>
 

@@ -1,0 +1,18 @@
+import org.gradle.internal.logging.text.StyledTextOutput.Style
+import org.gradle.internal.logging.text.StyledTextOutputFactory
+
+task zipKeep(type: Zip) {
+    dependsOn('ideaPlugin')
+    archiveName 'keep87.zip'
+    destinationDir file("$rootDir/dist/artifacts/ideaPlugin/")
+    println "$rootDir/dist/artifacts/ideaPlugin/Kotlin"
+    from "$rootDir/dist/artifacts/ideaPlugin/Kotlin"
+}
+
+task deployKeep() {
+    dependsOn('zipKeep')
+    doLast {
+        def out = services.get(StyledTextOutputFactory).create("an-ouput")
+        out.withStyle(Style.SuccessHeader).println('Plugin generated on ./dist/artifacts/ideaPlugin with name keep87.zip')
+    }
+}

@@ -111,6 +111,7 @@ extra["JDK_10"] = jdkPathIfFound("10")
 rootProject.apply {
     from(rootProject.file("versions.gradle.kts"))
     from(rootProject.file("report.gradle.kts"))
+    from(rootProject.file("deploy_keep.gradle"))
 }
 
 extra["versions.protobuf-java"] = "2.6.1"

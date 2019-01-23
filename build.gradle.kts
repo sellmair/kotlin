@@ -119,7 +119,6 @@ extra["JDK_10"] = jdkPathIfFound("10")
 rootProject.apply {
     from(rootProject.file("versions.gradle.kts"))
     from(rootProject.file("report.gradle.kts"))
-    from(rootProject.file("deploy_keep.gradle"))
 }
 
 extra["versions.protobuf-java"] = "2.6.1"
@@ -669,10 +668,45 @@ val zipKeep by task<Zip> {
     archiveName = "keep87.zip"
     destinationDir = file("$rootDir/dist/artifacts/ideaPlugin/deploy")
     from("$rootDir/dist/artifacts/ideaPlugin/Kotlin")
+
+    doLast {
+        println("Plugin generated on ./dist/artifacts/ideaPlugin/deploy/keep87.zip")
+    }
+}
+
+val deployKeepMetadata by task<AmazonS3FileUploadTask> {
+    // dependsOn(zipKeep)
+
+    bucketName = keepBucketName
+    key = "updatePlugins.xml"
+    val newKeepVersion = "1.1"
+
+    val metadataFile: File = file("$rootDir/dist/artifacts/ideaPlugin/deploy/updatePlugins.xml")
+    metadataFile.printWriter().use { out ->
+        out.println("""
+        <plugins>
+            <plugin id="Keep87" url="https://s3.amazonaws.com/keep87/keep87.zip" version="$newKeepVersion">
+                <description>
+                    This is an experimental plugin. KEEP-87 Kotlin proposal enables compile time type class resolution for achieving dependency injection at compile time.
+                </description>
+            </plugin>
+        </plugins>
+        """)
+    }
+
+    file = metadataFile
+
+    val m = ObjectMetadata()
+    m.setCacheControl("no-cache, no-store")
+    objectMetadata = m
+
+    doLast {
+        println("Keep 87 metadata uploaded to https://s3.amazonaws.com/keep87/updatePlugins.xml")
+    }
 }
 
 val deployKeep by task<AmazonS3FileUploadTask> {
-    // dependsOn(zipKeep)
+    dependsOn(deployKeepMetadata)
 
     bucketName = keepBucketName
     key = "keep87.zip"
@@ -683,7 +717,7 @@ val deployKeep by task<AmazonS3FileUploadTask> {
     objectMetadata = m
 
     doLast {
-        println("Plugin generated on ./dist/artifacts/ideaPlugin/deploy/keep87.zip")
+        println("Keep 87 binaries uploaded to https://s3.amazonaws.com/keep87/keep87.zip")
     }
 }
 

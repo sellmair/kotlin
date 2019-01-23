@@ -675,7 +675,7 @@ val zipKeep by task<Zip> {
 }
 
 val deployKeepMetadata by task<AmazonS3FileUploadTask> {
-    // dependsOn(zipKeep)
+    dependsOn(zipKeep)
 
     bucketName = keepBucketName
     key = "updatePlugins.xml"

@@ -686,6 +686,7 @@ val deployKeepMetadata by task<AmazonS3FileUploadTask> {
     }
 
     val metadataFile: File = file("$rootDir/dist/artifacts/ideaPlugin/deploy/updatePlugins.xml")
+    metadataFile.createNewFile()
     metadataFile.printWriter().use { out ->
         out.println("""
         <plugins>

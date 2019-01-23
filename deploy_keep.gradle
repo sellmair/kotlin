@@ -1,18 +1,59 @@
-import org.gradle.internal.logging.text.StyledTextOutput.Style
-import org.gradle.internal.logging.text.StyledTextOutputFactory
-
-task zipKeep(type: Zip) {
-    dependsOn('ideaPlugin')
-    archiveName 'keep87.zip'
-    destinationDir file("$rootDir/dist/artifacts/ideaPlugin/")
-    println "$rootDir/dist/artifacts/ideaPlugin/Kotlin"
-    from "$rootDir/dist/artifacts/ideaPlugin/Kotlin"
-}
-
-task deployKeep() {
-    dependsOn('zipKeep')
-    doLast {
-        def out = services.get(StyledTextOutputFactory).create("an-ouput")
-        out.withStyle(Style.SuccessHeader).println('Plugin generated on ./dist/artifacts/ideaPlugin with name keep87.zip')
-    }
-}
+//import com.amazonaws.services.s3.model.ObjectMetadata
+//import jp.classmethod.aws.gradle.s3.AmazonS3FileUploadTask
+//import org.gradle.internal.logging.text.StyledTextOutput.Style
+//import org.gradle.internal.logging.text.StyledTextOutputFactory
+//
+//buildscript {
+//    repositories {
+//        mavenCentral()
+//        maven { url "https://plugins.gradle.org/m2/" }
+//    }
+//    dependencies {
+//        classpath "jp.classmethod.aws:gradle-aws-plugin:0.+"
+//    }
+//}
+//
+//apply plugin: "jp.classmethod.aws.s3"
+//
+//def keepBucketName = 'keep87'
+//def regionName = 'us-east-1'
+//
+//aws {
+//    profileName = 'default'
+//    region regionName
+//}
+//
+//task zipKeep(type: Zip) {
+//    dependsOn('ideaPlugin')
+//    archiveName 'keep87.zip'
+//    destinationDir file("$rootDir/dist/artifacts/ideaPlugin/deploy")
+//    from "$rootDir/dist/artifacts/ideaPlugin/Kotlin"
+//}
+//
+//task deployKeep(type: AmazonS3FileUploadTask) {
+//    // dependsOn(zipKeep)
+//
+//    bucketName keepBucketName
+//    key "keep87.zip"
+//    file file("$rootDir/dist/artifacts/ideaPlugin/deploy/keep87.zip")
+//
+//    def m = new ObjectMetadata()
+//    m.setCacheControl("no-cache, no-store")
+//    objectMetadata = m
+//
+//    doLast {
+//        def out = services.get(StyledTextOutputFactory).create("an-ouput")
+//        out.withStyle(Style.SuccessHeader).println('Plugin generated on ./dist/artifacts/ideaPlugin/deploy/keep87.zip')
+//
+//        // def AWS_ACCESS_KEY_ID = "AKIAICXWMGVQC7HXE47A"
+//        // def AWS_SECRET_ACCESS_KEY = "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"
+//
+//        // def description = "Deploys KEEP-87 to the plugins repository."
+//
+//        // accessKey AWS_ACCESS_KEY_ID
+//        // secretKey AWS_SECRET_ACCESS_KEY
+//    }
+//}
+//
+//// def sources = project.file("$rootDir/dist/artifacts/ideaPlugin/deploy").listFiles()
+//// println sources

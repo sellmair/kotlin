@@ -679,7 +679,11 @@ val deployKeepMetadata by task<AmazonS3FileUploadTask> {
 
     bucketName = keepBucketName
     key = "updatePlugins.xml"
-    val newKeepVersion = "1.1"
+
+    val localMetadata = file("$rootDir/idea/src/META-INF/plugin.xml")
+    val newKeepVersion = localMetadata.readText().let { content ->
+        content.substring(content.indexOf("<version>") + 1, content.indexOf("</version>"))
+    }
 
     val metadataFile: File = file("$rootDir/dist/artifacts/ideaPlugin/deploy/updatePlugins.xml")
     metadataFile.printWriter().use { out ->

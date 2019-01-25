@@ -665,8 +665,20 @@ configure<AwsPluginExtension> {
 
 val zipKeep by task<Zip> {
     dependsOn(ideaPlugin)
+
     archiveName = "keep87.zip"
-    destinationDir = file("$rootDir/dist/artifacts/ideaPlugin/deploy")
+
+    val destDir = file("$rootDir/dist/artifacts/ideaPlugin/deploy")
+    if (!destDir.exists()) {
+        try {
+            destDir.mkdirs()
+        } catch (e: Exception) {
+            println("Couldn't create keep deploy directory. ${e.getLocalizedMessage()}")
+        }
+    }
+
+    destinationDir = destDir
+
     from("$rootDir/dist/artifacts/ideaPlugin/Kotlin")
 
     doLast {
@@ -685,10 +697,17 @@ val deployKeepMetadata by task<AmazonS3FileUploadTask> {
         content.substring(content.indexOf("<version>") + 1, content.indexOf("</version>"))
     }
 
+    // create file if it doesn't exist yet
     val metadataFile: File = file("$rootDir/dist/artifacts/ideaPlugin/deploy/updatePlugins.xml")
-    metadataFile.createNewFile()
-    metadataFile.printWriter().use { out ->
-        out.println("""
+    metadataFile.createNewFile();
+
+    doFirst {
+        metadataFile.parentFile.mkdirs()
+        metadataFile.createNewFile();
+
+        metadataFile.printWriter().use { out ->
+            out.println(
+                """
         <plugins>
             <plugin id="Keep87" url="https://s3.amazonaws.com/keep87/keep87.zip" version="$newKeepVersion">
                 <description>
@@ -696,7 +715,9 @@ val deployKeepMetadata by task<AmazonS3FileUploadTask> {
                 </description>
             </plugin>
         </plugins>
-        """)
+        """
+            )
+        }
     }
 
     file = metadataFile

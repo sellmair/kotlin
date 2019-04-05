@@ -7,7 +7,7 @@ package org.jetbrains.kotlin.extensionresolution
 
 import org.jetbrains.kotlin.extensionresolution.ExtensionCandidateResolution.Resolved
 import org.jetbrains.kotlin.extensionresolution.ExtensionCandidateResolution.Unresolved
-import org.jetbrains.kotlin.extensionresolution.ImplicitResolution.*
+import org.jetbrains.kotlin.extensionresolution.ExtensionResolution.*
 import org.jetbrains.kotlin.descriptors.ValueParameterDescriptor
 import org.jetbrains.kotlin.resolve.descriptorUtil.fqNameSafe
 

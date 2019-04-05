@@ -18,8 +18,8 @@ import org.jetbrains.kotlin.resolve.scopes.MemberScope
 import org.jetbrains.kotlin.types.KotlinType
 import org.jetbrains.kotlin.types.typeUtil.supertypes
 
-sealed class ImplicitResolution {
-    object FindInLocalFunction : ImplicitResolution() {
+sealed class ExtensionResolution {
+    object FindInLocalFunction : ExtensionResolution() {
         override fun resolve(
             lookingFor: ValueParameterDescriptor,
             parameters: List<ValueParameterDescriptor>,
@@ -50,7 +50,7 @@ sealed class ImplicitResolution {
         }
     }
 
-    object FindInPackage : ImplicitResolution() {
+    object FindInPackage : ExtensionResolution() {
 
         override fun resolve(
             lookingFor: ValueParameterDescriptor,
@@ -78,7 +78,7 @@ sealed class ImplicitResolution {
         }
     }
 
-    object FindInTypeCompanion : ImplicitResolution() {
+    object FindInTypeCompanion : ExtensionResolution() {
         override fun resolve(
             lookingFor: ValueParameterDescriptor,
             parameters: List<ValueParameterDescriptor>,
@@ -109,7 +109,7 @@ sealed class ImplicitResolution {
         }
     }
 
-    object FindInTypeclassCompanion : ImplicitResolution() {
+    object FindInTypeclassCompanion : ExtensionResolution() {
         override fun resolve(
             lookingFor: ValueParameterDescriptor,
             parameters: List<ValueParameterDescriptor>,
@@ -136,7 +136,7 @@ sealed class ImplicitResolution {
         }
     }
 
-    object FindInTypeSubpackages : ImplicitResolution() {
+    object FindInTypeSubpackages : ExtensionResolution() {
         override fun resolve(
             lookingFor: ValueParameterDescriptor,
             parameters: List<ValueParameterDescriptor>,
@@ -173,7 +173,7 @@ sealed class ImplicitResolution {
         }
     }
 
-    object FindInTypeclassSubpackages : ImplicitResolution() {
+    object FindInTypeclassSubpackages : ExtensionResolution() {
         override fun resolve(
             lookingFor: ValueParameterDescriptor,
             parameters: List<ValueParameterDescriptor>,

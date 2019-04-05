@@ -43,7 +43,7 @@ sealed class ExtensionResolution {
             return when (candidates.size) {
                 1 -> Resolved(candidates[0])
                 else -> Unresolved(
-                    "Unable to resolve implicit value in local function for argument " +
+                    "Unable to resolve extension value in local function for argument " +
                             "${argumentParameterDescriptor.name} : ${argumentParameterDescriptor.returnType}."
                 )
             }
@@ -61,7 +61,7 @@ sealed class ExtensionResolution {
         ): ExtensionCandidateResolution {
             val scope = findPackageScopeFor(lookingFor)
             val error = Unresolved(
-                "Unable to resolve implicit value in package for argument " +
+                "Unable to resolve extension value in package for argument " +
                         "${argumentParameterDescriptor.name} : ${argumentParameterDescriptor.returnType}."
             )
 
@@ -88,7 +88,7 @@ sealed class ExtensionResolution {
         ): ExtensionCandidateResolution {
             val arguments = lookingFor.returnType!!.arguments
             val error = Unresolved(
-                "Unable to resolve implicit value in companion object for argument " +
+                "Unable to resolve extension value in companion object for argument " +
                         "${argumentParameterDescriptor.name} : ${argumentParameterDescriptor.returnType}."
             )
 
@@ -119,7 +119,7 @@ sealed class ExtensionResolution {
         ): ExtensionCandidateResolution {
             val companion = findCompanionFor(argumentParameterDescriptor.returnType!!)
             val error = Unresolved(
-                "Unable to resolve implicit value in type class companion object for argument " +
+                "Unable to resolve extension value in type class companion object for argument " +
                         "${argumentParameterDescriptor.name} : ${argumentParameterDescriptor.returnType}."
             )
 
@@ -147,7 +147,7 @@ sealed class ExtensionResolution {
             val arguments = lookingFor.returnType!!.arguments
             val subpackageResults = java.util.ArrayList<ExtensionCompatibilityResult>()
             val error = Unresolved(
-                "Unable to resolve implicit value in type subpackages for argument " +
+                "Unable to resolve extension value in type subpackages for argument " +
                         "${argumentParameterDescriptor.name} : ${argumentParameterDescriptor.returnType}."
             )
 
@@ -184,7 +184,7 @@ sealed class ExtensionResolution {
             val subpackageResults = java.util.ArrayList<ExtensionCompatibilityResult>()
             val subpackages = findSubpackagesFor(argumentParameterDescriptor.returnType!!)
             val error = Unresolved(
-                "Unable to resolve implicit value in type class subpackages for argument " +
+                "Unable to resolve extension value in type class subpackages for argument " +
                         "${argumentParameterDescriptor.name} : ${argumentParameterDescriptor.returnType}."
             )
 

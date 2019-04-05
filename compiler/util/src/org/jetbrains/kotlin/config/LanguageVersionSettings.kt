@@ -110,7 +110,7 @@ enum class LanguageFeature(
 
     InlineClasses(sinceVersion = KOTLIN_1_3, defaultState = State.ENABLED_WITH_WARNING, kind = UNSTABLE_FEATURE),
 
-    Typeclasses(KOTLIN_1_1, defaultState = State.ENABLED, kind = Kind.BUG_FIX),
+    CompileTimeExtensionResolution(KOTLIN_1_1, defaultState = State.ENABLED, kind = Kind.BUG_FIX),
     ;
 
     val presentableName: String

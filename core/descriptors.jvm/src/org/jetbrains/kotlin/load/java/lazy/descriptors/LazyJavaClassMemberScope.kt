@@ -677,7 +677,7 @@ class LazyJavaClassMemberScope(
                 method.hasAnnotationParameterDefaultValue,
                 /* isCrossinline = */ false,
                 /* isNoinline = */ false,
-                /* isImplicit = */ false,
+                /* isExtension = */ false,
                 // Nulls are not allowed in annotation arguments in Java
                 varargElementType?.let { TypeUtils.makeNotNullable(it) },
                 c.components.sourceElementFactory.source(method)

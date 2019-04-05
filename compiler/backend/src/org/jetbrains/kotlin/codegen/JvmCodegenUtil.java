@@ -100,7 +100,7 @@ public class JvmCodegenUtil {
             if (declaration instanceof FunctionDescriptor) {
                 List<ValueParameterDescriptor> parameters = ((FunctionDescriptor) declaration).getValueParameters();
                 for (ValueParameterDescriptor parameter : parameters) {
-                    if (parameter.isImplicit()) {
+                    if (parameter.isExtension()) {
                         return true;
                     }
                 }

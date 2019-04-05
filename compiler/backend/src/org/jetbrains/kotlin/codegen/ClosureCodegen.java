@@ -278,7 +278,7 @@ public class ClosureCodegen extends MemberCodegen<KtElement> {
             if (declaration instanceof FunctionDescriptor) {
                 List<ValueParameterDescriptor> parameters = ((FunctionDescriptor) declaration).getValueParameters();
                 for (int i = 0; i < parameters.size(); i++) {
-                    if (parameters.get(i).isImplicit()) {
+                    if (parameters.get(i).isExtension()) {
                         v.load(i, typeMapper.mapType(parameters.get(i)));
                     }
                 }
@@ -533,7 +533,7 @@ public class ClosureCodegen extends MemberCodegen<KtElement> {
             if (declaration instanceof FunctionDescriptor) {
                 List<ValueParameterDescriptor> parameters = ((FunctionDescriptor) declaration).getValueParameters();
                 for (ValueParameterDescriptor parameter : parameters) {
-                    if (parameter.isImplicit()) {
+                    if (parameter.isExtension()) {
                         args.add(FieldInfo.createForHiddenField(ownerType,
                                                                 typeMapper.mapType(parameter.getReturnType()),
                                                                 parameter.getName().asString()));

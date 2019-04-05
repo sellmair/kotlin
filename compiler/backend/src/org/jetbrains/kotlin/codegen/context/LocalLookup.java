@@ -18,9 +18,7 @@ import org.jetbrains.kotlin.resolve.BindingContext;
 import org.jetbrains.kotlin.types.KotlinType;
 import org.jetbrains.org.objectweb.asm.Type;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static org.jetbrains.kotlin.codegen.AsmUtil.CAPTURED_RECEIVER_FIELD;
 import static org.jetbrains.kotlin.codegen.binding.CodegenBinding.*;
@@ -81,7 +79,7 @@ public interface LocalLookup {
                     if (declaration instanceof FunctionDescriptor) {
                         List<ValueParameterDescriptor> parameters = ((FunctionDescriptor) declaration).getValueParameters();
                         for (ValueParameterDescriptor parameter : parameters) {
-                            if (parameter.isImplicit()) {
+                            if (parameter.isExtension()) {
                                 EnclosedValueDescriptor enclosedValue =
                                         new EnclosedValueDescriptor(parameter.getName().asString(),
                                                                     parameter,

@@ -31,7 +31,7 @@ sealed class ImplicitResolution {
             val newSubstitutions = java.util.ArrayList(substitutions)
             for (i in 0 until parameters.size) {
                 val parameter = parameters[i]
-                if (parameter.isImplicit) {
+                if (parameter.isExtension) {
                     val result = isReplaceable(parameter.returnType!!, lookingFor.returnType!!, substitutions, lookInSupertypes)
                     if (result.canBeReplaced) {
                         newSubstitutions.addAll(result.substitutions)

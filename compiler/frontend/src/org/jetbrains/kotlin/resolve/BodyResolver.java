@@ -47,7 +47,6 @@ import org.jetbrains.kotlin.resolve.lazy.ForceResolveUtil;
 import org.jetbrains.kotlin.resolve.lazy.descriptors.LazyClassDescriptor;
 import org.jetbrains.kotlin.resolve.lazy.descriptors.LazyClassMemberScope;
 import org.jetbrains.kotlin.resolve.scopes.*;
-import org.jetbrains.kotlin.resolve.scopes.receivers.ClassValueReceiver;
 import org.jetbrains.kotlin.resolve.scopes.receivers.ExtensionReceiver;
 import org.jetbrains.kotlin.types.*;
 import org.jetbrains.kotlin.types.expressions.ExpressionTypingServices;
@@ -936,7 +935,7 @@ public class BodyResolver {
                     if (constructor != null) {
                         List<ValueParameterDescriptor> members = constructor.getValueParameters();
                         for (ValueParameterDescriptor member : members) {
-                            if (member.isImplicit()) {
+                            if (member.isExtension()) {
                                 scope = getScopeForImplicitParameter(functionDescriptor, scope, member);
                             }
                         }
@@ -974,7 +973,7 @@ public class BodyResolver {
         }
 
         for (ValueParameterDescriptor valueParameterDescriptor : valueParameterDescriptors) {
-            if (valueParameterDescriptor.isImplicit()) {
+            if (valueParameterDescriptor.isExtension()) {
                 innerScope = getScopeForImplicitParameter(functionDescriptor, innerScope, valueParameterDescriptor);
             }
         }

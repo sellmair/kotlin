@@ -19,7 +19,7 @@ import java.util.*
 object ExtensionResolutionCallChecker : CallChecker {
     override fun check(resolvedCall: ResolvedCall<*>, reportOn: PsiElement, context: CallCheckerContext) {
         resolvedCall.resultingDescriptor.valueParameters.forEach { descriptor: ValueParameterDescriptor ->
-            if (descriptor.isImplicit && resolvedCall.valueArguments[descriptor] == null) {
+            if (descriptor.isExtension && resolvedCall.valueArguments[descriptor] == null) {
                 val valueParameters = functionParameters(context)
                 val resolution = ImplicitResolutionStrategy
                     .resolve(

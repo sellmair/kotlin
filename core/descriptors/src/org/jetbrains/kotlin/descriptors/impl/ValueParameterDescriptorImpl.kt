@@ -24,18 +24,18 @@ import org.jetbrains.kotlin.types.TypeSubstitutor
 import org.jetbrains.kotlin.utils.join
 
 open class ValueParameterDescriptorImpl(
-        containingDeclaration: CallableDescriptor,
-        original: ValueParameterDescriptor?,
-        override val index: Int,
-        annotations: Annotations,
-        name: Name,
-        outType: KotlinType,
-        private val declaresDefaultValue: Boolean,
-        override val isCrossinline: Boolean,
-        override val isNoinline: Boolean,
-        override val isImplicit : Boolean,
-        override val varargElementType: KotlinType?,
-        source: SourceElement
+    containingDeclaration: CallableDescriptor,
+    original: ValueParameterDescriptor?,
+    override val index: Int,
+    annotations: Annotations,
+    name: Name,
+    outType: KotlinType,
+    private val declaresDefaultValue: Boolean,
+    override val isCrossinline: Boolean,
+    override val isNoinline: Boolean,
+    override val isExtension : Boolean,
+    override val varargElementType: KotlinType?,
+    source: SourceElement
 ) : VariableDescriptorImpl(containingDeclaration, annotations, name, outType, source), ValueParameterDescriptor {
 
     companion object {
@@ -102,7 +102,7 @@ open class ValueParameterDescriptorImpl(
         override fun copy(newOwner: CallableDescriptor, newName: Name, newIndex: Int): ValueParameterDescriptor {
             return WithDestructuringDeclaration(
                 newOwner, null, newIndex, annotations, newName, type, declaresDefaultValue(),
-                isCrossinline, isNoinline, isImplicit, varargElementType, SourceElement.NO_SOURCE
+                isCrossinline, isNoinline, isExtension, varargElementType, SourceElement.NO_SOURCE
             ) { destructuringVariables }
         }
     }
@@ -131,8 +131,8 @@ open class ValueParameterDescriptorImpl(
     override fun getCompileTimeInitializer() = null
     override fun copy(newOwner: CallableDescriptor, newName: Name, newIndex: Int): ValueParameterDescriptor {
         return ValueParameterDescriptorImpl(
-                newOwner, null, newIndex, annotations, newName, type, declaresDefaultValue(),
-                isCrossinline, isNoinline, isImplicit, varargElementType, SourceElement.NO_SOURCE
+            newOwner, null, newIndex, annotations, newName, type, declaresDefaultValue(),
+            isCrossinline, isNoinline, isExtension, varargElementType, SourceElement.NO_SOURCE
         )
     }
 

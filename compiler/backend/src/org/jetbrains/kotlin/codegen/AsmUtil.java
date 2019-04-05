@@ -505,7 +505,7 @@ public class AsmUtil {
                 if (declaration instanceof FunctionDescriptor) {
                     List<ValueParameterDescriptor> parameters = ((FunctionDescriptor) declaration).getValueParameters();
                     for (ValueParameterDescriptor parameter : parameters) {
-                        if (parameter.isImplicit()) {
+                        if (parameter.isExtension()) {
                             result.add(Pair.create(parameter.getName().asString(), typeMapper.mapType(parameter)));
                         }
                     }

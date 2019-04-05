@@ -75,7 +75,7 @@ object ImplicitResolutionStrategy {
                 val scope = candidate.value.unsubstitutedPrimaryConstructor
                 scope?.let {
                     for (parameter in scope.valueParameters) {
-                        if (parameter.isImplicit) {
+                        if (parameter.isExtension) {
                             val implicitArgument = resolve(
                                 parameter,
                                 parameters,

@@ -626,12 +626,12 @@ class ControlFlowInformationProvider private constructor(
             when {
             // KtDestructuringDeclarationEntry -> KtDestructuringDeclaration -> KtParameter -> KtParameterList
                 element is KtDestructuringDeclarationEntry && element.parent.parent?.parent is KtParameterList ->
-                    if(!(variableDescriptor is ValueParameterDescriptor && variableDescriptor.isImplicit)) {
+                    if(!(variableDescriptor is ValueParameterDescriptor && variableDescriptor.isExtension)) {
                         report(Errors.UNUSED_DESTRUCTURED_PARAMETER_ENTRY.on(element, variableDescriptor), ctxt)
                     }
 
                 KtPsiUtil.isRemovableVariableDeclaration(element) ->
-                    if(!(variableDescriptor is ValueParameterDescriptor && variableDescriptor.isImplicit)) {
+                    if(!(variableDescriptor is ValueParameterDescriptor && variableDescriptor.isExtension)) {
                         report(Errors.UNUSED_VARIABLE.on(element, variableDescriptor), ctxt)
                     }
 
@@ -686,13 +686,13 @@ class ControlFlowInformationProvider private constructor(
                 if (anonymous) {
                     report(UNUSED_ANONYMOUS_PARAMETER.on(element, variableDescriptor), ctxt)
                 } else {
-                    if(!(variableDescriptor is ValueParameterDescriptor && variableDescriptor.isImplicit)) {
+                    if(!(variableDescriptor is ValueParameterDescriptor && variableDescriptor.isExtension)) {
                         report(UNUSED_PARAMETER.on(element, variableDescriptor), ctxt)
                     }
                 }
             }
             is KtPropertyAccessor -> {
-                if(!(variableDescriptor is ValueParameterDescriptor && variableDescriptor.isImplicit)) {
+                if(!(variableDescriptor is ValueParameterDescriptor && variableDescriptor.isExtension)) {
                     report(UNUSED_PARAMETER.on(element, variableDescriptor), ctxt)
                 }
             }

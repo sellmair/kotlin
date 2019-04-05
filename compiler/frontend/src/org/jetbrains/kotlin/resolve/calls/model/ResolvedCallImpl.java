@@ -16,10 +16,7 @@
 
 package org.jetbrains.kotlin.resolve.calls.model;
 
-import com.intellij.lang.ASTNode;
 import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.psi.impl.source.tree.CompositeElement;
-import com.intellij.psi.tree.IElementType;
 import com.intellij.util.SmartList;
 import kotlin.Unit;
 import kotlin.jvm.functions.Function0;
@@ -29,7 +26,6 @@ import org.jetbrains.kotlin.descriptors.CallableDescriptor;
 import org.jetbrains.kotlin.descriptors.TypeParameterDescriptor;
 import org.jetbrains.kotlin.descriptors.ValueParameterDescriptor;
 import org.jetbrains.kotlin.psi.Call;
-import org.jetbrains.kotlin.psi.KtValueArgument;
 import org.jetbrains.kotlin.psi.ValueArgument;
 import org.jetbrains.kotlin.renderer.DescriptorRenderer;
 import org.jetbrains.kotlin.resolve.DelegatingBindingTrace;
@@ -314,7 +310,7 @@ public class ResolvedCallImpl<D extends CallableDescriptor> implements MutableRe
                     return null;
                 } else {
                     ValueParameterDescriptor parameter = candidateDescriptor.getValueParameters().get(i);
-                    ResolvedValueArgument resolvedValue = new ImplicitValueArgument(parameter);
+                    ResolvedValueArgument resolvedValue = new ExtensionValueArgument(parameter);
                     arguments.set(i, resolvedValue);
                 }
             }

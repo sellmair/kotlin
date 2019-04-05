@@ -48,7 +48,7 @@ abstract class ArgumentGenerator {
         }.toMutableList()
 
         valueArgumentsByIndex.withIndex().forEach {
-            if (it.value is DefaultValueArgument || it.value is ImplicitValueArgument) {
+            if (it.value is DefaultValueArgument || it.value is ExtensionValueArgument) {
                 actualArgsWithDeclIndex.add(it.index, ArgumentAndDeclIndex(it.value, it.index))
             }
         }
@@ -76,7 +76,7 @@ abstract class ArgumentGenerator {
                 is VarargValueArgument -> {
                     generateVararg(declIndex, argument)
                 }
-                is ImplicitValueArgument -> {
+                is ExtensionValueArgument -> {
                     generateImplicit(declIndex, argument)
                 }
                 else -> {
@@ -110,7 +110,7 @@ abstract class ArgumentGenerator {
         throw UnsupportedOperationException("Unsupported value argument #$i: $argument")
     }
 
-    protected open fun generateImplicit(i: Int, argument: ImplicitValueArgument) {
+    protected open fun generateImplicit(i: Int, argument: ExtensionValueArgument) {
         throw UnsupportedOperationException("Unsupported value argument #$i: $argument")
     }
 

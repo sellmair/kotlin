@@ -12,11 +12,11 @@ import org.jetbrains.kotlin.psi.ValueArgument;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ImplicitValueArgument implements ResolvedValueArgument {
+public class ExtensionValueArgument implements ResolvedValueArgument {
 
     private ValueParameterDescriptor parameterDescriptor;
 
-    public ImplicitValueArgument(ValueParameterDescriptor parameterDescriptor) {
+    public ExtensionValueArgument(ValueParameterDescriptor parameterDescriptor) {
         this.parameterDescriptor = parameterDescriptor;
     }
 

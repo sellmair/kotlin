@@ -251,7 +251,7 @@ class ArgumentsToParametersMapper {
                     } else if (parameter.isVararg) {
                         result[parameter.original] = ResolvedCallArgument.VarargArgument(emptyList())
                     } else if (parameter.isExtension) {
-                        result[parameter.original] = ResolvedCallArgument.ImplicitArgument(parameter)
+                        result[parameter.original] = ResolvedCallArgument.ExtensionArgument(parameter)
                     } else {
                         addDiagnostic(NoValueForParameter(parameter, descriptor))
                     }

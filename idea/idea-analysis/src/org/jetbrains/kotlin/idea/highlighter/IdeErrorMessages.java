@@ -187,6 +187,16 @@ public class IdeErrorMessages {
         MAP.put(NO_ACTUAL_CLASS_MEMBER_FOR_EXPECTED_CLASS, "<html>Actual class ''{0}'' has no corresponding members for expected class members:{1}</html>",
                 NAME, new IncompatibleExpectedActualClassScopesRenderer(IdeMultiplatformDiagnosticRenderingMode.INSTANCE));
 
+        MAP.put(UNABLE_TO_RESOLVE_EXTENSION, "<html>''{0}''<p>Looked for this extension in:</p>" +
+                                             "<ul>" +
+                                             "<li>Scope of the caller function.</li>" +
+                                             "<li>Companion object for the type to resolve.</li>" +
+                                             "<li>Companion object for the contract interface.</li>" +
+                                             "<li>Subpackages of the type to resolve.</li>" +
+                                             "<li>Subpackages of the contract interface.</li>" +
+                                             "</ul>" +
+                                             "</html>", STRING);
+
         MAP.setImmutable();
     }
 

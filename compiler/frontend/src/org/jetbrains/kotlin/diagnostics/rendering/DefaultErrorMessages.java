@@ -596,6 +596,15 @@ public class DefaultErrorMessages {
 
         MAP.put(INSTANCE_ACCESS_BEFORE_SUPER_CALL, "Cannot access ''{0}'' before superclass constructor has been called", NAME);
 
+        MAP.put(UNABLE_TO_RESOLVE_EXTENSION, "{0}" +
+                                             "\nLooked for this extension in:" +
+                                             "\n" +
+                                             "\n- Scope of the caller function." +
+                                             "\n- Companion object for the type to resolve." +
+                                             "\n- Companion object for the contract interface." +
+                                             "\n- Subpackages of the type to resolve." +
+                                             "\n- Subpackages of the contract interface.", STRING);
+
         MAP.put(ILLEGAL_SELECTOR, "The expression cannot be a selector (occur after a dot)");
 
         MAP.put(NO_TAIL_CALLS_FOUND, "A function is marked as tail-recursive but no tail calls are found");

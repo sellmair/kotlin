@@ -3,7 +3,7 @@
  * that can be found in the license/LICENSE.txt file.
  */
 
-package org.jetbrains.kotlin.codegen.implicit
+package org.jetbrains.kotlin.implicit
 
 import org.jetbrains.kotlin.types.KotlinType
 

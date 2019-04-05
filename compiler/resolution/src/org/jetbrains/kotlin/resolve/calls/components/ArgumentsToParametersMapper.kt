@@ -123,7 +123,10 @@ class ArgumentsToParametersMapper {
             if (!parameter.isVararg) {
                 currentParameterIndex++
 
-                result.put(parameter.original, ResolvedCallArgument.SimpleArgument(argument))
+                result.put(
+                    parameter.original,
+                    ResolvedCallArgument.SimpleArgument(argument)
+                )
                 return false
             }
             // all position arguments will be mapped to current vararg parameter
@@ -224,7 +227,6 @@ class ArgumentsToParametersMapper {
                 addDiagnostic(TooManyArguments(externalArgument, descriptor))
                 return
             }
-
 
             result[lastParameter.original] = ResolvedCallArgument.SimpleArgument(externalArgument)
         }

@@ -1,15 +1,17 @@
 /*
- * Copyright 2010-2018 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license
+ * Copyright 2010-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license
  * that can be found in the license/LICENSE.txt file.
  */
 
-package org.jetbrains.kotlin.codegen.implicit
+package org.jetbrains.kotlin.implicit
 
-import org.jetbrains.kotlin.codegen.implicit.ImplicitCandidate.*
 import org.jetbrains.kotlin.descriptors.*
+import org.jetbrains.kotlin.implicit.ImplicitCandidate.FunctionParameter
+import org.jetbrains.kotlin.implicit.ImplicitCandidate.SingleClassCandidate
+import org.jetbrains.kotlin.implicit.ImplicitCandidateResolution.Resolved
+import org.jetbrains.kotlin.implicit.ImplicitCandidateResolution.Unresolved
 import org.jetbrains.kotlin.incremental.components.NoLookupLocation
 import org.jetbrains.kotlin.name.Name
-import org.jetbrains.kotlin.resolve.calls.model.ImplicitValueArgument
 import org.jetbrains.kotlin.resolve.scopes.DescriptorKindFilter
 import org.jetbrains.kotlin.resolve.scopes.LazyScopeAdapter
 import org.jetbrains.kotlin.resolve.scopes.MemberScope
@@ -18,11 +20,13 @@ import org.jetbrains.kotlin.types.typeUtil.supertypes
 
 sealed class ImplicitResolution {
     object FindInLocalFunction : ImplicitResolution() {
-        override fun resolve(lookingFor: ValueParameterDescriptor,
-                             parameters: List<ValueParameterDescriptor>,
-                             argument: ImplicitValueArgument,
-                             substitutions: List<TypeSubstitution>,
-                             lookInSupertypes: Boolean): ImplicitCandidate? {
+        override fun resolve(
+            lookingFor: ValueParameterDescriptor,
+            parameters: List<ValueParameterDescriptor>,
+            argumentParameterDescriptor: ValueParameterDescriptor,
+            substitutions: List<TypeSubstitution>,
+            lookInSupertypes: Boolean
+        ): ImplicitCandidateResolution {
             val candidates = mutableListOf<ImplicitCandidate>()
             val newSubstitutions = java.util.ArrayList(substitutions)
             for (i in 0 until parameters.size) {
@@ -37,40 +41,56 @@ sealed class ImplicitResolution {
             }
 
             return when (candidates.size) {
-                1 -> candidates[0]
-                else -> null
+                1 -> Resolved(candidates[0])
+                else -> Unresolved(
+                    "Unable to resolve implicit value in local function for argument " +
+                            "${argumentParameterDescriptor.name} : ${argumentParameterDescriptor.returnType}."
+                )
             }
         }
     }
 
     object FindInPackage : ImplicitResolution() {
-        override fun resolve(lookingFor: ValueParameterDescriptor,
-                             parameters: List<ValueParameterDescriptor>,
-                             argument: ImplicitValueArgument,
-                             substitutions: List<TypeSubstitution>,
-                             lookInSupertypes: Boolean): ImplicitCandidate? {
+
+        override fun resolve(
+            lookingFor: ValueParameterDescriptor,
+            parameters: List<ValueParameterDescriptor>,
+            argumentParameterDescriptor: ValueParameterDescriptor,
+            substitutions: List<TypeSubstitution>,
+            lookInSupertypes: Boolean
+        ): ImplicitCandidateResolution {
             val scope = findPackageScopeFor(lookingFor)
+            val error = Unresolved(
+                "Unable to resolve implicit value in package for argument " +
+                        "${argumentParameterDescriptor.name} : ${argumentParameterDescriptor.returnType}."
+            )
 
             if (scope != null) {
                 val result = getCompatibleClasses(lookingFor, scope, substitutions, lookInSupertypes)
                 val candidates = result.candidates.filter { it.visibility == Visibilities.INTERNAL }
                 return when (candidates.size) {
-                    1 -> SingleClassCandidate(result.candidates[0], result.substitutions)
-                    else -> null
+                    1 -> Resolved(SingleClassCandidate(result.candidates[0], result.substitutions))
+                    else -> error
                 }
             }
 
-            return null
+            return error
         }
     }
 
     object FindInTypeCompanion : ImplicitResolution() {
-        override fun resolve(lookingFor: ValueParameterDescriptor,
-                             parameters: List<ValueParameterDescriptor>,
-                             argument: ImplicitValueArgument,
-                             substitutions: List<TypeSubstitution>,
-                             lookInSupertypes: Boolean): ImplicitCandidate? {
+        override fun resolve(
+            lookingFor: ValueParameterDescriptor,
+            parameters: List<ValueParameterDescriptor>,
+            argumentParameterDescriptor: ValueParameterDescriptor,
+            substitutions: List<TypeSubstitution>,
+            lookInSupertypes: Boolean
+        ): ImplicitCandidateResolution {
             val arguments = lookingFor.returnType!!.arguments
+            val error = Unresolved(
+                "Unable to resolve implicit value in companion object for argument " +
+                        "${argumentParameterDescriptor.name} : ${argumentParameterDescriptor.returnType}."
+            )
 
             for (projection in arguments) {
                 val companion = findCompanionFor(projection.type)
@@ -79,45 +99,57 @@ sealed class ImplicitResolution {
                     val result = getCompatibleClasses(lookingFor, companion.unsubstitutedMemberScope, substitutions, lookInSupertypes)
 
                     return when (result.candidates.size) {
-                        1 -> SingleClassCandidate(result.candidates[0], result.substitutions)
-                        else -> null
+                        1 -> Resolved(SingleClassCandidate(result.candidates[0], result.substitutions))
+                        else -> error
                     }
                 }
             }
 
-            return null
+            return error
         }
     }
 
     object FindInTypeclassCompanion : ImplicitResolution() {
-        override fun resolve(lookingFor: ValueParameterDescriptor,
-                             parameters: List<ValueParameterDescriptor>,
-                             argument: ImplicitValueArgument,
-                             substitutions: List<TypeSubstitution>,
-                             lookInSupertypes: Boolean): ImplicitCandidate? {
-            val companion = findCompanionFor(argument.parameterDescriptor.returnType!!)
+        override fun resolve(
+            lookingFor: ValueParameterDescriptor,
+            parameters: List<ValueParameterDescriptor>,
+            argumentParameterDescriptor: ValueParameterDescriptor,
+            substitutions: List<TypeSubstitution>,
+            lookInSupertypes: Boolean
+        ): ImplicitCandidateResolution {
+            val companion = findCompanionFor(argumentParameterDescriptor.returnType!!)
+            val error = Unresolved(
+                "Unable to resolve implicit value in type class companion object for argument " +
+                        "${argumentParameterDescriptor.name} : ${argumentParameterDescriptor.returnType}."
+            )
 
             if (companion != null) {
                 val result = getCompatibleClasses(lookingFor, companion.unsubstitutedMemberScope, substitutions, lookInSupertypes)
 
                 return when (result.candidates.size) {
-                    1 -> SingleClassCandidate(result.candidates[0], result.substitutions)
-                    else -> null
+                    1 -> Resolved(SingleClassCandidate(result.candidates[0], result.substitutions))
+                    else -> error
                 }
             }
 
-            return null
+            return error
         }
     }
 
     object FindInTypeSubpackages : ImplicitResolution() {
-        override fun resolve(lookingFor: ValueParameterDescriptor,
-                             parameters: List<ValueParameterDescriptor>,
-                             argument: ImplicitValueArgument,
-                             substitutions: List<TypeSubstitution>,
-                             lookInSupertypes: Boolean): ImplicitCandidate? {
+        override fun resolve(
+            lookingFor: ValueParameterDescriptor,
+            parameters: List<ValueParameterDescriptor>,
+            argumentParameterDescriptor: ValueParameterDescriptor,
+            substitutions: List<TypeSubstitution>,
+            lookInSupertypes: Boolean
+        ): ImplicitCandidateResolution {
             val arguments = lookingFor.returnType!!.arguments
             val subpackageResults = java.util.ArrayList<CompatibilityResult>()
+            val error = Unresolved(
+                "Unable to resolve implicit value in type subpackages for argument " +
+                        "${argumentParameterDescriptor.name} : ${argumentParameterDescriptor.returnType}."
+            )
 
             for (projection in arguments) {
                 val subpackages = findSubpackagesFor(projection.type)
@@ -132,23 +164,29 @@ sealed class ImplicitResolution {
 
             if (subpackageResults.size == 1) {
                 return when (subpackageResults[0].candidates.size) {
-                    1 -> SingleClassCandidate(subpackageResults[0].candidates[0], subpackageResults[0].substitutions)
-                    else -> null
+                    1 -> Resolved(SingleClassCandidate(subpackageResults[0].candidates[0], subpackageResults[0].substitutions))
+                    else -> error
                 }
             }
 
-            return null
+            return error
         }
     }
 
     object FindInTypeclassSubpackages : ImplicitResolution() {
-        override fun resolve(lookingFor: ValueParameterDescriptor,
-                             parameters: List<ValueParameterDescriptor>,
-                             argument: ImplicitValueArgument,
-                             substitutions: List<TypeSubstitution>,
-                             lookInSupertypes: Boolean): ImplicitCandidate? {
+        override fun resolve(
+            lookingFor: ValueParameterDescriptor,
+            parameters: List<ValueParameterDescriptor>,
+            argumentParameterDescriptor: ValueParameterDescriptor,
+            substitutions: List<TypeSubstitution>,
+            lookInSupertypes: Boolean
+        ): ImplicitCandidateResolution {
             val subpackageResults = java.util.ArrayList<CompatibilityResult>()
-            val subpackages = findSubpackagesFor(argument.parameterDescriptor.returnType!!)
+            val subpackages = findSubpackagesFor(argumentParameterDescriptor.returnType!!)
+            val error = Unresolved(
+                "Unable to resolve implicit value in type class subpackages for argument " +
+                        "${argumentParameterDescriptor.name} : ${argumentParameterDescriptor.returnType}."
+            )
 
             for (subpackage in subpackages) {
                 val result = getCompatibleClasses(lookingFor, subpackage.memberScope, substitutions, lookInSupertypes)
@@ -159,24 +197,27 @@ sealed class ImplicitResolution {
 
             if (subpackageResults.size == 1) {
                 return when (subpackageResults[0].candidates.size) {
-                    1 -> SingleClassCandidate(subpackageResults[0].candidates[0], subpackageResults[0].substitutions)
-                    else -> null
+                    1 -> Resolved(SingleClassCandidate(subpackageResults[0].candidates[0], subpackageResults[0].substitutions))
+                    else -> error
                 }
             }
 
-            return null
+            return error
         }
     }
 
-    abstract fun resolve(lookingFor: ValueParameterDescriptor,
-                         parameters: List<ValueParameterDescriptor>,
-                         argument: ImplicitValueArgument,
-                         substitutions: List<TypeSubstitution>,
-                         lookInSupertypes: Boolean): ImplicitCandidate?
+    abstract fun resolve(
+        lookingFor: ValueParameterDescriptor,
+        parameters: List<ValueParameterDescriptor>,
+        argumentParameterDescriptor: ValueParameterDescriptor,
+        substitutions: List<TypeSubstitution>,
+        lookInSupertypes: Boolean
+    ): ImplicitCandidateResolution
 
     internal fun findCompanionFor(type: KotlinType): ClassDescriptor? {
         val scope = type.memberScope
-        val descriptor = scope.getContributedClassifier(Name.identifier("Companion"), NoLookupLocation.FOR_DEFAULT_IMPORTS) as ClassDescriptor?
+        val descriptor =
+            scope.getContributedClassifier(Name.identifier("Companion"), NoLookupLocation.FOR_DEFAULT_IMPORTS) as ClassDescriptor?
         if (descriptor != null) {
             return descriptor.original
         }
@@ -219,10 +260,10 @@ sealed class ImplicitResolution {
     }
 
     internal fun getCompatibleClasses(
-            lookingFor: ValueParameterDescriptor,
-            scope: MemberScope,
-            substitutions: List<TypeSubstitution>,
-            lookInSupertypes: Boolean
+        lookingFor: ValueParameterDescriptor,
+        scope: MemberScope,
+        substitutions: List<TypeSubstitution>,
+        lookInSupertypes: Boolean
     ): CompatibilityResult {
         val declarations = scope.getContributedDescriptors(DescriptorKindFilter.ALL) { name -> true }
         val candidates = java.util.ArrayList<ClassDescriptor>()
@@ -242,10 +283,12 @@ sealed class ImplicitResolution {
         return CompatibilityResult(candidates, newSubstitutions)
     }
 
-    private fun isCompatible(candidate: KotlinType,
-                             type: KotlinType,
-                             substitutions: List<TypeSubstitution>,
-                             lookInSupertypes: Boolean): SubstitutionResult {
+    private fun isCompatible(
+        candidate: KotlinType,
+        type: KotlinType,
+        substitutions: List<TypeSubstitution>,
+        lookInSupertypes: Boolean
+    ): SubstitutionResult {
         val result = isReplaceable(candidate, type, substitutions, lookInSupertypes)
         if (result.canBeReplaced) {
             return result
@@ -263,10 +306,12 @@ sealed class ImplicitResolution {
         return SubstitutionResult(true, newSubstitutions)
     }
 
-    internal fun isReplaceable(candidate: KotlinType,
-                               target: KotlinType,
-                               substitutions: List<TypeSubstitution>,
-                               lookInSupertypes: Boolean): SubstitutionResult {
+    internal fun isReplaceable(
+        candidate: KotlinType,
+        target: KotlinType,
+        substitutions: List<TypeSubstitution>,
+        lookInSupertypes: Boolean
+    ): SubstitutionResult {
         val newSubstitutions = java.util.ArrayList(substitutions)
         if (candidate.memberScope is LazyScopeAdapter) {
             newSubstitutions.add(TypeSubstitution(candidate, target))
@@ -301,7 +346,11 @@ sealed class ImplicitResolution {
         return SubstitutionResult(false, substitutions)
     }
 
-    private fun findEquivalence(candidate: KotlinType, target: KotlinType, substitutions: List<TypeSubstitution>): Pair<KotlinType, KotlinType>? {
+    private fun findEquivalence(
+        candidate: KotlinType,
+        target: KotlinType,
+        substitutions: List<TypeSubstitution>
+    ): Pair<KotlinType, KotlinType>? {
         if (candidate.constructor.toString().equals(target.constructor.toString())) {
             return candidate to target
         }
@@ -319,8 +368,8 @@ sealed class ImplicitResolution {
 
     private fun findSubstitution(candidate: KotlinType, substitutions: List<TypeSubstitution>): KotlinType? {
         return substitutions
-                .reversed()
-                .firstOrNull { it.source.equals(candidate) }
-                ?.target
+            .reversed()
+            .firstOrNull { it.source.equals(candidate) }
+            ?.target
     }
 }

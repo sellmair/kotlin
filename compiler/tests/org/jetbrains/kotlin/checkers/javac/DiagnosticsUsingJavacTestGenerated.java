@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2018 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license
+ * Copyright 2010-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license
  * that can be found in the license/LICENSE.txt file.
  */
 
@@ -22177,6 +22177,34 @@ public class DiagnosticsUsingJavacTestGenerated extends AbstractDiagnosticsUsing
             @TestMetadata("wrongNumberOfArgumentsInTypeAliasConstructor.kt")
             public void testWrongNumberOfArgumentsInTypeAliasConstructor() throws Exception {
                 runTest("compiler/testData/diagnostics/tests/typealias/wrongNumberOfArgumentsInTypeAliasConstructor.kt");
+            }
+        }
+
+        @TestMetadata("compiler/testData/diagnostics/tests/typeclasses")
+        @TestDataPath("$PROJECT_ROOT")
+        @RunWith(JUnit3RunnerWithInners.class)
+        public static class Typeclasses extends AbstractDiagnosticsUsingJavacTest {
+            private void runTest(String testDataFilePath) throws Exception {
+                KotlinTestUtils.runTest(this::doTest, TargetBackend.ANY, testDataFilePath);
+            }
+
+            public void testAllFilesPresentInTypeclasses() throws Exception {
+                KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/diagnostics/tests/typeclasses"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.ANY, true);
+            }
+
+            @TestMetadata("resolutionAmbiguousInstance.kt")
+            public void testResolutionAmbiguousInstance() throws Exception {
+                runTest("compiler/testData/diagnostics/tests/typeclasses/resolutionAmbiguousInstance.kt");
+            }
+
+            @TestMetadata("resolutionIncompleteConstructor.kt")
+            public void testResolutionIncompleteConstructor() throws Exception {
+                runTest("compiler/testData/diagnostics/tests/typeclasses/resolutionIncompleteConstructor.kt");
+            }
+
+            @TestMetadata("resolutionMissingInstance.kt")
+            public void testResolutionMissingInstance() throws Exception {
+                runTest("compiler/testData/diagnostics/tests/typeclasses/resolutionMissingInstance.kt");
             }
         }
 

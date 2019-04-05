@@ -684,6 +684,8 @@ public interface Errors {
 
     // Call resolution
 
+    DiagnosticFactory1<PsiElement, String> UNABLE_TO_RESOLVE_EXTENSION = DiagnosticFactory1.create(ERROR);
+
     DiagnosticFactory0<KtExpression> ILLEGAL_SELECTOR = DiagnosticFactory0.create(ERROR);
 
     DiagnosticFactory2<KtExpression, KtExpression, KotlinType> FUNCTION_EXPECTED = DiagnosticFactory2.create(ERROR);

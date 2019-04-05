@@ -92,7 +92,7 @@ public class CallBasedArgumentGenerator extends ArgumentGenerator {
     }
 
     @Override
-    protected void generateImplicit(int i, @NotNull ExtensionValueArgument argument) {
+    protected void generateExtension(int i, @NotNull ExtensionValueArgument argument) {
         ImplicitCandidate resolvedExtensionCandidate =
                 codegen.getBindingContext().get(
                         BindingContext.EXTENSION_RESOLUTION_INFO,

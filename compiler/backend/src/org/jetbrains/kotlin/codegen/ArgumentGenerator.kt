@@ -77,7 +77,7 @@ abstract class ArgumentGenerator {
                     generateVararg(declIndex, argument)
                 }
                 is ExtensionValueArgument -> {
-                    generateImplicit(declIndex, argument)
+                    generateExtension(declIndex, argument)
                 }
                 else -> {
                     generateOther(declIndex, argument)
@@ -110,7 +110,7 @@ abstract class ArgumentGenerator {
         throw UnsupportedOperationException("Unsupported value argument #$i: $argument")
     }
 
-    protected open fun generateImplicit(i: Int, argument: ExtensionValueArgument) {
+    protected open fun generateExtension(i: Int, argument: ExtensionValueArgument) {
         throw UnsupportedOperationException("Unsupported value argument #$i: $argument")
     }
 

@@ -7,5 +7,5 @@ package org.jetbrains.kotlin.extensionresolution
 
 import org.jetbrains.kotlin.descriptors.ClassDescriptor
 
-internal data class CompatibilityResult(val candidates: List<ClassDescriptor>,
-                                        val substitutions: List<TypeSubstitution>)
+internal data class ExtensionCompatibilityResult(val candidates: List<ClassDescriptor>,
+                                                 val substitutions: List<TypeSubstitution>)

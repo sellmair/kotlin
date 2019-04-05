@@ -145,7 +145,7 @@ sealed class ImplicitResolution {
             lookInSupertypes: Boolean
         ): ImplicitCandidateResolution {
             val arguments = lookingFor.returnType!!.arguments
-            val subpackageResults = java.util.ArrayList<CompatibilityResult>()
+            val subpackageResults = java.util.ArrayList<ExtensionCompatibilityResult>()
             val error = Unresolved(
                 "Unable to resolve implicit value in type subpackages for argument " +
                         "${argumentParameterDescriptor.name} : ${argumentParameterDescriptor.returnType}."
@@ -181,7 +181,7 @@ sealed class ImplicitResolution {
             substitutions: List<TypeSubstitution>,
             lookInSupertypes: Boolean
         ): ImplicitCandidateResolution {
-            val subpackageResults = java.util.ArrayList<CompatibilityResult>()
+            val subpackageResults = java.util.ArrayList<ExtensionCompatibilityResult>()
             val subpackages = findSubpackagesFor(argumentParameterDescriptor.returnType!!)
             val error = Unresolved(
                 "Unable to resolve implicit value in type class subpackages for argument " +
@@ -264,7 +264,7 @@ sealed class ImplicitResolution {
         scope: MemberScope,
         substitutions: List<TypeSubstitution>,
         lookInSupertypes: Boolean
-    ): CompatibilityResult {
+    ): ExtensionCompatibilityResult {
         val declarations = scope.getContributedDescriptors(DescriptorKindFilter.ALL) { name -> true }
         val candidates = java.util.ArrayList<ClassDescriptor>()
         val newSubstitutions = java.util.ArrayList(substitutions)
@@ -280,7 +280,7 @@ sealed class ImplicitResolution {
                 }
             }
         }
-        return CompatibilityResult(candidates, newSubstitutions)
+        return ExtensionCompatibilityResult(candidates, newSubstitutions)
     }
 
     private fun isCompatible(

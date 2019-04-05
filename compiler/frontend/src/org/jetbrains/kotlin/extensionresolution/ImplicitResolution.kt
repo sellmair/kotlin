@@ -8,8 +8,8 @@ package org.jetbrains.kotlin.extensionresolution
 import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.extensionresolution.ExtensionCandidate.FunctionParameter
 import org.jetbrains.kotlin.extensionresolution.ExtensionCandidate.SingleClassCandidate
-import org.jetbrains.kotlin.extensionresolution.ImplicitCandidateResolution.Resolved
-import org.jetbrains.kotlin.extensionresolution.ImplicitCandidateResolution.Unresolved
+import org.jetbrains.kotlin.extensionresolution.ExtensionCandidateResolution.Resolved
+import org.jetbrains.kotlin.extensionresolution.ExtensionCandidateResolution.Unresolved
 import org.jetbrains.kotlin.incremental.components.NoLookupLocation
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.resolve.scopes.DescriptorKindFilter
@@ -26,7 +26,7 @@ sealed class ImplicitResolution {
             argumentParameterDescriptor: ValueParameterDescriptor,
             substitutions: List<TypeSubstitution>,
             lookInSupertypes: Boolean
-        ): ImplicitCandidateResolution {
+        ): ExtensionCandidateResolution {
             val candidates = mutableListOf<ExtensionCandidate>()
             val newSubstitutions = java.util.ArrayList(substitutions)
             for (i in 0 until parameters.size) {
@@ -58,7 +58,7 @@ sealed class ImplicitResolution {
             argumentParameterDescriptor: ValueParameterDescriptor,
             substitutions: List<TypeSubstitution>,
             lookInSupertypes: Boolean
-        ): ImplicitCandidateResolution {
+        ): ExtensionCandidateResolution {
             val scope = findPackageScopeFor(lookingFor)
             val error = Unresolved(
                 "Unable to resolve implicit value in package for argument " +
@@ -85,7 +85,7 @@ sealed class ImplicitResolution {
             argumentParameterDescriptor: ValueParameterDescriptor,
             substitutions: List<TypeSubstitution>,
             lookInSupertypes: Boolean
-        ): ImplicitCandidateResolution {
+        ): ExtensionCandidateResolution {
             val arguments = lookingFor.returnType!!.arguments
             val error = Unresolved(
                 "Unable to resolve implicit value in companion object for argument " +
@@ -116,7 +116,7 @@ sealed class ImplicitResolution {
             argumentParameterDescriptor: ValueParameterDescriptor,
             substitutions: List<TypeSubstitution>,
             lookInSupertypes: Boolean
-        ): ImplicitCandidateResolution {
+        ): ExtensionCandidateResolution {
             val companion = findCompanionFor(argumentParameterDescriptor.returnType!!)
             val error = Unresolved(
                 "Unable to resolve implicit value in type class companion object for argument " +
@@ -143,7 +143,7 @@ sealed class ImplicitResolution {
             argumentParameterDescriptor: ValueParameterDescriptor,
             substitutions: List<TypeSubstitution>,
             lookInSupertypes: Boolean
-        ): ImplicitCandidateResolution {
+        ): ExtensionCandidateResolution {
             val arguments = lookingFor.returnType!!.arguments
             val subpackageResults = java.util.ArrayList<ExtensionCompatibilityResult>()
             val error = Unresolved(
@@ -180,7 +180,7 @@ sealed class ImplicitResolution {
             argumentParameterDescriptor: ValueParameterDescriptor,
             substitutions: List<TypeSubstitution>,
             lookInSupertypes: Boolean
-        ): ImplicitCandidateResolution {
+        ): ExtensionCandidateResolution {
             val subpackageResults = java.util.ArrayList<ExtensionCompatibilityResult>()
             val subpackages = findSubpackagesFor(argumentParameterDescriptor.returnType!!)
             val error = Unresolved(
@@ -212,7 +212,7 @@ sealed class ImplicitResolution {
         argumentParameterDescriptor: ValueParameterDescriptor,
         substitutions: List<TypeSubstitution>,
         lookInSupertypes: Boolean
-    ): ImplicitCandidateResolution
+    ): ExtensionCandidateResolution
 
     internal fun findCompanionFor(type: KotlinType): ClassDescriptor? {
         val scope = type.memberScope

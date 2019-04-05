@@ -5,8 +5,8 @@
 
 package org.jetbrains.kotlin.extensionresolution
 
-import org.jetbrains.kotlin.extensionresolution.ImplicitCandidateResolution.Resolved
-import org.jetbrains.kotlin.extensionresolution.ImplicitCandidateResolution.Unresolved
+import org.jetbrains.kotlin.extensionresolution.ExtensionCandidateResolution.Resolved
+import org.jetbrains.kotlin.extensionresolution.ExtensionCandidateResolution.Unresolved
 import org.jetbrains.kotlin.extensionresolution.ImplicitResolution.*
 import org.jetbrains.kotlin.descriptors.ValueParameterDescriptor
 import org.jetbrains.kotlin.resolve.descriptorUtil.fqNameSafe
@@ -19,7 +19,7 @@ object ImplicitResolutionStrategy {
         argumentParameterDescriptor: ValueParameterDescriptor,
         substitutions: List<TypeSubstitution>,
         lookInSupertypes: Boolean = false
-    ): ImplicitCandidateResolution {
+    ): ExtensionCandidateResolution {
 
         val functionOrder = listOf(
             FindInLocalFunction,
@@ -72,7 +72,7 @@ object ImplicitResolutionStrategy {
         parameters: List<ValueParameterDescriptor>,
         argumentParameterDescriptor: ValueParameterDescriptor,
         substitutions: List<TypeSubstitution>
-    ): ImplicitCandidateResolution {
+    ): ExtensionCandidateResolution {
         return when (val candidate = resolvedCandidate.candidate) {
             is ExtensionCandidate.FunctionParameter -> Resolved(candidate)
             is ExtensionCandidate.SingleClassCandidate -> {

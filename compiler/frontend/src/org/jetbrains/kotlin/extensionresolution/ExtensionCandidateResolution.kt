@@ -5,7 +5,7 @@
 
 package org.jetbrains.kotlin.extensionresolution
 
-sealed class ImplicitCandidateResolution {
-    data class Resolved(val candidate: ExtensionCandidate) : ImplicitCandidateResolution()
-    data class Unresolved(val message: String) : ImplicitCandidateResolution()
+sealed class ExtensionCandidateResolution {
+    data class Resolved(val candidate: ExtensionCandidate) : ExtensionCandidateResolution()
+    data class Unresolved(val message: String) : ExtensionCandidateResolution()
 }

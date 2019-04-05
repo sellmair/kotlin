@@ -10,7 +10,7 @@ import org.jetbrains.kotlin.descriptors.CallableDescriptor
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
 import org.jetbrains.kotlin.descriptors.ValueParameterDescriptor
 import org.jetbrains.kotlin.diagnostics.Errors.UNABLE_TO_RESOLVE_EXTENSION
-import org.jetbrains.kotlin.extensionresolution.ImplicitCandidateResolution
+import org.jetbrains.kotlin.extensionresolution.ExtensionCandidateResolution
 import org.jetbrains.kotlin.extensionresolution.ImplicitResolutionStrategy
 import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.kotlin.resolve.calls.model.ResolvedCall
@@ -31,7 +31,7 @@ object ExtensionResolutionCallChecker : CallChecker {
                     )
 
                 when (resolution) {
-                    is ImplicitCandidateResolution.Unresolved -> {
+                    is ExtensionCandidateResolution.Unresolved -> {
                         val (message) = resolution
                         context.trace.report(
                             UNABLE_TO_RESOLVE_EXTENSION.on(
@@ -40,7 +40,7 @@ object ExtensionResolutionCallChecker : CallChecker {
                             )
                         )
                     }
-                    is ImplicitCandidateResolution.Resolved -> {
+                    is ExtensionCandidateResolution.Resolved -> {
                         val key = descriptor.returnType.toString()
                         if (context.trace.get(BindingContext.EXTENSION_RESOLUTION_INFO, key) == null) {
                             context.trace.record(

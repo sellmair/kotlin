@@ -25,9 +25,9 @@ object ExtensionResolutionStrategy {
             FindInLocalFunction,
             FindInPackage,
             FindInTypeCompanion,
-            FindInExtensionContractInterfaceCompanion,
+            FindInContractInterfaceCompanion,
             FindInTypeSubpackages,
-            FindInExtensionContractInterfaceSubpackages
+            FindInContractInterfaceSubpackages
         )
         val candidates = functionOrder.fold(emptyList<Resolved>()) { acc, resolution ->
             val resolved = resolution.resolve(lookingFor, parameters, argumentParameterDescriptor, substitutions, lookInSupertypes)
@@ -76,21 +76,21 @@ object ExtensionResolutionStrategy {
         return when (val candidate = resolvedCandidate.candidate) {
             is ExtensionCandidate.FunctionParameter -> Resolved(candidate)
             is ExtensionCandidate.SingleClassCandidate -> {
-                val implicitArguments = mutableListOf<ExtensionCandidate>()
+                val extensionArguments = mutableListOf<ExtensionCandidate>()
                 val newSubstitutions = java.util.ArrayList(substitutions)
                 val scope = candidate.value.unsubstitutedPrimaryConstructor
                 scope?.let {
                     for (parameter in scope.valueParameters) {
                         if (parameter.isExtension) {
-                            val implicitArgument = resolve(
+                            val extensionArgument = resolve(
                                 parameter,
                                 parameters,
                                 argumentParameterDescriptor,
                                 newSubstitutions
                             )
-                            if (implicitArgument is Resolved) {
-                                implicitArguments.add(implicitArgument.candidate)
-                                newSubstitutions.addAll(implicitArgument.candidate.substitutions)
+                            if (extensionArgument is Resolved) {
+                                extensionArguments.add(extensionArgument.candidate)
+                                newSubstitutions.addAll(extensionArgument.candidate.substitutions)
                             } else {
                                 return Unresolved("Unable to resolve parameter (${parameter.name} : ${parameter.returnType}) in constructor for ${candidate.value.name.asString()}")
                             }
@@ -99,11 +99,11 @@ object ExtensionResolutionStrategy {
                         }
                     }
                 }
-                if (implicitArguments.size > 0) {
+                if (extensionArguments.size > 0) {
                     Resolved(
                         ExtensionCandidate.NestedClassCandidate(
                             candidate.value,
-                            implicitArguments,
+                            extensionArguments,
                             newSubstitutions
                         )
                     )

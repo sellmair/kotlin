@@ -109,7 +109,7 @@ sealed class ExtensionResolution {
         }
     }
 
-    object FindInExtensionContractInterfaceCompanion : ExtensionResolution() {
+    object FindInContractInterfaceCompanion : ExtensionResolution() {
         override fun resolve(
             lookingFor: ValueParameterDescriptor,
             parameters: List<ValueParameterDescriptor>,
@@ -173,7 +173,7 @@ sealed class ExtensionResolution {
         }
     }
 
-    object FindInExtensionContractInterfaceSubpackages : ExtensionResolution() {
+    object FindInContractInterfaceSubpackages : ExtensionResolution() {
         override fun resolve(
             lookingFor: ValueParameterDescriptor,
             parameters: List<ValueParameterDescriptor>,

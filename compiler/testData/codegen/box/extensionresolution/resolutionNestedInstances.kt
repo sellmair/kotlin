@@ -2,7 +2,7 @@
 // WITH_RUNTIME
 // FILE: Semigroup.kt
 
-package com.typeclasses
+package com.extensionresolution
 
 interface Semigroup<A> {
     fun A.combine(b: A): A

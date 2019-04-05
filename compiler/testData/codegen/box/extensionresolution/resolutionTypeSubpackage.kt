@@ -2,7 +2,7 @@
 // WITH_RUNTIME
 // FILE: Semigroup.kt
 
-package com.typeclasses
+package com.extensionresolution
 
 import org.data.Money
 
@@ -31,7 +31,7 @@ data class Money(val amount: Double)
 
 package org.data.instances
 
-import com.typeclasses.Semigroup
+import com.extensionresolution.Semigroup
 import org.data.Money
 
 extension object MoneySemigroup : Semigroup<Money> {

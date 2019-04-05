@@ -2,7 +2,7 @@
 // WITH_RUNTIME
 // FILE: Semigroup.kt
 
-package com.typeclasses
+package com.extensionresolution
 
 interface Semigroup<A> {
     fun A.combine(b: A): A
@@ -21,9 +21,9 @@ fun box(): String {
 
 // FILE: IntSemigroup.kt
 
-package com.typeclasses.instances
+package com.extensionresolution.instances
 
-import com.typeclasses.Semigroup
+import com.extensionresolution.Semigroup
 
 extension class IntSemigroup : Semigroup<Int> {
     override fun Int.combine(b: Int): Int = this + b

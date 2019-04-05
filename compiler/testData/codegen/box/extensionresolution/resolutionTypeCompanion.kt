@@ -2,7 +2,7 @@
 // WITH_RUNTIME
 // FILE: Semigroup.kt
 
-package com.typeclasses
+package com.extensionresolution
 
 interface Semigroup<A> {
     fun A.combine(b: A): A
@@ -10,7 +10,7 @@ interface Semigroup<A> {
 
 // FILE: Box.kt
 
-package com.typeclasses
+package com.extensionresolution
 
 import org.data.Money
 
@@ -29,7 +29,7 @@ fun box(): String {
 
 package org.data
 
-import com.typeclasses.Semigroup
+import com.extensionresolution.Semigroup
 
 data class Money(val amount: Double) {
     companion object {

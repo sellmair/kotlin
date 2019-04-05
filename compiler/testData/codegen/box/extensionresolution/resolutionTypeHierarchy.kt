@@ -2,7 +2,7 @@
 // WITH_RUNTIME
 // FILE: Semigroup.kt
 
-package com.typeclasses
+package com.extensionresolution
 
 interface Printer<A> {
     fun A.print(): String

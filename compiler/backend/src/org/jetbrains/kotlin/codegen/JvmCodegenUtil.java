@@ -91,10 +91,10 @@ public class JvmCodegenUtil {
                     closure.getCaptureReceiverType() == null &&
                     closure.getCaptureVariables().isEmpty() &&
                     !closure.isSuspend() &&
-                    !hasImplicitParameters(closure);
+                    !hasExtensionParameters(closure);
     }
 
-    private static boolean hasImplicitParameters(@NotNull CalculatedClosure closure) {
+    private static boolean hasExtensionParameters(@NotNull CalculatedClosure closure) {
         DeclarationDescriptor declaration = closure.getClosureClass();
         while (declaration != null) {
             if (declaration instanceof FunctionDescriptor) {

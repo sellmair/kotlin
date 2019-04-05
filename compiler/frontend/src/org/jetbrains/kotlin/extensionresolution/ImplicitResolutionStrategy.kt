@@ -25,9 +25,9 @@ object ImplicitResolutionStrategy {
             FindInLocalFunction,
             FindInPackage,
             FindInTypeCompanion,
-            FindInTypeclassCompanion,
+            FindInExtensionContractInterfaceCompanion,
             FindInTypeSubpackages,
-            FindInTypeclassSubpackages
+            FindInExtensionContractInterfaceSubpackages
         )
         val candidates = functionOrder.fold(emptyList<Resolved>()) { acc, resolution ->
             val resolved = resolution.resolve(lookingFor, parameters, argumentParameterDescriptor, substitutions, lookInSupertypes)

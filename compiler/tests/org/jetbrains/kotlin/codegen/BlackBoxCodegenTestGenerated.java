@@ -10214,6 +10214,79 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
         }
     }
 
+    @TestMetadata("compiler/testData/codegen/box/extensionresolution")
+    @TestDataPath("$PROJECT_ROOT")
+    @RunWith(JUnit3RunnerWithInners.class)
+    public static class Extensionresolution extends AbstractBlackBoxCodegenTest {
+        private void runTest(String testDataFilePath) throws Exception {
+            KotlinTestUtils.runTest(this::doTest, TargetBackend.JVM, testDataFilePath);
+        }
+
+        public void testAllFilesPresentInExtensionresolution() throws Exception {
+            KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/extensionresolution"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
+        }
+
+        @TestMetadata("resolutionCaptureExtensionInClosure.kt")
+        public void testResolutionCaptureExtensionInClosure() throws Exception {
+            runTest("compiler/testData/codegen/box/extensionresolution/resolutionCaptureExtensionInClosure.kt");
+        }
+
+        @TestMetadata("resolutionComplex.kt")
+        public void testResolutionComplex() throws Exception {
+            runTest("compiler/testData/codegen/box/extensionresolution/resolutionComplex.kt");
+        }
+
+        @TestMetadata("resolutionConcreteInstanceParameter.kt")
+        public void testResolutionConcreteInstanceParameter() throws Exception {
+            runTest("compiler/testData/codegen/box/extensionresolution/resolutionConcreteInstanceParameter.kt");
+        }
+
+        @TestMetadata("resolutionExplicit.kt")
+        public void testResolutionExplicit() throws Exception {
+            runTest("compiler/testData/codegen/box/extensionresolution/resolutionExplicit.kt");
+        }
+
+        @TestMetadata("resolutionExtensionContractCompanion.kt")
+        public void testResolutionExtensionContractCompanion() throws Exception {
+            runTest("compiler/testData/codegen/box/extensionresolution/resolutionExtensionContractCompanion.kt");
+        }
+
+        @TestMetadata("resolutionExtensionContractSubpackage.kt")
+        public void testResolutionExtensionContractSubpackage() throws Exception {
+            runTest("compiler/testData/codegen/box/extensionresolution/resolutionExtensionContractSubpackage.kt");
+        }
+
+        @TestMetadata("resolutionFunctionParameter.kt")
+        public void testResolutionFunctionParameter() throws Exception {
+            runTest("compiler/testData/codegen/box/extensionresolution/resolutionFunctionParameter.kt");
+        }
+
+        @TestMetadata("resolutionInSamePackage.kt")
+        public void testResolutionInSamePackage() throws Exception {
+            runTest("compiler/testData/codegen/box/extensionresolution/resolutionInSamePackage.kt");
+        }
+
+        @TestMetadata("resolutionNestedInstances.kt")
+        public void testResolutionNestedInstances() throws Exception {
+            runTest("compiler/testData/codegen/box/extensionresolution/resolutionNestedInstances.kt");
+        }
+
+        @TestMetadata("resolutionTypeCompanion.kt")
+        public void testResolutionTypeCompanion() throws Exception {
+            runTest("compiler/testData/codegen/box/extensionresolution/resolutionTypeCompanion.kt");
+        }
+
+        @TestMetadata("resolutionTypeHierarchy.kt")
+        public void testResolutionTypeHierarchy() throws Exception {
+            runTest("compiler/testData/codegen/box/extensionresolution/resolutionTypeHierarchy.kt");
+        }
+
+        @TestMetadata("resolutionTypeSubpackage.kt")
+        public void testResolutionTypeSubpackage() throws Exception {
+            runTest("compiler/testData/codegen/box/extensionresolution/resolutionTypeSubpackage.kt");
+        }
+    }
+
     @TestMetadata("compiler/testData/codegen/box/external")
     @TestDataPath("$PROJECT_ROOT")
     @RunWith(JUnit3RunnerWithInners.class)
@@ -22149,79 +22222,6 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
         @TestMetadata("typeAliasSecondaryConstructor.kt")
         public void testTypeAliasSecondaryConstructor() throws Exception {
             runTest("compiler/testData/codegen/box/typealias/typeAliasSecondaryConstructor.kt");
-        }
-    }
-
-    @TestMetadata("compiler/testData/codegen/box/extensionresolution")
-    @TestDataPath("$PROJECT_ROOT")
-    @RunWith(JUnit3RunnerWithInners.class)
-    public static class ExtensionResolution extends AbstractBlackBoxCodegenTest {
-        private void runTest(String testDataFilePath) throws Exception {
-            KotlinTestUtils.runTest(this::doTest, TargetBackend.JVM, testDataFilePath);
-        }
-
-        public void testAllFilesPresentExtensionResolution() throws Exception {
-            KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/extensionresolution"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
-        }
-
-        @TestMetadata("resolutionCaptureExtensionInClosure.kt")
-        public void testResolutionCaptureExtensionInClosure() throws Exception {
-            runTest("compiler/testData/codegen/box/extensionresolution/resolutionCaptureExtensionInClosure.kt");
-        }
-
-        @TestMetadata("resolutionComplex.kt")
-        public void testResolutionComplex() throws Exception {
-            runTest("compiler/testData/codegen/box/extensionresolution/resolutionComplex.kt");
-        }
-
-        @TestMetadata("resolutionConcreteInstanceParameter.kt")
-        public void testResolutionConcreteInstanceParameter() throws Exception {
-            runTest("compiler/testData/codegen/box/extensionresolution/resolutionConcreteInstanceParameter.kt");
-        }
-
-        @TestMetadata("resolutionExplicit.kt")
-        public void testResolutionExplicit() throws Exception {
-            runTest("compiler/testData/codegen/box/extensionresolution/resolutionExplicit.kt");
-        }
-
-        @TestMetadata("resolutionFunctionParameter.kt")
-        public void testResolutionFunctionParameter() throws Exception {
-            runTest("compiler/testData/codegen/box/extensionresolution/resolutionFunctionParameter.kt");
-        }
-
-        @TestMetadata("resolutionInSamePackage.kt")
-        public void testResolutionInSamePackage() throws Exception {
-            runTest("compiler/testData/codegen/box/extensionresolution/resolutionInSamePackage.kt");
-        }
-
-        @TestMetadata("resolutionNestedInstances.kt")
-        public void testResolutionNestedInstances() throws Exception {
-            runTest("compiler/testData/codegen/box/extensionresolution/resolutionNestedInstances.kt");
-        }
-
-        @TestMetadata("resolutionTypeCompanion.kt")
-        public void testResolutionTypeCompanion() throws Exception {
-            runTest("compiler/testData/codegen/box/extensionresolution/resolutionTypeCompanion.kt");
-        }
-
-        @TestMetadata("resolutionTypeHierarchy.kt")
-        public void testResolutionTypeHierarchy() throws Exception {
-            runTest("compiler/testData/codegen/box/extensionresolution/resolutionTypeHierarchy.kt");
-        }
-
-        @TestMetadata("resolutionTypeSubpackage.kt")
-        public void testResolutionTypeSubpackage() throws Exception {
-            runTest("compiler/testData/codegen/box/extensionresolution/resolutionTypeSubpackage.kt");
-        }
-
-        @TestMetadata("resolutionExtensionContractCompanion.kt")
-        public void testResolutionExtensionContractCompanion() throws Exception {
-            runTest("compiler/testData/codegen/box/extensionresolution/resolutionExtensionContractCompanion.kt");
-        }
-
-        @TestMetadata("resolutionExtensionContractSubpackage.kt")
-        public void testResolutionExtensionContractSubpackage() throws Exception {
-            runTest("compiler/testData/codegen/box/extensionresolution/resolutionExtensionContractSubpackage.kt");
         }
     }
 

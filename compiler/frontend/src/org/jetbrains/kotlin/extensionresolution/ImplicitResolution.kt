@@ -3,13 +3,13 @@
  * that can be found in the license/LICENSE.txt file.
  */
 
-package org.jetbrains.kotlin.implicit
+package org.jetbrains.kotlin.extensionresolution
 
 import org.jetbrains.kotlin.descriptors.*
-import org.jetbrains.kotlin.implicit.ExtensionCandidate.FunctionParameter
-import org.jetbrains.kotlin.implicit.ExtensionCandidate.SingleClassCandidate
-import org.jetbrains.kotlin.implicit.ImplicitCandidateResolution.Resolved
-import org.jetbrains.kotlin.implicit.ImplicitCandidateResolution.Unresolved
+import org.jetbrains.kotlin.extensionresolution.ExtensionCandidate.FunctionParameter
+import org.jetbrains.kotlin.extensionresolution.ExtensionCandidate.SingleClassCandidate
+import org.jetbrains.kotlin.extensionresolution.ImplicitCandidateResolution.Resolved
+import org.jetbrains.kotlin.extensionresolution.ImplicitCandidateResolution.Unresolved
 import org.jetbrains.kotlin.incremental.components.NoLookupLocation
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.resolve.scopes.DescriptorKindFilter

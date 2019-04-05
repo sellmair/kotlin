@@ -3,11 +3,11 @@
  * that can be found in the license/LICENSE.txt file.
  */
 
-package org.jetbrains.kotlin.implicit
+package org.jetbrains.kotlin.extensionresolution
 
-import org.jetbrains.kotlin.implicit.ImplicitCandidateResolution.Resolved
-import org.jetbrains.kotlin.implicit.ImplicitCandidateResolution.Unresolved
-import org.jetbrains.kotlin.implicit.ImplicitResolution.*
+import org.jetbrains.kotlin.extensionresolution.ImplicitCandidateResolution.Resolved
+import org.jetbrains.kotlin.extensionresolution.ImplicitCandidateResolution.Unresolved
+import org.jetbrains.kotlin.extensionresolution.ImplicitResolution.*
 import org.jetbrains.kotlin.descriptors.ValueParameterDescriptor
 import org.jetbrains.kotlin.resolve.descriptorUtil.fqNameSafe
 
@@ -38,7 +38,13 @@ object ImplicitResolutionStrategy {
         }
 
         return if (candidates.isEmpty() && !lookInSupertypes) {
-            resolve(lookingFor, parameters, argumentParameterDescriptor, substitutions, true)
+            resolve(
+                lookingFor,
+                parameters,
+                argumentParameterDescriptor,
+                substitutions,
+                true
+            )
         } else if (candidates.size == 1) {
             resolveArguments(
                 candidates.first(),

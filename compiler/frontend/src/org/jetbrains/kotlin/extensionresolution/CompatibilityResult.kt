@@ -3,7 +3,7 @@
  * that can be found in the license/LICENSE.txt file.
  */
 
-package org.jetbrains.kotlin.implicit
+package org.jetbrains.kotlin.extensionresolution
 
 import org.jetbrains.kotlin.descriptors.ClassDescriptor
 

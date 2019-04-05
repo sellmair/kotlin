@@ -18,7 +18,7 @@ import org.jetbrains.kotlin.contracts.model.Computation;
 import org.jetbrains.kotlin.contracts.model.Functor;
 import org.jetbrains.kotlin.descriptors.*;
 import org.jetbrains.kotlin.descriptors.annotations.AnnotationDescriptor;
-import org.jetbrains.kotlin.implicit.ExtensionCandidate;
+import org.jetbrains.kotlin.extensionresolution.ExtensionCandidate;
 import org.jetbrains.kotlin.name.FqName;
 import org.jetbrains.kotlin.name.FqNameUnsafe;
 import org.jetbrains.kotlin.psi.*;

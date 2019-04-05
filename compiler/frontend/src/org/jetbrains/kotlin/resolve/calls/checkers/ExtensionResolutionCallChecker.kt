@@ -10,8 +10,8 @@ import org.jetbrains.kotlin.descriptors.CallableDescriptor
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
 import org.jetbrains.kotlin.descriptors.ValueParameterDescriptor
 import org.jetbrains.kotlin.diagnostics.Errors.UNABLE_TO_RESOLVE_EXTENSION
-import org.jetbrains.kotlin.implicit.ImplicitCandidateResolution
-import org.jetbrains.kotlin.implicit.ImplicitResolutionStrategy
+import org.jetbrains.kotlin.extensionresolution.ImplicitCandidateResolution
+import org.jetbrains.kotlin.extensionresolution.ImplicitResolutionStrategy
 import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.kotlin.resolve.calls.model.ResolvedCall
 import java.util.*

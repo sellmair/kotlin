@@ -261,7 +261,7 @@ public class ClosureCodegen extends MemberCodegen<KtElement> {
                         v.anew(asmType);
                         v.dup();
 
-                        loadImplicitParameters(closure, v);
+                        loadExtensionParameters(closure, v);
 
                         codegen.pushClosureOnStack(classDescriptor, true, codegen.defaultCallGenerator, functionReferenceReceiver);
                         v.invokespecial(asmType.getInternalName(), "<init>", constructor.getDescriptor(), false);
@@ -272,7 +272,7 @@ public class ClosureCodegen extends MemberCodegen<KtElement> {
         );
     }
 
-    protected void loadImplicitParameters(CalculatedClosure closure, InstructionAdapter v) {
+    protected void loadExtensionParameters(CalculatedClosure closure, InstructionAdapter v) {
         DeclarationDescriptor declaration = closure.getClosureClass();
         while (declaration != null) {
             if (declaration instanceof FunctionDescriptor) {

@@ -9,8 +9,8 @@ import org.jetbrains.kotlin.codegen.state.KotlinTypeMapper
 import org.jetbrains.kotlin.descriptors.ClassDescriptor
 import org.jetbrains.kotlin.descriptors.ClassKind
 import org.jetbrains.kotlin.descriptors.ValueParameterDescriptor
-import org.jetbrains.kotlin.implicit.ExtensionCandidate
-import org.jetbrains.kotlin.implicit.ExtensionCandidate.*
+import org.jetbrains.kotlin.extensionresolution.ExtensionCandidate
+import org.jetbrains.kotlin.extensionresolution.ExtensionCandidate.*
 import org.jetbrains.org.objectweb.asm.commons.InstructionAdapter
 
 fun ExtensionCandidate.generate(lookingFor: ValueParameterDescriptor, typeMapper: KotlinTypeMapper, adapter: InstructionAdapter) {

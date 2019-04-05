@@ -3,6 +3,6 @@
  * that can be found in the license/LICENSE.txt file.
  */
 
-package org.jetbrains.kotlin.implicit
+package org.jetbrains.kotlin.extensionresolution
 
 data class SubstitutionResult(val canBeReplaced : Boolean, val substitutions : List<TypeSubstitution>)

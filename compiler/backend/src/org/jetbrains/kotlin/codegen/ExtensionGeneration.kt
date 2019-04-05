@@ -9,11 +9,11 @@ import org.jetbrains.kotlin.codegen.state.KotlinTypeMapper
 import org.jetbrains.kotlin.descriptors.ClassDescriptor
 import org.jetbrains.kotlin.descriptors.ClassKind
 import org.jetbrains.kotlin.descriptors.ValueParameterDescriptor
-import org.jetbrains.kotlin.implicit.ImplicitCandidate
-import org.jetbrains.kotlin.implicit.ImplicitCandidate.*
+import org.jetbrains.kotlin.implicit.ExtensionCandidate
+import org.jetbrains.kotlin.implicit.ExtensionCandidate.*
 import org.jetbrains.org.objectweb.asm.commons.InstructionAdapter
 
-fun ImplicitCandidate.generate(lookingFor: ValueParameterDescriptor, typeMapper: KotlinTypeMapper, adapter: InstructionAdapter) {
+fun ExtensionCandidate.generate(lookingFor: ValueParameterDescriptor, typeMapper: KotlinTypeMapper, adapter: InstructionAdapter) {
     when (this) {
         is FunctionParameter -> adapter.load(signatureIndex, typeMapper.mapType(value))
         is NestedClassCandidate -> generateInstantiation(lookingFor, typeMapper, adapter, value, parameters)
@@ -26,7 +26,7 @@ fun ImplicitCandidate.generate(lookingFor: ValueParameterDescriptor, typeMapper:
     }
 }
 
-fun ImplicitCandidate.generate(
+fun ExtensionCandidate.generate(
     i: Int,
     lookingFor: ValueParameterDescriptor,
     callGenerator: CallGenerator,
@@ -46,7 +46,7 @@ private fun generateInstantiation(
     typeMapper: KotlinTypeMapper,
     adapter: InstructionAdapter,
     value: ClassDescriptor,
-    parameters: List<ImplicitCandidate>
+    parameters: List<ExtensionCandidate>
 ) {
     adapter.anew(typeMapper.mapType(value))
     adapter.dup()

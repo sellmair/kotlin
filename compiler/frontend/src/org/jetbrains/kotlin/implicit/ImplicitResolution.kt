@@ -6,8 +6,8 @@
 package org.jetbrains.kotlin.implicit
 
 import org.jetbrains.kotlin.descriptors.*
-import org.jetbrains.kotlin.implicit.ImplicitCandidate.FunctionParameter
-import org.jetbrains.kotlin.implicit.ImplicitCandidate.SingleClassCandidate
+import org.jetbrains.kotlin.implicit.ExtensionCandidate.FunctionParameter
+import org.jetbrains.kotlin.implicit.ExtensionCandidate.SingleClassCandidate
 import org.jetbrains.kotlin.implicit.ImplicitCandidateResolution.Resolved
 import org.jetbrains.kotlin.implicit.ImplicitCandidateResolution.Unresolved
 import org.jetbrains.kotlin.incremental.components.NoLookupLocation
@@ -27,7 +27,7 @@ sealed class ImplicitResolution {
             substitutions: List<TypeSubstitution>,
             lookInSupertypes: Boolean
         ): ImplicitCandidateResolution {
-            val candidates = mutableListOf<ImplicitCandidate>()
+            val candidates = mutableListOf<ExtensionCandidate>()
             val newSubstitutions = java.util.ArrayList(substitutions)
             for (i in 0 until parameters.size) {
                 val parameter = parameters[i]

@@ -68,9 +68,9 @@ object ImplicitResolutionStrategy {
         substitutions: List<TypeSubstitution>
     ): ImplicitCandidateResolution {
         return when (val candidate = resolvedCandidate.candidate) {
-            is ImplicitCandidate.FunctionParameter -> Resolved(candidate)
-            is ImplicitCandidate.SingleClassCandidate -> {
-                val implicitArguments = mutableListOf<ImplicitCandidate>()
+            is ExtensionCandidate.FunctionParameter -> Resolved(candidate)
+            is ExtensionCandidate.SingleClassCandidate -> {
+                val implicitArguments = mutableListOf<ExtensionCandidate>()
                 val newSubstitutions = java.util.ArrayList(substitutions)
                 val scope = candidate.value.unsubstitutedPrimaryConstructor
                 scope?.let {
@@ -95,7 +95,7 @@ object ImplicitResolutionStrategy {
                 }
                 if (implicitArguments.size > 0) {
                     Resolved(
-                        ImplicitCandidate.NestedClassCandidate(
+                        ExtensionCandidate.NestedClassCandidate(
                             candidate.value,
                             implicitArguments,
                             newSubstitutions
@@ -105,7 +105,7 @@ object ImplicitResolutionStrategy {
                     Resolved(candidate)
                 }
             }
-            is ImplicitCandidate.NestedClassCandidate -> Unresolved("Shouldn't happen.")
+            is ExtensionCandidate.NestedClassCandidate -> Unresolved("Shouldn't happen.")
         }
     }
 }

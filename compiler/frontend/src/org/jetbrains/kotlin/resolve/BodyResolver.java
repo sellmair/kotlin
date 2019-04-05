@@ -936,7 +936,7 @@ public class BodyResolver {
                         List<ValueParameterDescriptor> members = constructor.getValueParameters();
                         for (ValueParameterDescriptor member : members) {
                             if (member.isExtension()) {
-                                scope = getScopeForImplicitParameter(functionDescriptor, scope, member);
+                                scope = getScopeForExtensionParameter(functionDescriptor, scope, member);
                             }
                         }
                     }
@@ -974,7 +974,7 @@ public class BodyResolver {
 
         for (ValueParameterDescriptor valueParameterDescriptor : valueParameterDescriptors) {
             if (valueParameterDescriptor.isExtension()) {
-                innerScope = getScopeForImplicitParameter(functionDescriptor, innerScope, valueParameterDescriptor);
+                innerScope = getScopeForExtensionParameter(functionDescriptor, innerScope, valueParameterDescriptor);
             }
         }
 
@@ -993,7 +993,7 @@ public class BodyResolver {
     }
 
     @NotNull
-    private LexicalScope getScopeForImplicitParameter(
+    private LexicalScope getScopeForExtensionParameter(
             @NotNull FunctionDescriptor functionDescriptor,
             LexicalScope innerScope,
             ValueParameterDescriptor valueParameterDescriptor
@@ -1007,18 +1007,18 @@ public class BodyResolver {
                                                                     valueParameterDescriptor.getType(),
                                                                     null);
 
-        ReceiverParameterDescriptor implicitReceiver = new ReceiverParameterDescriptorImpl(ownerDescriptor,
+        ReceiverParameterDescriptor extensionReceiverParamDescriptor = new ReceiverParameterDescriptorImpl(ownerDescriptor,
                                                                                            extensionReceiver,
                                                                                            ownerDescriptor.getAnnotations());
 
-        ownerDescriptor.initialize(implicitReceiver,
+        ownerDescriptor.initialize(extensionReceiverParamDescriptor,
                                    null,
                                    valueParameterDescriptor.getTypeParameters(),
                                    valueParameterDescriptor.getValueParameters(),
                                    valueParameterDescriptor.getReturnType(),
                                    Modality.FINAL,
                                    valueParameterDescriptor.getVisibility());
-        innerScope = new LexicalScopeImpl(innerScope, ownerDescriptor, true, implicitReceiver, LexicalScopeKind.FUNCTION_INNER_SCOPE);
+        innerScope = new LexicalScopeImpl(innerScope, ownerDescriptor, true, extensionReceiverParamDescriptor, LexicalScopeKind.FUNCTION_INNER_SCOPE);
         return innerScope;
     }
 

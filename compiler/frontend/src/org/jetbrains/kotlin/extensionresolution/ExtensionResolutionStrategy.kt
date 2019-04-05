@@ -11,7 +11,7 @@ import org.jetbrains.kotlin.extensionresolution.ExtensionResolution.*
 import org.jetbrains.kotlin.descriptors.ValueParameterDescriptor
 import org.jetbrains.kotlin.resolve.descriptorUtil.fqNameSafe
 
-object ImplicitResolutionStrategy {
+object ExtensionResolutionStrategy {
     @JvmStatic
     fun resolve(
         lookingFor: ValueParameterDescriptor,

@@ -11,7 +11,7 @@ import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
 import org.jetbrains.kotlin.descriptors.ValueParameterDescriptor
 import org.jetbrains.kotlin.diagnostics.Errors.UNABLE_TO_RESOLVE_EXTENSION
 import org.jetbrains.kotlin.extensionresolution.ExtensionCandidateResolution
-import org.jetbrains.kotlin.extensionresolution.ImplicitResolutionStrategy
+import org.jetbrains.kotlin.extensionresolution.ExtensionResolutionStrategy
 import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.kotlin.resolve.calls.model.ResolvedCall
 import java.util.*
@@ -21,7 +21,7 @@ object ExtensionResolutionCallChecker : CallChecker {
         resolvedCall.resultingDescriptor.valueParameters.forEach { descriptor: ValueParameterDescriptor ->
             if (descriptor.isExtension && resolvedCall.valueArguments[descriptor] == null) {
                 val valueParameters = functionParameters(context)
-                val resolution = ImplicitResolutionStrategy
+                val resolution = ExtensionResolutionStrategy
                     .resolve(
                         descriptor,
                         valueParameters,

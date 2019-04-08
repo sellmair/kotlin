@@ -1,87 +1,117 @@
 // TARGET_BACKEND: JVM
 // WITH_RUNTIME
-// FILE: Semigroup.kt
+// FILE: Repository.kt
+package com.data
 
-package com.typeclasses
+interface Repository<A> {
+    fun loadAll(): List<A>
+    fun loadById(id: Int): A?
+}
 
-interface Semigroup<A> {
-    fun A.combine(b: A): A
+// FILE: Validator.kt
+package com.validation
+
+import com.domain.Group
+import com.domain.User
+
+interface Validator<A> {
+    fun A.isValid(): Boolean
 
     companion object {
-        extension object IntSemigroup : Semigroup<Int> {
-            override fun Int.combine(b: Int): Int = this + b
+        extension class GroupValidator<A>(with val userValidator: Validator<User>): Validator<Group> {
+            override fun Group.isValid(): Boolean {
+                for (x in users) {
+                    if (!x.isValid()) return false
+                }
+                return true
+            }
         }
     }
 }
 
-// FILE: Eq.kt
+// FILE: User.kt
+package com.domain
 
-package com.typeclasses
+import com.validation.Validator
 
-interface Eq<A> {
-    fun A.eqv(b: A): Boolean
-    fun A.neqv(b: A): Boolean = !this.eqv(b)
-}
-
-// FILE: IntEq.kt
-
-package com.typeclasses.instances
-
-import com.typeclasses.Eq
-
-extension object IntEq : Eq<Int> {
-    override fun Int.eqv(b: Int): Boolean = this == b
-}
-
-// FILE: Wrapper.kt
-
-package org.data
-
-import com.typeclasses.Eq
-
-data class Wrapper<A>(val value: A) {
+data class User(val id: Int, val name: String) {
     companion object {
-        extension class WrapperEq<A>(with val eq: Eq<A>) : Eq<Wrapper<A>> {
-            override fun Wrapper<A>.eqv(b: Wrapper<A>): Boolean = this.value.eqv(b.value)
+        extension class UserValidator(): Validator<User> {
+            override fun User.isValid(): Boolean {
+                return id > 0 && name.length > 0
+            }
         }
     }
 }
 
-// FILE: WrapperSemigroup.kt
+data class Group(val users: List<User>)
 
-package org.data.instances
+// FILE: UserRepository.kt
 
-import org.data.Wrapper
-import com.typeclasses.Semigroup
+package com.data.instances
 
-extension class WrapperSemigroup<A>(with val semigroup: Semigroup<A>) : Semigroup<Wrapper<A>> {
-    override fun Wrapper<A>.combine(b: Wrapper<A>): Wrapper<A> = Wrapper(this.value.combine(b.value))
+import com.data.Repository
+import com.domain.User
+
+extension object UserRepository: Repository<User> {
+    override fun loadAll(): List<User> {
+        return listOf(User(25, "Bob"))
+    }
+
+    override fun loadById(id: Int): User? {
+        return if (id == 25) {
+            User(25, "Bob")
+        } else {
+            null
+        }
+    }
+}
+
+// FILE: GroupRepository.kt
+
+package com.domain.instances
+
+import com.data.Repository
+import com.domain.Group
+import com.domain.User
+
+extension class GroupRepository(with val userRepository: Repository<User>): Repository<Group> {
+    override fun loadAll(): List<Group> {
+        return listOf(Group(userRepository.loadAll()))
+    }
+
+    override fun loadById(id: Int): Group? {
+        return Group(userRepository.loadAll())
+    }
 }
 
 // FILE: Box.kt
 
 package net.consumer
 
-import com.typeclasses.Semigroup
-import com.typeclasses.Eq
-import org.data.Wrapper
+import com.data.Repository
+import com.validation.Validator
+import com.domain.User
+import com.domain.Group
 
-fun <A> sum(a: A, b: A, with semigroup: Semigroup<A>): A = a.combine(b)
+fun <A> validate(a: A, with validator: Validator<A>): Boolean = a.isValid()
 
-fun <A> sumIfDifferent(a: A, b: A, with semigroup: Semigroup<A>, with eq: Eq<A>): A {
-    return if (a.neqv(b)) {
-        sum(a, b)
-    } else {
-        a
-    }
+fun <A> retrieveIfValid(id: Int, with repository: Repository<A>, with validator: Validator<A>): A? {
+    val x = loadById(id)
+    if (x == null) return null
+    return if (validate(x)) x else null
 }
 
 fun box(): String {
-    val x = sumIfDifferent(Wrapper(1), Wrapper(2))
-    val y = sumIfDifferent(Wrapper(0), Wrapper(0))
-    return if (x == Wrapper(3) && y == Wrapper(0)) {
+    val user = retrieveIfValid<User>(25)
+    if (user != User(25, "Bob")) {
+        return "fail 1"
+    }
+
+    val group = retrieveIfValid<Group>(1)
+    return if (group == Group(listOf(User(25, "Bob")))) {
         "OK"
     } else {
-        "fail 1"
+        "fail 2"
     }
 }

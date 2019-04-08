@@ -1,23 +1,28 @@
 // TARGET_BACKEND: JVM
 // WITH_RUNTIME
-// FILE: Semigroup.kt
+// FILE: Validator.kt
+package com.data
 
-package com.extensionresolution
-
-interface Semigroup<A> {
-    fun A.combine(b: A): A
+interface Validator<A> {
+    fun A.isValid(): Boolean
 }
 
-fun <A> duplicate(a: A, with semigroup: Semigroup<A>): A = a.combine(a)
+data class User(val id: Int, val name: String) {
+    companion object {
+        extension class UserValidator(): Validator<User> {
+            override fun User.isValid(): Boolean {
+                return id > 0 && name.length > 0
+            }
+        }
+    }
+}
 
-fun <A> fourTimes(a: A, with semigroup: Semigroup<A>): A = duplicate(duplicate(a))
+fun <A> validate(a: A, with validator: Validator<A>): Boolean = a.isValid()
+
+fun <A> bothValid(x: A, y: A, with validator: Validator<A>): Boolean = validate(x) && validate(y)
 
 fun box(): String {
-    val x = fourTimes(2, object: Semigroup<Int>{
-        override fun Int.combine(b: Int): Int = this + b
-    })
-
-    return if (x == 8) {
+    return if (bothValid(User(1, "Alice"), User(2, "Bob"))) {
         "OK"
     } else {
         "fail 1"

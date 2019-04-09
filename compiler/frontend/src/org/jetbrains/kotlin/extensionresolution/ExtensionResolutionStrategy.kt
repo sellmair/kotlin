@@ -35,7 +35,7 @@ object ExtensionResolutionStrategy {
                 is Resolved -> acc + listOf(resolved)
                 else -> acc
             }
-        }
+        }.distinct()
 
         return if (candidates.isEmpty() && !lookInSupertypes) {
             resolve(

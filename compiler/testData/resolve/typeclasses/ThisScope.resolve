@@ -1,7 +1,0 @@
-interface Semigroup<A> {
-    fun A.combine(b : A) : A
-}
-
-class ~thisDuplicator~Duplicator(with val ~thisSemigroup~semigroup : Semigroup<Int>) {
-    fun ~thisInt~Int.dup() : Int = `thisInt`this.combine(`thisInt`this)
-}

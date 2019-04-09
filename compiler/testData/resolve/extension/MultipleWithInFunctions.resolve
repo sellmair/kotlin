@@ -1,0 +1,22 @@
+interface Validator<A> {
+    fun ~VA.isValid~isValid(x: A): Boolean
+}
+
+interface Repository<A> {
+    fun ~RA.load~load(id: Int): A?
+}
+
+fun <A> ~funIsValid~isValid(x: A): Boolean = false
+fun <A> ~funLoad~load(id: Int): A? = null
+
+fun loadValid1(id: Int, with validator: Validator<A>, with repository: Repository<A>): A? {
+    val x = `RA.load`load(id)
+    if (x == null) return null
+    return if (`VA.isValid`isValid(x)) x else null
+}
+
+fun loadValid2(id: Int, validator: Validator<A>, repository: Repository<A>): A? {
+    val x = `funLoad`load(id)
+    if (x == null) return null
+    return if (`funIsValid`isValid(x)) x else null
+}

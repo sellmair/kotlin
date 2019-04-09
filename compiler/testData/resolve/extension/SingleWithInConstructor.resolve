@@ -1,0 +1,9 @@
+interface Validator<A> {
+    fun ~VA.isValid~isValid(x: A): Boolean
+}
+
+fun <A> ~funIsValid~isValid(x: A): Boolean = false
+
+class FailFast<A>(with val validator: Validator<A>) {
+    fun runValidation(x: A): Boolean = `VA.isValid`isValid(x)
+}

@@ -7336,6 +7336,34 @@ public class DiagnosticsUsingJavacTestGenerated extends AbstractDiagnosticsUsing
             }
         }
 
+        @TestMetadata("compiler/testData/diagnostics/tests/extensionresolution")
+        @TestDataPath("$PROJECT_ROOT")
+        @RunWith(JUnit3RunnerWithInners.class)
+        public static class Extensionresolution extends AbstractDiagnosticsUsingJavacTest {
+            private void runTest(String testDataFilePath) throws Exception {
+                KotlinTestUtils.runTest(this::doTest, TargetBackend.ANY, testDataFilePath);
+            }
+
+            public void testAllFilesPresentInExtensionresolution() throws Exception {
+                KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/diagnostics/tests/extensionresolution"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.ANY, true);
+            }
+
+            @TestMetadata("resolutionAmbiguousInstance.kt")
+            public void testResolutionAmbiguousInstance() throws Exception {
+                runTest("compiler/testData/diagnostics/tests/extensionresolution/resolutionAmbiguousInstance.kt");
+            }
+
+            @TestMetadata("resolutionIncompleteConstructor.kt")
+            public void testResolutionIncompleteConstructor() throws Exception {
+                runTest("compiler/testData/diagnostics/tests/extensionresolution/resolutionIncompleteConstructor.kt");
+            }
+
+            @TestMetadata("resolutionMissingInstance.kt")
+            public void testResolutionMissingInstance() throws Exception {
+                runTest("compiler/testData/diagnostics/tests/extensionresolution/resolutionMissingInstance.kt");
+            }
+        }
+
         @TestMetadata("compiler/testData/diagnostics/tests/extensions")
         @TestDataPath("$PROJECT_ROOT")
         @RunWith(JUnit3RunnerWithInners.class)
@@ -22177,34 +22205,6 @@ public class DiagnosticsUsingJavacTestGenerated extends AbstractDiagnosticsUsing
             @TestMetadata("wrongNumberOfArgumentsInTypeAliasConstructor.kt")
             public void testWrongNumberOfArgumentsInTypeAliasConstructor() throws Exception {
                 runTest("compiler/testData/diagnostics/tests/typealias/wrongNumberOfArgumentsInTypeAliasConstructor.kt");
-            }
-        }
-
-        @TestMetadata("compiler/testData/diagnostics/tests/typeclasses")
-        @TestDataPath("$PROJECT_ROOT")
-        @RunWith(JUnit3RunnerWithInners.class)
-        public static class Typeclasses extends AbstractDiagnosticsUsingJavacTest {
-            private void runTest(String testDataFilePath) throws Exception {
-                KotlinTestUtils.runTest(this::doTest, TargetBackend.ANY, testDataFilePath);
-            }
-
-            public void testAllFilesPresentInTypeclasses() throws Exception {
-                KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/diagnostics/tests/typeclasses"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.ANY, true);
-            }
-
-            @TestMetadata("resolutionAmbiguousInstance.kt")
-            public void testResolutionAmbiguousInstance() throws Exception {
-                runTest("compiler/testData/diagnostics/tests/typeclasses/resolutionAmbiguousInstance.kt");
-            }
-
-            @TestMetadata("resolutionIncompleteConstructor.kt")
-            public void testResolutionIncompleteConstructor() throws Exception {
-                runTest("compiler/testData/diagnostics/tests/typeclasses/resolutionIncompleteConstructor.kt");
-            }
-
-            @TestMetadata("resolutionMissingInstance.kt")
-            public void testResolutionMissingInstance() throws Exception {
-                runTest("compiler/testData/diagnostics/tests/typeclasses/resolutionMissingInstance.kt");
             }
         }
 

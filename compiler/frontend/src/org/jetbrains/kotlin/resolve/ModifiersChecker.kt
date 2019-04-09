@@ -120,8 +120,8 @@ object ModifierCheckerCore {
         EXPECT_KEYWORD to listOf(LanguageFeature.MultiPlatformProjects),
         ACTUAL_KEYWORD to listOf(LanguageFeature.MultiPlatformProjects),
         LATEINIT_KEYWORD to listOf(LanguageFeature.LateinitTopLevelProperties, LanguageFeature.LateinitLocalVariables),
-        WITH_KEYWORD to listOf(LanguageFeature.Typeclasses),
-        EXTENSION_KEYWORD to listOf(LanguageFeature.Typeclasses)
+        WITH_KEYWORD to listOf(LanguageFeature.CompileTimeExtensionResolution),
+        EXTENSION_KEYWORD to listOf(LanguageFeature.CompileTimeExtensionResolution)
     )
 
     private val featureDependenciesTargets = mapOf(

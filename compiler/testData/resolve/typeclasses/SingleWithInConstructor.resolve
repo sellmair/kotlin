@@ -1,9 +1,0 @@
-interface Semigroup<A> {
-    fun ~SA.combine~combine(a : A, b : A) : A
-}
-
-fun <A> ~funcombine~combine(a : A, b : A) : A = a
-
-class Combinator<A>(with val semigroup : Semigroup<A>) {
-    fun plus(a : A, b : A) : A = `SA.combine`combine(a, b)
-}

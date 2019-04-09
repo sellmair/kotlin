@@ -44,7 +44,7 @@ class DiagnosticReporterByTrackingStrategy(
         when (diagnostic.javaClass) {
             VisibilityError::class.java -> tracingStrategy.invisibleMember(trace, (diagnostic as VisibilityError).invisibleMember)
             NoValueForParameter::class.java ->
-                if (!(diagnostic as NoValueForParameter).parameterDescriptor.isImplicit) {
+                if (!(diagnostic as NoValueForParameter).parameterDescriptor.isExtension) {
                     tracingStrategy.noValueForParameter(
                         trace,
                         (diagnostic as NoValueForParameter).parameterDescriptor)

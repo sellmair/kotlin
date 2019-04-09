@@ -16,7 +16,6 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.kotlin.builtins.KotlinBuiltIns;
 import org.jetbrains.kotlin.builtins.PrimitiveType;
 import org.jetbrains.kotlin.codegen.binding.CalculatedClosure;
-import org.jetbrains.kotlin.codegen.binding.MutableClosure;
 import org.jetbrains.kotlin.codegen.context.CodegenContext;
 import org.jetbrains.kotlin.codegen.intrinsics.HashCode;
 import org.jetbrains.kotlin.codegen.intrinsics.IntrinsicMethods;
@@ -493,11 +492,11 @@ public class AsmUtil {
         }
 
         allFields.addAll(closure.getRecordedFields());
-        allFields.addAll(findImplicitParameters(closure, typeMapper));
+        allFields.addAll(findExtensionParameters(closure, typeMapper));
         genClosureFields(allFields, v);
     }
 
-    private static List<Pair<String, Type>> findImplicitParameters(@NotNull CalculatedClosure closure, KotlinTypeMapper typeMapper) {
+    private static List<Pair<String, Type>> findExtensionParameters(@NotNull CalculatedClosure closure, KotlinTypeMapper typeMapper) {
         List<Pair<String, Type>> result = new ArrayList<>();
 
         DeclarationDescriptor declaration = closure.getClosureClass();
@@ -506,7 +505,7 @@ public class AsmUtil {
                 if (declaration instanceof FunctionDescriptor) {
                     List<ValueParameterDescriptor> parameters = ((FunctionDescriptor) declaration).getValueParameters();
                     for (ValueParameterDescriptor parameter : parameters) {
-                        if (parameter.isImplicit()) {
+                        if (parameter.isExtension()) {
                             result.add(Pair.create(parameter.getName().asString(), typeMapper.mapType(parameter)));
                         }
                     }

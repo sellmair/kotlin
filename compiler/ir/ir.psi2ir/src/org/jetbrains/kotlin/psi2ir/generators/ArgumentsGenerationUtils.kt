@@ -28,7 +28,6 @@ import org.jetbrains.kotlin.ir.expressions.IrDeclarationReference
 import org.jetbrains.kotlin.ir.expressions.IrExpression
 import org.jetbrains.kotlin.ir.expressions.IrExpressionWithCopy
 import org.jetbrains.kotlin.ir.expressions.impl.*
-import org.jetbrains.kotlin.ir.types.IrType
 import org.jetbrains.kotlin.ir.util.endOffset
 import org.jetbrains.kotlin.ir.util.startOffset
 import org.jetbrains.kotlin.psi.KtElement
@@ -82,7 +81,7 @@ fun StatementGenerator.generateReceiver(defaultStartOffset: Int, defaultEndOffse
                 )
             is ExtensionReceiver -> {
                 val descriptor = receiver.declarationDescriptor
-                if (descriptor is ValueParameterDescriptorImpl && descriptor.isImplicit) {
+                if (descriptor is ValueParameterDescriptorImpl && descriptor.isExtension) {
                     val receiverParameterDescriptor = ReceiverParameterDescriptorImpl(descriptor, receiver, descriptor.annotations)
                     context.symbolTable.declareValueParameter(descriptor.startOffset!!,
                                                               descriptor.endOffset!!,

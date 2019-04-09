@@ -1,0 +1,53 @@
+package
+
+public val result: kotlin.Boolean
+public fun </*0*/ A> validate(/*0*/ a: A, /*1*/ validator: Validator<A>): kotlin.Boolean
+
+public final data class User {
+    public constructor User(/*0*/ id: kotlin.Int, /*1*/ name: kotlin.String)
+    public final val id: kotlin.Int
+    public final val name: kotlin.String
+    public final operator /*synthesized*/ fun component1(): kotlin.Int
+    public final operator /*synthesized*/ fun component2(): kotlin.String
+    public final /*synthesized*/ fun copy(/*0*/ id: kotlin.Int = ..., /*1*/ name: kotlin.String = ...): User
+    public open override /*1*/ /*synthesized*/ fun equals(/*0*/ other: kotlin.Any?): kotlin.Boolean
+    public open override /*1*/ /*synthesized*/ fun hashCode(): kotlin.Int
+    public open override /*1*/ /*synthesized*/ fun toString(): kotlin.String
+
+    public companion object Companion {
+        private constructor Companion()
+        public open override /*1*/ /*fake_override*/ fun equals(/*0*/ other: kotlin.Any?): kotlin.Boolean
+        public open override /*1*/ /*fake_override*/ fun hashCode(): kotlin.Int
+        public open override /*1*/ /*fake_override*/ fun toString(): kotlin.String
+
+        public object UserValidator2 : Validator<User> {
+            private constructor UserValidator2()
+            public open override /*1*/ /*fake_override*/ fun equals(/*0*/ other: kotlin.Any?): kotlin.Boolean
+            public open override /*1*/ /*fake_override*/ fun hashCode(): kotlin.Int
+            public open override /*1*/ /*fake_override*/ fun toString(): kotlin.String
+            public open override /*1*/ fun User.isValid(): kotlin.Boolean
+        }
+    }
+}
+
+public interface Validator</*0*/ A> {
+    public open override /*1*/ /*fake_override*/ fun equals(/*0*/ other: kotlin.Any?): kotlin.Boolean
+    public open override /*1*/ /*fake_override*/ fun hashCode(): kotlin.Int
+    public open override /*1*/ /*fake_override*/ fun toString(): kotlin.String
+    public abstract fun A.isValid(): kotlin.Boolean
+
+    public companion object Companion {
+        private constructor Companion()
+        public open override /*1*/ /*fake_override*/ fun equals(/*0*/ other: kotlin.Any?): kotlin.Boolean
+        public open override /*1*/ /*fake_override*/ fun hashCode(): kotlin.Int
+        public open override /*1*/ /*fake_override*/ fun toString(): kotlin.String
+
+        public final class UserValidator1 : Validator<User> {
+            public constructor UserValidator1()
+            public open override /*1*/ /*fake_override*/ fun equals(/*0*/ other: kotlin.Any?): kotlin.Boolean
+            public open override /*1*/ /*fake_override*/ fun hashCode(): kotlin.Int
+            public open override /*1*/ /*fake_override*/ fun toString(): kotlin.String
+            public open override /*1*/ fun User.isValid(): kotlin.Boolean
+        }
+    }
+}

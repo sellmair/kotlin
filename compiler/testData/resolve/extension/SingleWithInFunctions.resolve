@@ -1,0 +1,13 @@
+interface Validator<A> {
+    fun ~VA.isValid~isValid(x: A): Boolean
+}
+
+fun <A> ~funIsValid~isValid(x: A): Boolean = false
+
+data class User(id: Int, name: String)
+
+fun validate1(user: User, with validator: Validator<User>): Boolean = `VA.isValid`isValid(user)
+
+fun validate2(user: User, validator: Validator<User>): Boolean = `funIsValid`isValid(user)
+
+fun validate3(user: User, validator: Validator<User>): Boolean = with(validator) { `VA.isValid`isValid(user) }

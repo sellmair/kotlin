@@ -18,13 +18,12 @@ import org.jetbrains.kotlin.contracts.model.Computation;
 import org.jetbrains.kotlin.contracts.model.Functor;
 import org.jetbrains.kotlin.descriptors.*;
 import org.jetbrains.kotlin.descriptors.annotations.AnnotationDescriptor;
-import org.jetbrains.kotlin.implicit.ImplicitCandidate;
+import org.jetbrains.kotlin.extensionresolution.ExtensionCandidate;
 import org.jetbrains.kotlin.name.FqName;
 import org.jetbrains.kotlin.name.FqNameUnsafe;
 import org.jetbrains.kotlin.psi.*;
 import org.jetbrains.kotlin.resolve.calls.context.BasicCallResolutionContext;
 import org.jetbrains.kotlin.resolve.calls.inference.ConstraintSystemCompleter;
-import org.jetbrains.kotlin.resolve.calls.model.ImplicitValueArgument;
 import org.jetbrains.kotlin.resolve.calls.model.PartialCallResolutionResult;
 import org.jetbrains.kotlin.resolve.calls.model.ResolvedCall;
 import org.jetbrains.kotlin.resolve.calls.smartcasts.DataFlowInfo;
@@ -266,7 +265,7 @@ public interface BindingContext {
 
     WritableSlice<KtExpression, PrimitiveNumericComparisonInfo> PRIMITIVE_NUMERIC_COMPARISON_INFO = Slices.createSimpleSlice();
 
-    WritableSlice<String, ImplicitCandidate> EXTENSION_RESOLUTION_INFO = Slices.createCollectiveSlice();
+    WritableSlice<String, ExtensionCandidate> EXTENSION_RESOLUTION_INFO = Slices.createCollectiveSlice();
 
     @SuppressWarnings("UnusedDeclaration")
     @Deprecated // This field is needed only for the side effects of its initializer

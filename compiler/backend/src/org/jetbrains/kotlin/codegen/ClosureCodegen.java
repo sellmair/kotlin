@@ -261,7 +261,7 @@ public class ClosureCodegen extends MemberCodegen<KtElement> {
                         v.anew(asmType);
                         v.dup();
 
-                        loadImplicitParameters(closure, v);
+                        loadExtensionParameters(closure, v);
 
                         codegen.pushClosureOnStack(classDescriptor, true, codegen.defaultCallGenerator, functionReferenceReceiver);
                         v.invokespecial(asmType.getInternalName(), "<init>", constructor.getDescriptor(), false);
@@ -272,13 +272,13 @@ public class ClosureCodegen extends MemberCodegen<KtElement> {
         );
     }
 
-    protected void loadImplicitParameters(CalculatedClosure closure, InstructionAdapter v) {
+    protected void loadExtensionParameters(CalculatedClosure closure, InstructionAdapter v) {
         DeclarationDescriptor declaration = closure.getClosureClass();
         while (declaration != null) {
             if (declaration instanceof FunctionDescriptor) {
                 List<ValueParameterDescriptor> parameters = ((FunctionDescriptor) declaration).getValueParameters();
                 for (int i = 0; i < parameters.size(); i++) {
-                    if (parameters.get(i).isImplicit()) {
+                    if (parameters.get(i).isExtension()) {
                         v.load(i, typeMapper.mapType(parameters.get(i)));
                     }
                 }
@@ -533,7 +533,7 @@ public class ClosureCodegen extends MemberCodegen<KtElement> {
             if (declaration instanceof FunctionDescriptor) {
                 List<ValueParameterDescriptor> parameters = ((FunctionDescriptor) declaration).getValueParameters();
                 for (ValueParameterDescriptor parameter : parameters) {
-                    if (parameter.isImplicit()) {
+                    if (parameter.isExtension()) {
                         args.add(FieldInfo.createForHiddenField(ownerType,
                                                                 typeMapper.mapType(parameter.getReturnType()),
                                                                 parameter.getName().asString()));

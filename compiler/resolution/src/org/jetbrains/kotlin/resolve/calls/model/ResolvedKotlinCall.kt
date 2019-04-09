@@ -36,7 +36,7 @@ sealed class ResolvedCallArgument {
 
     class VarargArgument(override val arguments: List<KotlinCallArgument>) : ResolvedCallArgument()
 
-    class ImplicitArgument(val parameter: ValueParameterDescriptor) : ResolvedCallArgument() {
+    class ExtensionArgument(val parameter: ValueParameterDescriptor) : ResolvedCallArgument() {
         override val arguments: List<KotlinCallArgument>
             get() = emptyList()
     }

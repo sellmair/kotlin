@@ -22,7 +22,6 @@ import org.jetbrains.kotlin.backend.common.CodegenUtil;
 import org.jetbrains.kotlin.builtins.KotlinBuiltIns;
 import org.jetbrains.kotlin.codegen.binding.CalculatedClosure;
 import org.jetbrains.kotlin.codegen.binding.CodegenBinding;
-import org.jetbrains.kotlin.codegen.binding.MutableClosure;
 import org.jetbrains.kotlin.codegen.context.*;
 import org.jetbrains.kotlin.codegen.coroutines.CoroutineCodegenForLambda;
 import org.jetbrains.kotlin.codegen.coroutines.CoroutineCodegenUtilKt;
@@ -2756,7 +2755,7 @@ public class ExpressionCodegen extends KtVisitor<StackValue, StackValue> impleme
     private StackValue generateExtensionReceiver(@NotNull CallableDescriptor descriptor) {
         ParameterDescriptor parameter = descriptor.getExtensionReceiverParameter();
         if (descriptor.getContainingDeclaration() instanceof ValueParameterDescriptor &&
-            ((ValueParameterDescriptor) (descriptor.getContainingDeclaration())).isImplicit()) {
+            ((ValueParameterDescriptor) (descriptor.getContainingDeclaration())).isExtension()) {
             parameter = (ParameterDescriptor) descriptor.getContainingDeclaration();
         }
 
@@ -2768,7 +2767,7 @@ public class ExpressionCodegen extends KtVisitor<StackValue, StackValue> impleme
                     type
             );
         } else if (parameter instanceof ValueParameterDescriptor) {
-            if (((ValueParameterDescriptor) parameter).isImplicit()) {
+            if (((ValueParameterDescriptor) parameter).isExtension()) {
                 Type type;
                 if (parentCodegen instanceof ClosureCodegen) {
                     type = typeMapper.mapType(((ClosureCodegen) this.parentCodegen).closure.getClosureClass().getDefaultType());

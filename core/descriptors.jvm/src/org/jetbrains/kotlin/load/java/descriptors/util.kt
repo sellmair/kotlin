@@ -46,18 +46,18 @@ fun copyValueParameters(
 
     return newValueParametersTypes.zip(oldValueParameters).map { (newParameter, oldParameter) ->
         ValueParameterDescriptorImpl(
-                newOwner,
-                null,
-                oldParameter.index,
-                oldParameter.annotations,
-                oldParameter.name,
-                newParameter.type,
-                newParameter.hasDefaultValue,
-                oldParameter.isCrossinline,
-                oldParameter.isNoinline,
-                oldParameter.isImplicit,
-                if (oldParameter.varargElementType != null) newOwner.module.builtIns.getArrayElementType(newParameter.type) else null,
-                oldParameter.source
+            newOwner,
+            null,
+            oldParameter.index,
+            oldParameter.annotations,
+            oldParameter.name,
+            newParameter.type,
+            newParameter.hasDefaultValue,
+            oldParameter.isCrossinline,
+            oldParameter.isNoinline,
+            oldParameter.isExtension,
+            if (oldParameter.varargElementType != null) newOwner.module.builtIns.getArrayElementType(newParameter.type) else null,
+            oldParameter.source
         )
     }
 }

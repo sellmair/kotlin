@@ -8,20 +8,17 @@ package org.jetbrains.kotlin.codegen;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.kotlin.descriptors.CallableDescriptor;
 import org.jetbrains.kotlin.descriptors.ValueParameterDescriptor;
-import org.jetbrains.kotlin.implicit.ImplicitCandidate;
-import org.jetbrains.kotlin.implicit.ImplicitCandidateResolution;
-import org.jetbrains.kotlin.implicit.ImplicitResolutionStrategy;
+import org.jetbrains.kotlin.extensionresolution.ExtensionCandidate;
 import org.jetbrains.kotlin.psi.KtExpression;
 import org.jetbrains.kotlin.psi.ValueArgument;
 import org.jetbrains.kotlin.resolve.BindingContext;
 import org.jetbrains.kotlin.resolve.calls.model.DefaultValueArgument;
 import org.jetbrains.kotlin.resolve.calls.model.ExpressionValueArgument;
-import org.jetbrains.kotlin.resolve.calls.model.ImplicitValueArgument;
+import org.jetbrains.kotlin.resolve.calls.model.ExtensionValueArgument;
 import org.jetbrains.kotlin.resolve.calls.model.VarargValueArgument;
 import org.jetbrains.kotlin.types.FlexibleTypesKt;
 import org.jetbrains.org.objectweb.asm.Type;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.jetbrains.kotlin.codegen.StackValue.createDefaultValue;
@@ -95,8 +92,8 @@ public class CallBasedArgumentGenerator extends ArgumentGenerator {
     }
 
     @Override
-    protected void generateImplicit(int i, @NotNull ImplicitValueArgument argument) {
-        ImplicitCandidate resolvedExtensionCandidate =
+    protected void generateExtension(int i, @NotNull ExtensionValueArgument argument) {
+        ExtensionCandidate resolvedExtensionCandidate =
                 codegen.getBindingContext().get(
                         BindingContext.EXTENSION_RESOLUTION_INFO,
                         valueParameters.get(i).getReturnType().toString());

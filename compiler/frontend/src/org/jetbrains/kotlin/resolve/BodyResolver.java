@@ -47,7 +47,6 @@ import org.jetbrains.kotlin.resolve.lazy.ForceResolveUtil;
 import org.jetbrains.kotlin.resolve.lazy.descriptors.LazyClassDescriptor;
 import org.jetbrains.kotlin.resolve.lazy.descriptors.LazyClassMemberScope;
 import org.jetbrains.kotlin.resolve.scopes.*;
-import org.jetbrains.kotlin.resolve.scopes.receivers.ClassValueReceiver;
 import org.jetbrains.kotlin.resolve.scopes.receivers.ExtensionReceiver;
 import org.jetbrains.kotlin.types.*;
 import org.jetbrains.kotlin.types.expressions.ExpressionTypingServices;
@@ -936,8 +935,8 @@ public class BodyResolver {
                     if (constructor != null) {
                         List<ValueParameterDescriptor> members = constructor.getValueParameters();
                         for (ValueParameterDescriptor member : members) {
-                            if (member.isImplicit()) {
-                                scope = getScopeForImplicitParameter(functionDescriptor, scope, member);
+                            if (member.isExtension()) {
+                                scope = getScopeForExtensionParameter(functionDescriptor, scope, member);
                             }
                         }
                     }
@@ -974,8 +973,8 @@ public class BodyResolver {
         }
 
         for (ValueParameterDescriptor valueParameterDescriptor : valueParameterDescriptors) {
-            if (valueParameterDescriptor.isImplicit()) {
-                innerScope = getScopeForImplicitParameter(functionDescriptor, innerScope, valueParameterDescriptor);
+            if (valueParameterDescriptor.isExtension()) {
+                innerScope = getScopeForExtensionParameter(functionDescriptor, innerScope, valueParameterDescriptor);
             }
         }
 
@@ -994,7 +993,7 @@ public class BodyResolver {
     }
 
     @NotNull
-    private LexicalScope getScopeForImplicitParameter(
+    private LexicalScope getScopeForExtensionParameter(
             @NotNull FunctionDescriptor functionDescriptor,
             LexicalScope innerScope,
             ValueParameterDescriptor valueParameterDescriptor
@@ -1008,18 +1007,18 @@ public class BodyResolver {
                                                                     valueParameterDescriptor.getType(),
                                                                     null);
 
-        ReceiverParameterDescriptor implicitReceiver = new ReceiverParameterDescriptorImpl(ownerDescriptor,
+        ReceiverParameterDescriptor extensionReceiverParamDescriptor = new ReceiverParameterDescriptorImpl(ownerDescriptor,
                                                                                            extensionReceiver,
                                                                                            ownerDescriptor.getAnnotations());
 
-        ownerDescriptor.initialize(implicitReceiver,
+        ownerDescriptor.initialize(extensionReceiverParamDescriptor,
                                    null,
                                    valueParameterDescriptor.getTypeParameters(),
                                    valueParameterDescriptor.getValueParameters(),
                                    valueParameterDescriptor.getReturnType(),
                                    Modality.FINAL,
                                    valueParameterDescriptor.getVisibility());
-        innerScope = new LexicalScopeImpl(innerScope, ownerDescriptor, true, implicitReceiver, LexicalScopeKind.FUNCTION_INNER_SCOPE);
+        innerScope = new LexicalScopeImpl(innerScope, ownerDescriptor, true, extensionReceiverParamDescriptor, LexicalScopeKind.FUNCTION_INNER_SCOPE);
         return innerScope;
     }
 

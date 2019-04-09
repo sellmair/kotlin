@@ -1,0 +1,9 @@
+interface Validator<A> {
+    fun isValid(x: A): Boolean
+}
+
+data class User(id: Int, name: String)
+
+class ~thisFailFast~FailFast(with val ~thisValidator~validator: Validator<User>) {
+    fun ~thisUser~User.isValid(): Boolean = validator.isValid(`thisUser`this)
+}

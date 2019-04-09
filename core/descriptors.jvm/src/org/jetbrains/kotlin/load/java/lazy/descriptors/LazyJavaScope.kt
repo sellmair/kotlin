@@ -222,7 +222,7 @@ abstract class LazyJavaScope(protected val c: LazyJavaResolverContext) : MemberS
                     /* declaresDefaultValue = */ false,
                     /* isCrossinline = */ false,
                     /* isNoinline = */ false,
-                    /* isImplicit = */ false,
+                    /* isExtension = */ false,
                     varargElementType,
                     c.components.sourceElementFactory.source(javaParameter)
             )

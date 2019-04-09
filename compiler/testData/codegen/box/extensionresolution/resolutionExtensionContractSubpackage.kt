@@ -1,30 +1,33 @@
 // TARGET_BACKEND: JVM
 // WITH_RUNTIME
-// FILE: Semigroup.kt
+// FILE: Validator.kt
 
 package com.extensionresolution
 
-interface Semigroup<A> {
-    fun A.combine(b: A): A
+interface Validator<A> {
+    fun A.isValid(): Boolean
 }
 
-fun <A> duplicate(a: A, with semigroup: Semigroup<A>) : A = a.combine(a)
+data class User(val id: Int, val name: String)
+
+fun <A> validate(a: A, with validator: Validator<A>): Boolean = a.isValid()
 
 fun box(): String {
-    val x = duplicate(2)
-    return if (x == 4) {
+    return if (validate(User(1, "Alice"))) {
         "OK"
     } else {
         "fail 1"
     }
 }
 
-// FILE: IntSemigroup.kt
-
+// FILE: UserValidator.kt
 package com.extensionresolution.instances
 
-import com.extensionresolution.Semigroup
+import com.extensionresolution.User
+import com.extensionresolution.Validator
 
-extension class IntSemigroup : Semigroup<Int> {
-    override fun Int.combine(b: Int): Int = this + b
+extension internal object UserValidator: Validator<User> {
+    override fun User.isValid(): Boolean {
+        return id > 0 && name.length > 0
+    }
 }

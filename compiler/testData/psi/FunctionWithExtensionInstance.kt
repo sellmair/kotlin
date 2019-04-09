@@ -1,0 +1,1 @@
+fun <A> validate(a: A, with validator: Validator<A>): Boolean = a.isValid()

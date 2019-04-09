@@ -1,1 +1,0 @@
-extension interface IntMonoid : Monoid<Int> {}

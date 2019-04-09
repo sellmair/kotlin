@@ -1,1 +1,1 @@
-extension class IntMonoid : Monoid<Int> {}
+extension class UserRepository: Repository<User> {}

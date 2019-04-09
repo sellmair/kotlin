@@ -1,4 +1,4 @@
-KtFile: FunctionWithTypeclassInstance.kt
+KtFile: FunctionWithExtensionInstance.kt
   PACKAGE_DIRECTIVE
     <empty list>
   IMPORT_LIST
@@ -12,23 +12,11 @@ KtFile: FunctionWithTypeclassInstance.kt
         PsiElement(IDENTIFIER)('A')
       PsiElement(GT)('>')
     PsiWhiteSpace(' ')
-    PsiElement(IDENTIFIER)('combine')
+    PsiElement(IDENTIFIER)('validate')
     VALUE_PARAMETER_LIST
       PsiElement(LPAR)('(')
       VALUE_PARAMETER
         PsiElement(IDENTIFIER)('a')
-        PsiWhiteSpace(' ')
-        PsiElement(COLON)(':')
-        PsiWhiteSpace(' ')
-        TYPE_REFERENCE
-          USER_TYPE
-            REFERENCE_EXPRESSION
-              PsiElement(IDENTIFIER)('A')
-      PsiElement(COMMA)(',')
-      PsiWhiteSpace(' ')
-      VALUE_PARAMETER
-        PsiElement(IDENTIFIER)('b')
-        PsiWhiteSpace(' ')
         PsiElement(COLON)(':')
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
@@ -41,14 +29,13 @@ KtFile: FunctionWithTypeclassInstance.kt
         MODIFIER_LIST
           PsiElement(with)('with')
         PsiWhiteSpace(' ')
-        PsiElement(IDENTIFIER)('MA')
-        PsiWhiteSpace(' ')
+        PsiElement(IDENTIFIER)('validator')
         PsiElement(COLON)(':')
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
             REFERENCE_EXPRESSION
-              PsiElement(IDENTIFIER)('Monoid')
+              PsiElement(IDENTIFIER)('Validator')
             TYPE_ARGUMENT_LIST
               PsiElement(LT)('<')
               TYPE_PROJECTION
@@ -58,13 +45,12 @@ KtFile: FunctionWithTypeclassInstance.kt
                       PsiElement(IDENTIFIER)('A')
               PsiElement(GT)('>')
       PsiElement(RPAR)(')')
-    PsiWhiteSpace(' ')
     PsiElement(COLON)(':')
     PsiWhiteSpace(' ')
     TYPE_REFERENCE
       USER_TYPE
         REFERENCE_EXPRESSION
-          PsiElement(IDENTIFIER)('A')
+          PsiElement(IDENTIFIER)('Boolean')
     PsiWhiteSpace(' ')
     PsiElement(EQ)('=')
     PsiWhiteSpace(' ')
@@ -74,10 +60,7 @@ KtFile: FunctionWithTypeclassInstance.kt
       PsiElement(DOT)('.')
       CALL_EXPRESSION
         REFERENCE_EXPRESSION
-          PsiElement(IDENTIFIER)('combine')
+          PsiElement(IDENTIFIER)('isValid')
         VALUE_ARGUMENT_LIST
           PsiElement(LPAR)('(')
-          VALUE_ARGUMENT
-            REFERENCE_EXPRESSION
-              PsiElement(IDENTIFIER)('b')
           PsiElement(RPAR)(')')

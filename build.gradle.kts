@@ -694,7 +694,7 @@ val deployKeepMetadata by task<AmazonS3FileUploadTask> {
 
     val localMetadata = file("$rootDir/idea/src/META-INF/plugin.xml")
     val newKeepVersion = localMetadata.readText().let { content ->
-        content.substring(content.indexOf("<version>") + 1, content.indexOf("</version>"))
+        content.substring(content.indexOf("<version>") + 9, content.indexOf("</version>"))
     }
 
     // create file if it doesn't exist yet

@@ -599,7 +599,7 @@ public class DefaultErrorMessages {
         MAP.put(UNABLE_TO_RESOLVE_EXTENSION, "{0}" +
                                              "\nLooked for this extension in:" +
                                              "\n" +
-                                             "\n- Scope of the caller function." +
+                                             "\n- Parameters of the caller function." +
                                              "\n- Companion object for the type to resolve." +
                                              "\n- Companion object for the contract interface." +
                                              "\n- Subpackages of the type to resolve." +

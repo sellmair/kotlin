@@ -53,7 +53,7 @@ package com.data.instances
 import com.data.Repository
 import com.domain.User
 
-extension object UserRepository: Repository<User> {
+extension internal object UserRepository: Repository<User> {
     override fun loadAll(): List<User> {
         return listOf(User(25, "Bob"))
     }
@@ -75,7 +75,7 @@ import com.data.Repository
 import com.domain.Group
 import com.domain.User
 
-extension class GroupRepository(with val userRepository: Repository<User>): Repository<Group> {
+extension internal class GroupRepository(with val userRepository: Repository<User>): Repository<Group> {
     override fun loadAll(): List<Group> {
         return listOf(Group(userRepository.loadAll()))
     }

@@ -156,7 +156,8 @@ sealed class ExtensionResolution {
 
                 for (subpackage in subpackages) {
                     val result = getCompatibleClasses(lookingFor, subpackage.memberScope, substitutions, lookInSupertypes)
-                    if (result.candidates.size == 1) {
+                    val candidates = result.candidates.filter { it.visibility == Visibilities.INTERNAL }
+                    if (candidates.size == 1) {
                         subpackageResults.add(result)
                     }
                 }
@@ -190,7 +191,8 @@ sealed class ExtensionResolution {
 
             for (subpackage in subpackages) {
                 val result = getCompatibleClasses(lookingFor, subpackage.memberScope, substitutions, lookInSupertypes)
-                if (result.candidates.size == 1) {
+                val candidates = result.candidates.filter { it.visibility == Visibilities.INTERNAL }
+                if (candidates.size == 1) {
                     subpackageResults.add(result)
                 }
             }

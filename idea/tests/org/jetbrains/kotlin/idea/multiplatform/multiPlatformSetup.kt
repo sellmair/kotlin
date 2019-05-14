@@ -13,7 +13,6 @@ import com.intellij.openapi.roots.ModuleRootModificationUtil
 import com.intellij.openapi.vfs.LocalFileSystem
 import junit.framework.TestCase
 import org.jetbrains.kotlin.codegen.forTestCompile.ForTestCompileRuntime
-import org.jetbrains.kotlin.config.JvmTarget
 import org.jetbrains.kotlin.idea.framework.CommonLibraryKind
 import org.jetbrains.kotlin.idea.framework.JSLibraryKind
 import org.jetbrains.kotlin.idea.stubs.AbstractMultiModuleTest
@@ -82,6 +81,8 @@ fun AbstractMultiModuleTest.setupMppProjectFromDirStructure(testRoot: File) {
                 }
             }
         }
+
+        module.newInferenceMode(useNewInference)
     }
 }
 

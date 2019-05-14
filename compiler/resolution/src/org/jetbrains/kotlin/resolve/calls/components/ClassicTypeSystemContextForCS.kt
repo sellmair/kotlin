@@ -6,11 +6,11 @@
 package org.jetbrains.kotlin.resolve.calls.components
 
 import org.jetbrains.kotlin.builtins.KotlinBuiltIns
-import org.jetbrains.kotlin.resolve.calls.inference.components.ConstraintInjector
 import org.jetbrains.kotlin.resolve.calls.inference.components.NewTypeSubstitutor
 import org.jetbrains.kotlin.resolve.calls.inference.components.NewTypeSubstitutorByConstructorMap
 import org.jetbrains.kotlin.resolve.calls.inference.model.NewConstraintSystemImpl
 import org.jetbrains.kotlin.resolve.calls.inference.model.NewTypeVariable
+import org.jetbrains.kotlin.resolve.calls.model.KotlinCallComponents
 import org.jetbrains.kotlin.types.StubType
 import org.jetbrains.kotlin.types.TypeConstructor
 import org.jetbrains.kotlin.types.TypeProjectionImpl
@@ -80,8 +80,10 @@ private inline fun Any?.errorMessage(): String {
 
 @Suppress("FunctionName")
 fun NewConstraintSystemImpl(
-    constraintInjector: ConstraintInjector,
-    builtIns: KotlinBuiltIns
+    callComponents: KotlinCallComponents
 ): NewConstraintSystemImpl {
-    return NewConstraintSystemImpl(constraintInjector, ClassicTypeSystemContextForCS(builtIns))
+    return NewConstraintSystemImpl(
+        callComponents.constraintInjector, ClassicTypeSystemContextForCS(callComponents.builtIns),
+        callComponents.refineKotlinTypeChecker
+    )
 }

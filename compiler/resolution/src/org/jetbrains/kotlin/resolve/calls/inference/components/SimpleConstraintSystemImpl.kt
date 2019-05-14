@@ -16,13 +16,12 @@
 
 package org.jetbrains.kotlin.resolve.calls.inference.components
 
-import org.jetbrains.kotlin.builtins.KotlinBuiltIns
 import org.jetbrains.kotlin.descriptors.TypeParameterDescriptor
-import org.jetbrains.kotlin.resolve.calls.components.ClassicTypeSystemContextForCS
+import org.jetbrains.kotlin.resolve.calls.components.NewConstraintSystemImpl
 import org.jetbrains.kotlin.resolve.calls.inference.ConstraintSystemBuilder
-import org.jetbrains.kotlin.resolve.calls.inference.model.NewConstraintSystemImpl
 import org.jetbrains.kotlin.resolve.calls.inference.model.TypeVariableFromCallableDescriptor
 import org.jetbrains.kotlin.resolve.calls.inference.substitute
+import org.jetbrains.kotlin.resolve.calls.model.KotlinCallComponents
 import org.jetbrains.kotlin.resolve.calls.results.SimpleConstraintSystem
 import org.jetbrains.kotlin.types.TypeConstructorSubstitution
 import org.jetbrains.kotlin.types.TypeSubstitutor
@@ -30,9 +29,11 @@ import org.jetbrains.kotlin.types.UnwrappedType
 import org.jetbrains.kotlin.types.typeUtil.asTypeProjection
 
 
-class SimpleConstraintSystemImpl(constraintInjector: ConstraintInjector, builtIns: KotlinBuiltIns) : SimpleConstraintSystem {
+class SimpleConstraintSystemImpl(
+    callComponents: KotlinCallComponents
+) : SimpleConstraintSystem {
     val csBuilder: ConstraintSystemBuilder =
-        NewConstraintSystemImpl(constraintInjector, ClassicTypeSystemContextForCS(builtIns)).getBuilder()
+        NewConstraintSystemImpl(callComponents).getBuilder()
 
     override fun registerTypeVariables(typeParameters: Collection<TypeParameterDescriptor>): TypeSubstitutor {
         val substitutionMap = typeParameters.associate {

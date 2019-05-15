@@ -101,8 +101,16 @@ internal object RawSubstitution : TypeSubstitution() {
         return when (declaration) {
             is TypeParameterDescriptor -> eraseType(declaration.getErasedUpperBound())
             is ClassDescriptor -> {
+                val declarationForUpper =
+                    type.upperIfFlexible().constructor.declarationDescriptor
+
+                check(declarationForUpper is ClassDescriptor) {
+                    "For some reason declaration for upper bound is not a class " +
+                            "but \"$declarationForUpper\" while for lower it's \"$declaration\""
+                }
+
                 val (lower, isRawL) = eraseInflexibleBasedOnClassDescriptor(type.lowerIfFlexible(), declaration, lowerTypeAttr)
-                val (upper, isRawU) = eraseInflexibleBasedOnClassDescriptor(type.upperIfFlexible(), declaration, upperTypeAttr)
+                val (upper, isRawU) = eraseInflexibleBasedOnClassDescriptor(type.upperIfFlexible(), declarationForUpper, upperTypeAttr)
 
                 if (isRawL || isRawU) {
                     RawTypeImpl(lower, upper)

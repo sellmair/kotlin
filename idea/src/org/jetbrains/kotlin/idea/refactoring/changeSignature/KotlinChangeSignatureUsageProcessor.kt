@@ -41,8 +41,8 @@ import org.jetbrains.kotlin.asJava.toLightMethods
 import org.jetbrains.kotlin.asJava.unwrapped
 import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.idea.analysis.analyzeInContext
-import org.jetbrains.kotlin.idea.caches.project.getModuleInfo
 import org.jetbrains.kotlin.idea.caches.project.forcedModuleInfo
+import org.jetbrains.kotlin.idea.caches.project.getModuleInfo
 import org.jetbrains.kotlin.idea.caches.resolve.*
 import org.jetbrains.kotlin.idea.caches.resolve.util.getJavaMethodDescriptor
 import org.jetbrains.kotlin.idea.caches.resolve.util.getJavaOrKotlinMemberDescriptor
@@ -73,6 +73,7 @@ import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.kotlin.resolve.DescriptorToSourceUtils
 import org.jetbrains.kotlin.resolve.calls.callUtil.getResolvedCall
 import org.jetbrains.kotlin.resolve.calls.tasks.ExplicitReceiverKind
+import org.jetbrains.kotlin.resolve.descriptorUtil.classId
 import org.jetbrains.kotlin.resolve.lazy.BodyResolveMode
 import org.jetbrains.kotlin.resolve.scopes.receivers.ImplicitReceiver
 import org.jetbrains.kotlin.resolve.source.getPsi
@@ -533,8 +534,13 @@ class KotlinChangeSignatureUsageProcessor : ChangeSignatureUsageProcessor {
         val containingDeclaration = oldDescriptor.containingDeclaration
 
         val parametersScope = when {
-            oldDescriptor is ConstructorDescriptor && containingDeclaration is ClassDescriptorWithResolutionScopes ->
-                containingDeclaration.scopeForInitializerResolution
+            oldDescriptor is ConstructorDescriptor && containingDeclaration is ClassDescriptorWithResolutionScopes -> {
+                val classDescriptor = containingDeclaration.classId?.let {
+                    function.findModuleDescriptor().findClassAcrossModuleDependencies(it) as? ClassDescriptorWithResolutionScopes
+                } ?: containingDeclaration
+
+                classDescriptor.scopeForInitializerResolution
+            }
             function is KtFunction ->
                 function.getBodyScope(bindingContext)
             else ->

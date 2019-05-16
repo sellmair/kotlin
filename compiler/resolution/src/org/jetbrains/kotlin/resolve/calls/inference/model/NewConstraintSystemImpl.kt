@@ -11,18 +11,14 @@ import org.jetbrains.kotlin.resolve.calls.inference.components.ConstraintInjecto
 import org.jetbrains.kotlin.resolve.calls.inference.components.KotlinConstraintSystemCompleter
 import org.jetbrains.kotlin.resolve.calls.inference.components.ResultTypeResolver
 import org.jetbrains.kotlin.resolve.calls.model.KotlinCallDiagnostic
-import org.jetbrains.kotlin.types.AbstractTypeCheckerContext
-import org.jetbrains.kotlin.types.checker.ClassicTypeCheckerContext
 import org.jetbrains.kotlin.types.checker.NewCapturedType
-import org.jetbrains.kotlin.types.checker.RefineKotlinTypeChecker
 import org.jetbrains.kotlin.types.model.*
 import org.jetbrains.kotlin.utils.SmartList
 import kotlin.math.max
 
 class NewConstraintSystemImpl(
     private val constraintInjector: ConstraintInjector,
-    val typeSystemContext: TypeSystemInferenceExtensionContext,
-    private val refineKotlinTypeChecker: RefineKotlinTypeChecker
+    val typeSystemContext: TypeSystemInferenceExtensionContext
 ) :
     TypeSystemInferenceExtensionContext by typeSystemContext,
     NewConstraintSystem,
@@ -46,10 +42,6 @@ class NewConstraintSystemImpl(
         assert(state in allowedState) {
             "State $state is not allowed. AllowedStates: ${allowedState.joinToString()}"
         }
-    }
-
-    override fun newBaseTypeCheckerContext(errorTypesEqualToAnything: Boolean): AbstractTypeCheckerContext {
-        return ClassicTypeCheckerContext(errorTypesEqualToAnything, refineKotlinTypeChecker = refineKotlinTypeChecker)
     }
 
     override val diagnostics: List<KotlinCallDiagnostic>

@@ -12,13 +12,14 @@ import org.jetbrains.kotlin.resolve.calls.inference.model.NewConstraintSystemImp
 import org.jetbrains.kotlin.resolve.calls.inference.model.NewTypeVariable
 import org.jetbrains.kotlin.resolve.calls.model.KotlinCallComponents
 import org.jetbrains.kotlin.types.*
-import org.jetbrains.kotlin.types.checker.ClassicTypeSystemContext
-import org.jetbrains.kotlin.types.checker.NewCapturedType
-import org.jetbrains.kotlin.types.checker.NewCapturedTypeConstructor
+import org.jetbrains.kotlin.types.checker.*
 import org.jetbrains.kotlin.types.model.*
 import org.jetbrains.kotlin.utils.addToStdlib.cast
 
-class ClassicTypeSystemContextForCS(override val builtIns: KotlinBuiltIns) : TypeSystemInferenceExtensionContextDelegate,
+class ClassicTypeSystemContextForCS(
+    override val builtIns: KotlinBuiltIns,
+    private val refineKotlinTypeChecker: RefineKotlinTypeChecker
+) : TypeSystemInferenceExtensionContextDelegate,
     ClassicTypeSystemContext,
     BuiltInsProvider {
 
@@ -30,6 +31,10 @@ class ClassicTypeSystemContextForCS(override val builtIns: KotlinBuiltIns) : Typ
     override fun TypeVariableMarker.freshTypeConstructor(): TypeConstructorMarker {
         require(this is NewTypeVariable, this::errorMessage)
         return this.freshTypeConstructor
+    }
+
+    override fun newBaseTypeCheckerContext(errorTypesEqualToAnything: Boolean): AbstractTypeCheckerContext {
+        return ClassicTypeCheckerContext(errorTypesEqualToAnything, refineKotlinTypeChecker = refineKotlinTypeChecker)
     }
 
     override fun createCapturedType(
@@ -83,7 +88,6 @@ fun NewConstraintSystemImpl(
     callComponents: KotlinCallComponents
 ): NewConstraintSystemImpl {
     return NewConstraintSystemImpl(
-        callComponents.constraintInjector, ClassicTypeSystemContextForCS(callComponents.builtIns),
-        callComponents.refineKotlinTypeChecker
+        callComponents.constraintInjector, ClassicTypeSystemContextForCS(callComponents.builtIns, callComponents.refineKotlinTypeChecker)
     )
 }

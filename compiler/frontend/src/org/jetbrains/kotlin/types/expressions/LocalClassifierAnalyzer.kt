@@ -51,6 +51,7 @@ import org.jetbrains.kotlin.resolve.scopes.LexicalScope
 import org.jetbrains.kotlin.resolve.scopes.LexicalWritableScope
 import org.jetbrains.kotlin.storage.StorageManager
 import org.jetbrains.kotlin.types.WrappedTypeFactory
+import org.jetbrains.kotlin.types.checker.RefineKotlinTypeChecker
 
 class LocalClassifierAnalyzer(
     private val globalContext: GlobalContext,
@@ -65,7 +66,8 @@ class LocalClassifierAnalyzer(
     private val targetPlatformVersion: TargetPlatformVersion,
     private val languageVersionSettings: LanguageVersionSettings,
     private val delegationFilter: DelegationFilter,
-    private val wrappedTypeFactory: WrappedTypeFactory
+    private val wrappedTypeFactory: WrappedTypeFactory,
+    private val refineKotlinTypeChecker: RefineKotlinTypeChecker
 ) {
     fun processClassOrObject(
         scope: LexicalWritableScope?,
@@ -99,7 +101,8 @@ class LocalClassifierAnalyzer(
                 languageVersionSettings,
                 SyntheticResolveExtension.getInstance(project),
                 delegationFilter,
-                wrappedTypeFactory
+                wrappedTypeFactory,
+                refineKotlinTypeChecker
             )
         )
 
@@ -126,7 +129,8 @@ class LocalClassDescriptorHolder(
     val languageVersionSettings: LanguageVersionSettings,
     val syntheticResolveExtension: SyntheticResolveExtension,
     val delegationFilter: DelegationFilter,
-    val wrappedTypeFactory: WrappedTypeFactory
+    val wrappedTypeFactory: WrappedTypeFactory,
+    val refineKotlinTypeChecker: RefineKotlinTypeChecker
 ) {
     // We do not need to synchronize here, because this code is used strictly from one thread
     private var classDescriptor: ClassDescriptor? = null
@@ -166,6 +170,8 @@ class LocalClassDescriptorHolder(
                     override val syntheticResolveExtension = this@LocalClassDescriptorHolder.syntheticResolveExtension
                     override val delegationFilter: DelegationFilter = this@LocalClassDescriptorHolder.delegationFilter
                     override val wrappedTypeFactory: WrappedTypeFactory = this@LocalClassDescriptorHolder.wrappedTypeFactory
+
+                    override val refineKotlinTypeChecker: RefineKotlinTypeChecker = this@LocalClassDescriptorHolder.refineKotlinTypeChecker
                 },
                 containingDeclaration,
                 classOrObject.nameAsSafeName,

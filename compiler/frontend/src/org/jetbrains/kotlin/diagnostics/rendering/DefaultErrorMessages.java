@@ -600,6 +600,7 @@ public class DefaultErrorMessages {
                                              "\nLooked for this extension in:" +
                                              "\n" +
                                              "\n- Parameters of the caller function." +
+                                             "\n- Subtype of the type to resolve." +
                                              "\n- Companion object for the type to resolve." +
                                              "\n- Companion object for the contract interface." +
                                              "\n- Subpackages of the type to resolve." +

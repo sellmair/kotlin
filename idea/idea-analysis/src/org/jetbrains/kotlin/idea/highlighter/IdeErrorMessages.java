@@ -190,6 +190,7 @@ public class IdeErrorMessages {
         MAP.put(UNABLE_TO_RESOLVE_EXTENSION, "<html>''{0}''<p>Looked for this extension in:</p>" +
                                              "<ul>" +
                                              "<li>Parameters of the caller function.</li>" +
+                                             "<li>Subtype of the type to resolve.</li>" +
                                              "<li>Companion object for the type to resolve.</li>" +
                                              "<li>Companion object for the contract interface.</li>" +
                                              "<li>Subpackages of the type to resolve.</li>" +

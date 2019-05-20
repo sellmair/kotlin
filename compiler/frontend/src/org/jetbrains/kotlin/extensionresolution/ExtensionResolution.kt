@@ -78,6 +78,39 @@ sealed class ExtensionResolution {
         }
     }
 
+
+    object FindInType : ExtensionResolution() {
+        override fun resolve(
+            lookingFor: ValueParameterDescriptor,
+            parameters: List<ValueParameterDescriptor>,
+            argumentParameterDescriptor: ValueParameterDescriptor,
+            substitutions: List<TypeSubstitution>,
+            lookInSupertypes: Boolean
+        ): ExtensionCandidateResolution {
+            val arguments = lookingFor.returnType!!.arguments
+            val error = Unresolved(
+                "Unable to resolve extension value inside type for argument " +
+                        "${argumentParameterDescriptor.name} : ${argumentParameterDescriptor.returnType}."
+            )
+
+            for (projection in arguments) {
+                val result = getCompatibleClasses(
+                    lookingFor,
+                    projection.type.memberScope,
+                    substitutions,
+                    lookInSupertypes
+                )
+
+                return when (result.candidates.size) {
+                    1 -> Resolved(SingleClassCandidate(result.candidates[0], result.substitutions))
+                    else -> error
+                }
+            }
+
+            return error
+        }
+    }
+
     object FindInTypeCompanion : ExtensionResolution() {
         override fun resolve(
             lookingFor: ValueParameterDescriptor,

@@ -24,6 +24,7 @@ object ExtensionResolutionStrategy {
         val functionOrder = listOf(
             FindInLocalFunction,
             FindInPackage,
+            FindInType,
             FindInTypeCompanion,
             FindInContractInterfaceCompanion,
             FindInTypeSubpackages,
